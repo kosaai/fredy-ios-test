@@ -65,6 +65,14 @@ Implemented those exact capabilities independently in native SwiftUI, on the exi
 
 Changed `RentalListing.swift`, `FredyAuthService.swift`, `ListingRow.swift`, `HomeView.swift`, `ListingsView.swift`. Extended `Tests/test_listings_contract.py` source assertions. Did NOT edit Fredy on Oracle, database, GitHub Actions, PBX project, or login animation. As with other manual builds, macos-26 unsigned `FindHaus-Unsigned.ipa` compilation and actual live write testing are **not yet verified** and must be user-run; do not claim a successful build or server mutation. Graphify on Oracle not refreshed.
 
+## Real-data FindHaus Home search summary — 2026-11-15
+
+User supplied a screenshot of the official Fredy dashboard header and circled: today's new-listings count, last/next periodic run, run interval and Search Now button. Matched layout as a native Arabic RTL, adaptive FindHaus-colored card in `Sources/Features/Home/HomeView.swift` (not the warning about third-party notification channels). Unlike a static mock, the metrics come from the authenticated official Fredy v31 `GET /api/dashboard` payload: `trend.perDay.last.count` for genuinely newly found listings today; `general.interval` in minutes; `general.lastRun` and `general.nextRun` as epoch milliseconds. If a field or read is unavailable, the UI says so rather than showing 73, 60, a fake timer or misleading zero. The active periodic-jobs count still comes from the user's authenticated jobs snapshot.
+
+The action `POST /api/jobs/startAll` was checked against `lib/api/routes/jobRouter.js` and wired through the existing ephemeral cookie-verified FredyAuthService. It requires explicit confirmation, sends exactly ONE request with no automatic retry/poll, disables repeat taps while in progress, and identifies HTTP 202 as “accepted/queued”, not successful completion or new ads. Failures and session expiry are handled. Pull-to-refresh reloads real dashboard/jobs/listings. Notification channels are NOT introduced (in-app only remains the product constraint). The original FindHaus listing cards, search jobs, auth animation, tabs and backend data remain unchanged.
+
+Source-contract check added to `Tests/test_jobs_contract.py`. No new Swift files or Xcode project changes; 32 source files unchanged. The existing manual `macos-26` unsigned `FindHaus-Unsigned.ipa` workflow remains user-triggered and has NOT been dispatched. Real Apple compilation and successful Fredy server behavior cannot be claimed until the user's Actions/device test. Oracle Graphify was not refreshed from GitHub; new progress is documented here for the next authorized indexing.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
