@@ -20,9 +20,9 @@ struct SettingsMCPPage: View {
         .init(id: "get_job", title: "تفاصيل مهمة البحث", info: "قراءة تفاصيل مهمة بحث محددة.", readOnly: true),
         .init(id: "list_listings", title: "البحث في الإعلانات", info: "استعراض إعلانات العقارات مع البحث والمرشحات والصفحات.", readOnly: true),
         .init(id: "get_listing", title: "تفاصيل إعلان", info: "قراءة المعلومات المتاحة عن إعلان واحد.", readOnly: true),
-        .init(id: "get_application_letter", title: "رسالة طلب السكن", info: "إنشاء رسالة طلب من بيانات وقالب محفوظين لدى Fredy.", readOnly: true),
+        .init(id: "get_application_letter", title: "رسالة طلب السكن", info: "إنشاء رسالة طلب من بيانات وقالب محفوظين لدى الخادم.", readOnly: true),
         .init(id: "get_photo_for_listing", title: "صورة الإعلان", info: "جلب صورة الإعلان إذا كانت متاحة.", readOnly: true),
-        .init(id: "calculate_financing", title: "حساب تمويل شراء", info: "أداة موجودة في مصدر Fredy الأصلي؛ لا يستخدمها تطبيق الإيجارات ولا يربطها.", readOnly: true),
+        .init(id: "calculate_financing", title: "حساب تمويل شراء", info: "أداة موجودة في مصدر الخادم الأصلي؛ لا يستخدمها تطبيق الإيجارات ولا يربطها.", readOnly: true),
         .init(id: "get_current_date_time", title: "التاريخ والوقت الحاليان", info: "إرجاع التاريخ والوقت إلى عميل MCP.", readOnly: true),
         .init(id: "add_listing_note", title: "إضافة ملاحظة", info: "إلحاق نص بملاحظات إعلان دون استبدال النص السابق.", readOnly: false),
         .init(id: "set_listing_notes", title: "استبدال الملاحظات", info: "استبدال ملاحظات الإعلان، وقد يؤدي إلى حذف النص السابق.", readOnly: false),
@@ -37,7 +37,7 @@ struct SettingsMCPPage: View {
     var body: some View {
         VStack(spacing: 16) {
             SettingsCard("خادم MCP",
-                         detail: "في Fredy الأصلي يمكنك السماح لخادم MCP بخدمة حسابك أو إيقافه؛ يجب حفظ التغيير ليُطبَّق.") {
+                         detail: "في الخادم الأصلي يمكنك السماح لخادم MCP بخدمة حسابك أو إيقافه؛ يجب حفظ التغيير ليُطبَّق.") {
                 LabeledContent("حالة الخادم") {
                     Text("غير محمّلة")
                         .foregroundStyle(.secondary)
@@ -56,11 +56,11 @@ struct SettingsMCPPage: View {
                     Label("الاتصالات المعتمدة عبر OAuth", systemImage: "person.crop.circle.badge.checkmark")
                 }
 
-                SettingsReadOnlyNote("في Fredy تُقرأ الحالة المحفوظة والخادم والأدوات عبر GET /api/user/mcp-server. لم نربط هذا الطلب أو تعديل الإعدادات بعد؛ لذلك لا نعرض حالة تشغيل افتراضية.")
+                SettingsReadOnlyNote("في الخادم تُقرأ الحالة المحفوظة والخادم والأدوات عبر GET /api/user/mcp-server. لم نربط هذا الطلب أو تعديل الإعدادات بعد؛ لذلك لا نعرض حالة تشغيل افتراضية.")
             }
 
             SettingsCard("أدوات MCP",
-                         detail: "الأدوات المسجّلة في مصدر Fredy v31 مقسمة إلى قراءة وكتابة. هذه قائمة إمكانات المصدر، وليست قائمة مفعّلة من حسابك.") {
+                         detail: "الأدوات المسجّلة في مصدر الخادم v31 مقسمة إلى قراءة وكتابة. هذه قائمة إمكانات المصدر، وليست قائمة مفعّلة من حسابك.") {
                 toolGroup(readOnly: true)
                 Divider()
                 toolGroup(readOnly: false)
