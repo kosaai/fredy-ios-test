@@ -115,6 +115,62 @@ final class FredyAuthService: FredyClientServing {
         }
     }
 
+    func fetchSearchProviders() async throws -> [SearchProvider] {
+        let (data, response) = try await authenticatedRead(path: "api/jobs/provider/")
+        guard response.mimeType == "application/json",
+              let providers = try? JSONDecoder().decode([SearchProvider].self, from: data) else {
+            throw ListingsFailure.invalidResponse
+        }
+        return providers
+    }
+
+    func createSearch(_ draft: SearchCreation) async throws {
+        let body = try JSONEncoder().encode(draft)
+        let response = try await authenticatedWrite(path: "api/jobs/", body: body)
+        guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
+    }
+
+    func runSearch(id: String) async throws {
+        guard !id.isEmpty, id.utf8.allSatisfy({
+            (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 || $0 == 95
+        }) else { throw ListingsFailure.invalidResponse }
+        let response = try await authenticatedWrite(path: "api/jobs/\(id)/run")
+        guard response.statusCode == 202 else { throw ListingsFailure.invalidResponse }
+    }
+
+    private func authenticatedWrite(path: String, body: Data? = nil) async throws -> HTTPURLResponse {
+        try Task.checkCancellation()
+        guard sessionVerified else { throw ListingsFailure.sessionExpired }
+        let generation = sessionGeneration
+        do {
+            let (_, response) = try await perform(path: path, method: "POST", body: body)
+            try Task.checkCancellation()
+            guard generation == sessionGeneration else { throw CancellationError() }
+            if response.statusCode == 401 {
+                sessionVerified = false
+                sessionGeneration += 1
+                clearCookies()
+                throw ListingsFailure.sessionExpired
+            }
+            switch response.statusCode {
+            case 200, 202: return response
+            case 400: throw ListingsFailure.invalidInput
+            case 403: throw ListingsFailure.accessDenied
+            case 409: throw ListingsFailure.conflict
+            case 429: throw ListingsFailure.rateLimited
+            default: throw ListingsFailure.server
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let failure as ListingsFailure {
+            throw failure
+        } catch let error as URLError where error.code == .cancelled {
+            throw CancellationError()
+        } catch {
+            throw ListingsFailure.network
+        }
+    }
+
     func fetchJobs() async throws -> [SearchJob] {
         let (data, response) = try await authenticatedRead(path: "api/jobs/")
         guard response.mimeType == "application/json",
@@ -124,15 +180,20 @@ final class FredyAuthService: FredyClientServing {
         return jobs
     }
 
-    func fetchListings(page: Int, pageSize: Int) async throws -> ListingPage {
+    func fetchListings(page: Int, pageSize: Int, jobID: String? = nil) async throws -> ListingPage {
         guard page > 0, (1...1000).contains(pageSize) else { throw ListingsFailure.invalidResponse }
-        let (data, response) = try await authenticatedRead(path: "api/listings/table", queryItems: [
+        var queryItems = [
             URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "pageSize", value: String(pageSize))
-        ])
+        ]
+        if let jobID { queryItems.append(URLQueryItem(name: "jobNameFilter", value: jobID)) }
+        let (data, response) = try await authenticatedRead(path: "api/listings/table", queryItems: queryItems)
         guard response.mimeType == "application/json",
               let decoded = try? JSONDecoder().decode(ListingPage.self, from: data),
               decoded.page == page, decoded.result.count <= pageSize else {
+            throw ListingsFailure.invalidResponse
+        }
+        guard jobID == nil || decoded.result.allSatisfy({ $0.jobID == jobID }) else {
             throw ListingsFailure.invalidResponse
         }
         return decoded

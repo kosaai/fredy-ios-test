@@ -27,12 +27,16 @@ struct RentalListing: Decodable, Identifiable, Sendable {
     let rooms: Double?
     let currency: String?
     let dealType: String?
+    let jobID: String?
+    let jobName: String?
 
     var isRental: Bool { dealType == "rent" }
     var euroPrice: Double? { currency == "EUR" ? price : nil }
 
     private enum CodingKeys: String, CodingKey {
         case id, title, address, price, size, rooms, currency, dealType
+        case jobID = "job_id"
+        case jobName = "job_name"
     }
 
     init(from decoder: Decoder) throws {
@@ -48,6 +52,8 @@ struct RentalListing: Decodable, Identifiable, Sendable {
         rooms = values.optionalNumber(.rooms)
         currency = values.optionalText(.currency)
         dealType = values.optionalText(.dealType)
+        jobID = values.optionalText(.jobID)
+        jobName = values.optionalText(.jobName)
     }
 }
 
@@ -71,6 +77,7 @@ private extension KeyedDecodingContainer {
 
 enum ListingsFailure: Error, Equatable {
     case sessionExpired, accessDenied, rateLimited, server, invalidResponse, network, imageUnavailable
+    case invalidInput, conflict
 
     var localizationKey: String {
         switch self {
@@ -81,15 +88,17 @@ enum ListingsFailure: Error, Equatable {
         case .invalidResponse: return "listings.error_response"
         case .network: return "listings.error_network"
         case .imageUnavailable: return "listings.image_unavailable"
+        case .invalidInput: return "jobs.error_rejected"
+        case .conflict: return "jobs.error_conflict"
         }
     }
 }
 
 @MainActor
 protocol FredyListingsServing {
-    func fetchListings(page: Int, pageSize: Int) async throws -> ListingPage
+    func fetchListings(page: Int, pageSize: Int, jobID: String?) async throws -> ListingPage
     func fetchListingImage(id: String) async throws -> Data
 }
 
 @MainActor
-protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing {}
+protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating {}

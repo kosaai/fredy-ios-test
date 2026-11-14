@@ -33,7 +33,7 @@ class NativeProjectChecks(unittest.TestCase):
         self.assertEqual(root["packageReferences"], [])
 
         files = list((ROOT / "Sources").rglob("*.swift"))
-        self.assertEqual(len(files), 18)
+        self.assertEqual(len(files), 22)
         parser = Parser(Language(tree_sitter_swift.language()))
         source = ""
         for path in files:

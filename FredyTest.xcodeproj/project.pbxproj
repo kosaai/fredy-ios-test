@@ -5,6 +5,54 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+		"B3CA3A486C2E79383894D49B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SearchFilterChips.swift";
+			"path" = "Sources/Features/Listings/SearchFilterChips.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"9CB1A9A65AD0C3AE03ABA0E2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B3CA3A486C2E79383894D49B";
+		};
+
+		"29B25BA79B63DE0E6329EF18" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AddSearchView.swift";
+			"path" = "Sources/Features/Jobs/AddSearchView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"5AA7408FA176BD8CD504DC7A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "29B25BA79B63DE0E6329EF18";
+		};
+
+		"F96CBFDB69A1937DC766F20D" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AddSearchModel.swift";
+			"path" = "Sources/Features/Jobs/AddSearchModel.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"C107C4D9516299F757B44B73" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F96CBFDB69A1937DC766F20D";
+		};
+
+		"BE4B8AD316A8C870DBDF6457" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SearchCreation.swift";
+			"path" = "Sources/Shared/Jobs/SearchCreation.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"CE3CF0C5C92AD89E95257AAE" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "BE4B8AD316A8C870DBDF6457";
+		};
+
 		"25D8BD09F80C244E9415DE08" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -52,6 +100,8 @@
 		"873088390CA15EB00EBC2EF9" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"29B25BA79B63DE0E6329EF18",
+				"F96CBFDB69A1937DC766F20D",
 				"ED11FA8F6B65CE77976E1A8F",
 				"E4DA57E9404A8D524E0F08DC",
 			);
@@ -61,6 +111,7 @@
 		"A2903B8F4EACFDFD30A2DD0B" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"BE4B8AD316A8C870DBDF6457",
 				"44B0E0BB133FDCB12FA1CB9B",
 			);
 			"name" = "Jobs";
@@ -124,6 +175,7 @@
 		"F129EBA4A2A86EA77C882F29" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"B3CA3A486C2E79383894D49B",
 				"387095D568C1A9EFB7446BCB",
 				"953F02BFC3958C7683754AC7",
 				"51E0CEED0F02065ACCEE67FD",
@@ -362,6 +414,10 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"9CB1A9A65AD0C3AE03ABA0E2",
+				"5AA7408FA176BD8CD504DC7A",
+				"C107C4D9516299F757B44B73",
+				"CE3CF0C5C92AD89E95257AAE",
 				"BA4A1D2AE9DD8BFC83EDA63B",
 				"132AC5643CFD6E240E7481C4",
 				"5D78D3E15517EC813CB6DCA2",

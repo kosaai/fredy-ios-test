@@ -5,10 +5,14 @@ struct JobsView: View {
     @State private var model: JobsModel
     @State private var retryTask: Task<Void, Never>?
     let onSessionExpired: () -> Void
+    let onSelect: (String) -> Void
 
-    init(service: any FredyJobsServing, onSessionExpired: @escaping () -> Void) {
-        _model = State(initialValue: JobsModel(service: service))
+    init(service: any FredyJobsServing, model: JobsModel? = nil,
+         onSelect: @escaping (String) -> Void = { _ in },
+         onSessionExpired: @escaping () -> Void) {
+        _model = State(initialValue: model ?? JobsModel(service: service))
         self.onSessionExpired = onSessionExpired
+        self.onSelect = onSelect
     }
 
     var body: some View {
@@ -21,7 +25,11 @@ struct JobsView: View {
             } else {
                 Section {
                     ForEach(model.jobs) { job in
-                        JobRow(job: job)
+                        Button { onSelect(job.id) } label: {
+                            JobRow(job: job)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityHint(Text("jobs.show_results"))
                     }
                 } footer: {
                     if !model.jobs.isEmpty { Text("jobs.snapshot_note") }

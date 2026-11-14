@@ -41,6 +41,6 @@ graphify-safe --project fredy-ios-test query "API contract findings" --budget 70
 graphify-safe --project fredy-ios-test diagnose
 ```
 
-Known Swift AST limitation observed in the login stage: `LoginModel.signIn` delegates to `service.signIn`, but the extractor resolves that call as one self-loop on the model method. This is a symbol-resolution artifact, not evidence of recursive app behavior. The raw extractor result is preserved; no shared tooling or unrelated graph is changed. Follow the Swift source for that call target. Diagnostics otherwise report no missing/dangling endpoints or exact duplicate edges.
+Known Swift AST symbol-resolution limitations: `LoginModel.signIn` delegates to `service.signIn`, but the extractor resolves that call as a self-loop on the model method. The Add Search stage adds a second self-loop on `SearchJob.regionLabel`, which calls the distinct `SearchURL.regionLabel` helper. Neither source calls itself. These two raw extractor results are preserved, not hidden by editing the graph; no shared tooling or unrelated graph is changed. Follow Swift source for actual call targets. Diagnostics otherwise report no missing/dangling endpoints, exact duplicates or directed collapsed edges. Undirected projections can collapse reciprocal relationships; the stored graph is directed.
 
 Use `PROJECT_HISTORY.md` for evidence-qualified history and `HANDOFF.md` for remaining work. Update those documents **before** refreshing so the graph is not stale. Do not run a full upstream semantic extraction over the whole Oracle workspace.

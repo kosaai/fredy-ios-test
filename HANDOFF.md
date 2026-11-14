@@ -2,41 +2,52 @@
 
 ## Current deliverable
 
-Public repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native target, 18 Swift sources, no third-party app dependencies.
+Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **22 Swift sources**, no third-party app dependencies.
 
-After existing Arabic RTL login: **Listings and read-only Jobs native tabs**, with a NavigationStack per section and shared expiry UI. Rental list/image behavior is retained. No job create/edit/delete/run controls or requests, search triggering, live status stream, listing details/editing, redesign, mocks or IPA. Original shell/confirmation source remains retained but inactive. Read `PROJECT_HISTORY.md`; the historical Go backend is not integrated.
+The explicitly authorized extension implements Arabic RTL **Add Search by URL** with (+), name + pasted German ImmoScout24 rental URL, and **Save & Search**. Existing login/session, rental rows/images/pagination and native Listings/Jobs tabs remain. Jobs are selectable; Home is the existing all-accessible-jobs rental feed with job/URL-region filter chips and actual per-job active counts. No redesign, fabricated listings, direct provider requests, detail backfill, backend changes or IPA. The approved visual prototype asset was not available for comparison; visual parity is unverified.
 
-## First unsigned IPA build — authorized, pending attempt
+Read `docs/ADD_SEARCH.md` for the exact inspected API, safety decisions, data scopes and iPhone acceptance matrix. `docs/JOBS.md` and `docs/LISTINGS.md` preserve earlier stage evidence; their older no-mutation restriction is superseded only by this explicit new action.
 
-A new explicit task authorizes a GitHub Actions device IPA, superseding only the earlier no-IPA restriction. Existing app features are unchanged. Manual workflow `.github/workflows/unsigned-ipa.yml` uses macos-26 only, Xcode Release iphoneos arm64, no signing, full Payload packaging, structural verifier and artifact upload. `tools/actions_queue.py` runs on Oracle: one tagged dispatch, a strict 300-second queue deadline with external cancellation/read-back, no alternate runner or automatic retry, then build monitoring if execution begins. Details: `docs/UNSIGNED_IPA.md`.
+## Mutation, errors and observation
 
-At this preparation commit no Mac execution or IPA is claimed. After the live attempt update this section with run/SHA, actual runner evidence, cancellation or compiler outcome and verified artifact if any. An unsigned IPA needs external signing and does not prove runtime features. No credentials/signing material or logs/IPA enter Git/index inputs.
+- Same login-owned client and original ephemeral URLSession/cookie jar/User-Agent. No new session, Cookie header, credentials/configuration logging or persistence.
+- Verified installed v31: `GET /api/jobs/provider/`, `GET /api/jobs/`, `POST /api/jobs/` (upsert; empty HTTP 200 acknowledgement), `POST /api/jobs/{id}/run` (202; conflict 409). Never assume a create response contains an id.
+- A fresh client UUID is collision-checked before creation, then exact id/name/provider/disabled/rent read-back is required before running. This is not an existing-id update or a fake identity fallback.
+- Payload chooses one `immoscout` URL, `dealType: rent`, **enabled false**, empty notification/blacklist/exclusion/share arrays. Disabled is intentional: save a search and request ONE manual run without automatic scheduler repeats or new notifications. Existing jobs are never altered. Default-null optional filters are not configured.
+- Only the explicit button starts the save flow. Flags are set before awaiting each POST. At most one creation/run application call per draft; no run-all, automatic replay, rollback/delete or existing-job mutation. Unknown delivery/cancellation locks that draft. Recovery only GETs the exact pending id; it cannot replay a run even if an acknowledgement was lost.
+- Duplicate URLs are checked against all visible jobs, preserving every query value and only normalizing comparison syntax. No server-wide uniqueness or distributed exactly-once guarantee is claimed; concurrent other clients remain a limitation.
+- The shell owns the save task across sheet dismissal. Read-only polling during that flow observes `running`/`lastRunAt` about every two seconds for a five-minute window, subject to per-request timeout. Unknown/initial false status is not success; fast runs can be observed via changed `lastRunAt`. Expiry dismisses the sheet and replaces both tabs. Generation/cancellation guards protect shared snapshots and page/filter changes.
+- **Important backend limit:** provider failures are logged inside Fredy but not exposed as an API outcome, even in job-status SSE. The UI says stopped/uncertain, never claims success from false/zero, and warns that no stored results cannot prove a successful search. Exact provider-error/completeness reporting is impossible without a separately authorized backend change. HTTP/network/validation/expiry errors are surfaced safely.
 
-## Jobs contract and states
+## Home/job/region semantics
 
-- `GET /api/jobs/` is a plain array including disabled jobs visible to the user. Only decode `id`, optional `name`, Boolean `enabled`/`running` and nonnegative integer `numberOfFoundListings`. No invented aliases, missing flags defaulting false, missing counts defaulting zero, or generated identity.
-- Count means active, non-manually-deleted listings as defined by Fredy's storage subquery. Running/enabled statuses are snapshots at the last GET, not live monitoring. The footer explains manual refresh.
-- Same login-owned client, original ephemeral URLSession, signed cookies, descriptive User-Agent and common authenticated GET/status/generation guard. No extra session, jobs/data/events endpoint, provider/configuration binding, logging or persistence.
-- View-lifecycle load, native pull-to-refresh, explicit error retry, loading/empty/failure/expiry; preserve previous rows on refresh failure. Prevent duplicate requests, deduplicate IDs and check cancellation before publishing; cancel view-owned retry on disappearance.
-- Detected job/listing/image 401 invalidates the existing session; either feature signals `AuthenticatedTabs`, which replaces BOTH tabs with a shared expiry/re-login screen. Old section-owned view state/data is removed rather than keeping another cached tab visible. No proactive expiry polling or memory-zeroization guarantee.
-- Contract evidence, scope and still-required runtime matrix: `docs/JOBS.md`. Prior boundaries: `docs/AUTHENTICATION.md`, `docs/LISTINGS.md` (rental fields, raw-total pagination, authenticated images, rejected uncached provider redirects).
+- No selected job means the existing table feed across all accessible jobs; keep rental-only presentation, original nullable field handling, images and raw-total pagination. Selecting a job sends `jobNameFilter=<exact id>`, resets pages and rejects a response with unrelated `job_id`s.
+- Job chips show the actual optional `numberOfFoundListings`: active, non-hidden rows across that job's deal types, not loaded rental count. Captions explicitly distinguish these scopes and inactive saved rentals. Missing count is unavailable, never zero.
+- Region chips use raw search-area path labels from saved URLs, not invented/geocoded cities. Only a consistently classified region across ALL providers qualifies; radius/shape/geocode overrides and ambiguous/missing providers have no region label. Region membership filters loaded rows by actual job id; partial pages keep Load More and do not assert final emptiness.
+- Shared JobsModel serves both tabs. Its generation guard prevents an older ordinary refresh from overwriting a newer verified/polled snapshot. Ordinary jobs status remains last-read/manual-refresh outside the explicit save flow.
 
-## Verified evidence and limits
+## Evidence and limits
 
-- Nine executable Python source/project tests passed: 3 jobs, 3 listing, 2 login contracts and one project/syntax/resource/localization check across 18 Swift files. New job checks were red before implementation and green afterward. No Swift execution/type-check or native URLSession proof.
-- Inspected installed job GET/toClientJob/getJobs source without changes; bounded readonly/query_only database audit found one job and numeric storage/count types without reading out names/IDs/configuration. Runtime running flags were not queried from a separate process or invented.
-- Live unauthenticated GET `/api/jobs/`: HTTP 401. No real login, credential-store/session reads, authenticated job requests or job execution in this task. Historical REST success is not current native-client evidence.
-- Public-scope scan passed for 41 reviewed files; Graphify incrementally indexed 33 files, with a no-change byte/history check and legacy graph checksum preservation. No missing/dangling endpoints or exact duplicate edges; one known login symbol-resolution self-loop remains an extractor limitation. Recheck staged inputs before push.
-- Unverified: Swift/iOS compilation, login/job/listing cookie round trips, optional decoding at runtime, refresh/retry/cancellation, tab navigation/scroll preservation, cross-tab expiry/reauthentication races, RTL/Dynamic Type/dark mode/VoiceOver. No Swift/Xcode/Apple SDK on Oracle; no IPA/archive.
-- No tool installation, agents, direct database/source/configuration edits, Fredy or Cloudflare modifications. New jobs access is GET-only; existing authentication POST is unchanged.
+- All available worktree checks passed: **26 Python tests**, including 5 new source-contract gates observed red then green, prior login/listing/jobs gates, native project/resource/localization validation and existing build-tool tests. Twenty-two Swift syntax trees and target membership passed. These are source/tool checks, NOT Swift execution/type checking or URLSession runtime proof.
+- Read installed v31 routes/storage/provider translator/execution code without copying its implementation. Fresh unauthenticated GET provider/jobs/table probes each returned 401. No credential store, session-store inspection, authenticated development-tool POST, job creation/run or uncached-image capture was performed.
+- Start-of-task readonly/query_only audit already found **52 stored/visible/active listings**, one job, rather than the historical 51. Later count remained 52 and no current row had a creation time after the baseline. Whole-job fingerprint stayed identical; whole-listing fingerprint differed during the interval, so byte-for-byte row preservation is NOT claimed and the differing fields/cause were not established. No backend write was sent by this task. Private hashes/evidence stay outside Git/Graphify.
+- Exact staged feature snapshot exported with checkout-index: **25 tests passed**, excluding all four prior CI paths. The additional worktree-only null-runner test explains the separate total of 26; neither total is a native Swift build.
+- Public/index allowlists are reviewed: **52 public files / 44 graph inputs**. External Graphify refresh is incremental, retains prior snapshots, uses zero LLM tokens and preserves the historical graph. Source-resolution self-loops are documented in `docs/GRAPHIFY.md`; they are not app recursion.
+- Oracle has no Swift, swiftc, Xcode or Apple SDK. No native build, authenticated Swift request, rendered UI, real iPhone/simulator test, IPA or CI dispatch. Self-review only; no additional agents/tools were installed or launched.
 
-## Next checks, not permission for new features
+## Prior CI work remains separate
 
-1. On an authorized Mac/simulator/iPhone, build/type-check without IPA. Enter credentials only in the app. Verify same-session login → Listings/Jobs, actual flags/active counts, disabled jobs and refresh.
-2. Use isolated tests for empty/null/invalid payloads, false/zero, broken/duplicate IDs, stale refresh/error/cancellation and 403/429; do not exhaust a live account's limits. Verify 401 from either tab/image removes both cached sections, then re-login starts cleanly with no late publication.
-3. Inspect native Arabic RTL tabs, independent navigation/scroll state, large text, dark appearance and VoiceOver. Execute `docs/JOBS.md` and remaining listing/image acceptance checks; record actual evidence.
-4. Job mutation/run/search triggering, live SSE, details/backfill, persistent session/logout, background work and deployment changes need separate explicit authorization. Provider/source-rights review remains open.
+First IPA run 43596808016 at a6dbdebd637f40f17bb8ea53438d1e3dcbaf1b8d started macos-26 and passed Xcode 26.6/SDK 26.5 preflight, then failed before compilation on redundant `-arch` with generic destination. No IPA. A nullable-runner watchdog regression and local fixes already existed before this feature.
+
+Preserve these **four prior uncommitted CI paths**, not part of the feature commit: `.github/workflows/unsigned-ipa.yml`, `tools/actions_queue.py`, `Tests/test_build_tools.py`, `docs/UNSIGNED_IPA.md`. Their local fixes were reviewed but not dispatched or silently folded into this task. Worktree test count includes the extra local null-runner regression; the feature's exact staged/committed snapshot must also be checked separately. No automatic build rerun is authorized in this no-IPA step.
+
+## Required iPhone checks / remaining work
+
+1. Type-check/build on an authorized Apple toolchain; compare the rendered RTL layout with the actual approved prototype, large text, dark mode, keyboard/focus and VoiceOver. Enter credentials only in the app.
+2. Confirm save → exact read-back → one manual run; disabled new job, saved results and untouched existing searches. Exercise duplicate URLs, true zero/unknown fields, very fast/slow/error/no-start runs, rejected run, lost acknowledgements, double taps and closing/reopening. Ambiguity recovery must remain GET-only.
+3. Check all-jobs/job/region filtering through multiple pages, active-vs-loaded count scopes, partial empty pages, unknown/mixed providers, rapid selection races, cancellation and failed refresh. Do not fake listings or exhaust live rate limits.
+4. Check expiry during every save/read/run/image stage removes BOTH tabs and the sheet, re-login starts cleanly and late results do not leak. A saved job may remain on Fredy after a failed/unknown run; never delete it as an automatic rollback.
 
 ## Completion/privacy
 
-Follow `AGENTS.md`: preserve unrelated work; validate honestly; update history/handoff; review explicit public/index allowlists; secret-scan; incrementally refresh Graphify with snapshots/legacy preservation; review/stage only allowed paths; commit and push main without force; read back the exact remote SHA. Keep private reports, raw data, configuration, credentials/cookies, databases, generated graphs/builds and real-data fixtures out of Git/index inputs. Do not alter shared tools or other graphs.
+Follow `AGENTS.md`: preserve unrelated work; record exact limits; update history/handoff; review public/index allowlists; secret-scan; incrementally refresh Graphify with snapshots and unrelated graph preservation; stage only intended feature paths; commit/push main without force; read back the exact remote SHA. Keep private reports, raw data, credentials/cookies, databases, configuration, graphs/builds/signing outside public/index inputs.

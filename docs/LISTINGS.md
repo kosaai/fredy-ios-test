@@ -1,5 +1,7 @@
 # Rental listing screen
 
+The original listing-stage evidence below is retained. Current additions are documented in `docs/ADD_SEARCH.md`: optional `job_id`/`job_name`, exact job-id table filter, conservative URL-area chips, shared server active counts and page/filter generation guards. The latest readonly audit found 52 visible/active rows, not the historical 51 below. No hardcoded count or listing fixtures are used.
+
 ## Current Fredy contract, inspected read-only
 
 - `GET /api/listings/table?page=1&pageSize=20` uses the authenticated login session. The envelope is `{totalNumber: Int, page: Int, result: [...], availableProviders: [...]}`; the client ignores unused providers. There is no `hasMore` field. Pages start at 1; the server permits sizes up to 1000 and defaults to 50.

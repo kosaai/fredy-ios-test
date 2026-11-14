@@ -1,5 +1,7 @@
 # Read-only search jobs
 
+Historical GET-only stage evidence follows. The current user-authorized extension adds selectable rows and explicit Save & Search through `docs/ADD_SEARCH.md`; provider/dealType/lastRunAt decoding and shared-snapshot guards are now included. Earlier no-create/run statements below describe that original stage, not a prohibition on the new explicit action. No general edit/delete controls were added.
+
 ## Actual inspected contract
 
 `GET /api/jobs/` returns a **plain job array**, not the paginated `/data` envelope. The installed route includes disabled jobs visible to the authenticated user, checks access, maps the stored job and adds `running` from Fredy's in-process run-state service. No create/update/delete/run/event endpoint is used by this feature.

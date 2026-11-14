@@ -1049,6 +1049,499 @@
           }
         }
       }
+    },
+    "jobs.add_title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add search"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إضافة بحث"
+          }
+        }
+      }
+    },
+    "jobs.search_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search name"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اسم البحث"
+          }
+        }
+      }
+    },
+    "jobs.search_url": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ImmoScout24 rental search URL"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رابط بحث ImmoScout24 للإيجار"
+          }
+        }
+      }
+    },
+    "jobs.save_search": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save & Search"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حفظ وبحث"
+          }
+        }
+      }
+    },
+    "jobs.close": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إغلاق"
+          }
+        }
+      }
+    },
+    "jobs.add_hint": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste the rental search URL you chose."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ألصق رابط بحث الإيجار الذي اخترته."
+          }
+        }
+      }
+    },
+    "jobs.one_search_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requests one search only. Saved without automatic scheduling or notification channels. Closing this form never resends the request."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يُطلب بحث واحد فقط، ويُحفظ بدون جدولة تلقائية أو قنوات تنبيه. إغلاق النموذج لا يعيد إرسال الطلب."
+          }
+        }
+      }
+    },
+    "jobs.validating": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking URL, provider and duplicates…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ التحقق من الرابط والمزوّد والتكرار…"
+          }
+        }
+      }
+    },
+    "jobs.saving": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving search…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ حفظ البحث…"
+          }
+        }
+      }
+    },
+    "jobs.verifying": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifying the saved job…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ التحقق من البحث المحفوظ…"
+          }
+        }
+      }
+    },
+    "jobs.starting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requesting one search…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ طلب تشغيل بحث واحد…"
+          }
+        }
+      }
+    },
+    "jobs.accepted": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run request accepted; waiting for the actual start."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قُبل طلب التشغيل؛ بانتظار تأكيد بدء البحث."
+          }
+        }
+      }
+    },
+    "jobs.run_stopped": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Execution stopped. The provider outcome is not verified."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "توقف التنفيذ. نتيجة المزوّد غير مؤكدة؛ راجع الإعلانات المحفوظة."
+          }
+        }
+      }
+    },
+    "jobs.uncertain": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not confirm saving or execution. No request was replayed. Check status."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذر تأكيد الحفظ أو حالة التشغيل. لم يُعَد إرسال الطلب؛ تحقق من الحالة."
+          }
+        }
+      }
+    },
+    "jobs.reconcile": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check status (read only)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التحقق من الحالة (قراءة فقط)"
+          }
+        }
+      }
+    },
+    "jobs.saved_no_replay": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The saved search exists. Neither saving nor running was replayed; inspect its results."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البحث موجود. لم نكرر الحفظ أو التشغيل؛ راجع نتائجه."
+          }
+        }
+      }
+    },
+    "jobs.show_results": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show saved listings"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض الإعلانات المحفوظة"
+          }
+        }
+      }
+    },
+    "jobs.provider_outcome_unknown": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fredy exposes running status and saved listings, not provider success or failure. No results does not prove a successful search."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يعرض Fredy حالة التشغيل والإعلانات المحفوظة، ولا يرسل نتيجة نجاح أو فشل المزوّد. غياب النتائج لا يثبت نجاح البحث."
+          }
+        }
+      }
+    },
+    "jobs.error_name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a search name (up to 200 characters)."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أدخل اسم البحث (حتى ٢٠٠ حرف)."
+          }
+        }
+      }
+    },
+    "jobs.error_url": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste a complete HTTPS ImmoScout24 Germany rental search URL, not a listing or homepage."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ألصق رابط HTTPS كاملاً لبحث إيجار في ImmoScout24 ألمانيا، وليس رابط إعلان أو الصفحة الرئيسية."
+          }
+        }
+      }
+    },
+    "jobs.error_duplicate": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This URL is already saved. Select its search instead; nothing was created or run."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا الرابط محفوظ مسبقاً. اختر البحث الموجود؛ لم ننشئ بحثاً أو نشغله مجدداً."
+          }
+        }
+      }
+    },
+    "jobs.error_provider": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server has no matching ImmoScout24 Germany provider. Nothing was saved."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مزوّد ImmoScout24 ألمانيا غير متاح على الخادم. لم يُحفظ شيء."
+          }
+        }
+      }
+    },
+    "jobs.error_rejected": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fredy rejected the request. Review the URL and job in the Jobs tab; no automatic retry."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رفض Fredy الطلب. راجع الرابط والبحث في تبويب المهام؛ لا إعادة تلقائية."
+          }
+        }
+      }
+    },
+    "jobs.error_conflict": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fredy refused the run because of a conflict or an existing run. No retry was sent."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رفض Fredy التشغيل لتعارض أو لوجود تشغيل قائم. لم نرسل محاولة أخرى."
+          }
+        }
+      }
+    },
+    "jobs.all_searches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All searches"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كل الأبحاث"
+          }
+        }
+      }
+    },
+    "jobs.active_short": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "active"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نشط"
+          }
+        }
+      }
+    },
+    "jobs.active_count_note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Counts are Fredy’s active, non-hidden listings per job, across deal types, not the loaded page size. The rental list can include inactive saved listings."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأعداد هي إعلانات Fredy النشطة وغير المخفية لكل بحث، من جميع الأنواع، وليست حجم الصفحة. قد تشمل قائمة الإيجارات إعلانات محفوظة غير نشطة."
+          }
+        }
+      }
+    },
+    "jobs.region_from_url": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search area from saved URL"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "منطقة البحث حسب الرابط المحفوظ"
+          }
+        }
+      }
+    },
+    "jobs.refresh_searches": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh searches"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحديث الأبحاث"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
