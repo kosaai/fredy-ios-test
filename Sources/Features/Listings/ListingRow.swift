@@ -11,6 +11,7 @@ struct ListingRow: View {
     let onChanged: () -> Void
     let onSessionExpired: () -> Void
 
+    @State private var initializedFromServer = false
     @State private var watched: Bool?
     @State private var decision: String?
     @State private var busy = false
@@ -219,8 +220,10 @@ struct ListingRow: View {
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("listings.row.horizontal")
         .onAppear {
+            guard !initializedFromServer else { return }
             watched = listing.isWatched
             decision = listing.decision
+            initializedFromServer = true
         }
         .onChange(of: listing.isWatched) { _, value in watched = value }
         .onChange(of: listing.decision) { _, value in decision = value }
