@@ -5,6 +5,67 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+		"25D8BD09F80C244E9415DE08" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AuthenticatedTabs.swift";
+			"path" = "Sources/App/AuthenticatedTabs.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"BE22A91A408743F553A143FC" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "25D8BD09F80C244E9415DE08";
+		};
+		"ED11FA8F6B65CE77976E1A8F" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "JobsModel.swift";
+			"path" = "Sources/Features/Jobs/JobsModel.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"8FBC37F4AF7561110B185219" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "ED11FA8F6B65CE77976E1A8F";
+		};
+		"E4DA57E9404A8D524E0F08DC" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "JobsView.swift";
+			"path" = "Sources/Features/Jobs/JobsView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"161F279E3694258B1CDB2165" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "E4DA57E9404A8D524E0F08DC";
+		};
+		"44B0E0BB133FDCB12FA1CB9B" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SearchJob.swift";
+			"path" = "Sources/Shared/Jobs/SearchJob.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"ED0644E5AB02513602974B42" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "44B0E0BB133FDCB12FA1CB9B";
+		};
+		"873088390CA15EB00EBC2EF9" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"ED11FA8F6B65CE77976E1A8F",
+				"E4DA57E9404A8D524E0F08DC",
+			);
+			"name" = "Jobs";
+			"sourceTree" = "<group>";
+		};
+		"A2903B8F4EACFDFD30A2DD0B" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"44B0E0BB133FDCB12FA1CB9B",
+			);
+			"name" = "Jobs";
+			"sourceTree" = "<group>";
+		};
 		"387095D568C1A9EFB7446BCB" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -218,6 +279,7 @@
 			"children" = (
 				"FC153E0A4A8A6E633E3CECE2",
 				"C258930B9552C14E5A5E61CB",
+				"25D8BD09F80C244E9415DE08",
 			);
 			"name" = "App";
 			"sourceTree" = "<group>";
@@ -245,6 +307,7 @@
 				"9F82F807C95FD6421240D780",
 				"35DC9BD48D15EB5AA9AEDA78",
 				"F129EBA4A2A86EA77C882F29",
+				"873088390CA15EB00EBC2EF9",
 			);
 			"name" = "Features";
 			"sourceTree" = "<group>";
@@ -255,6 +318,7 @@
 				"12FDBFCC8F4DFB30B3E34185",
 				"5A37C955C4B3F4C7694031BB",
 				"17C4F37FDE6ACD9F9005BF14",
+				"A2903B8F4EACFDFD30A2DD0B",
 			);
 			"name" = "Shared";
 			"sourceTree" = "<group>";
@@ -312,6 +376,10 @@
 				"332754C2392A437562D2556B",
 				"6C3B38D7501496C3DDB25091",
 				"BFCB8EE646C29BF88EC34C93",
+				"BE22A91A408743F553A143FC",
+				"8FBC37F4AF7561110B185219",
+				"161F279E3694258B1CDB2165",
+				"ED0644E5AB02513602974B42",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};

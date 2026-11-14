@@ -33,7 +33,7 @@ class NativeProjectChecks(unittest.TestCase):
         self.assertEqual(root["packageReferences"], [])
 
         files = list((ROOT / "Sources").rglob("*.swift"))
-        self.assertEqual(len(files), 14)
+        self.assertEqual(len(files), 18)
         parser = Parser(Language(tree_sitter_swift.language()))
         source = ""
         for path in files:
@@ -43,14 +43,14 @@ class NativeProjectChecks(unittest.TestCase):
         self.assertEqual(source.count("@main"), 1)
         self.assertIn("NavigationStack", source)
         self.assertIn("NavigationLink", source)
-        for forbidden in ["AsyncImage", "WKWebView", "UserDefaults", "Keychain", "http://", "NSAllowsArbitraryLoads", "/api/jobs"]:
+        for forbidden in ["AsyncImage", "WKWebView", "UserDefaults", "Keychain", "http://", "NSAllowsArbitraryLoads"]:
             self.assertNotIn(forbidden, source)
         self.assertFalse(list(ROOT.rglob("*.ipa")))
         self.assertFalse(list(ROOT.rglob("*.entitlements")))
 
         catalog = json.loads((ROOT / "Resources/Localizable.xcstrings").read_text())
         translation_source = re.sub(r'\.accessibilityIdentifier\("[^"]+"\)', "", source)
-        keys = set(re.findall(r'"((?:home|about|login|listings)\.[a-z_]+)"', translation_source))
+        keys = set(re.findall(r'"((?:home|about|login|listings|jobs|tabs)\.[a-z_]+)"', translation_source))
         self.assertTrue(keys)
         self.assertTrue(keys <= set(catalog["strings"]))
         for key in keys:

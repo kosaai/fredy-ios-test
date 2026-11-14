@@ -2,36 +2,35 @@
 
 ## Current deliverable
 
-Public repository: https://github.com/kosaai/fredy-ios-test — `main`. iOS 17+/Xcode 15+, one native app target, 14 Swift sources; no third-party app dependencies.
+Public repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native target, 18 Swift sources, no third-party app dependencies.
 
-Current authorized scope: existing Arabic RTL login, followed by **real rental listings and authenticated main images** from existing Fredy. No mocks, hardcoded listings, detail/edit screens, jobs, searches, redesign or IPA. Original Home/About/InfoBlock and the earlier confirmation view remain retained, not the active authenticated route. Read `PROJECT_HISTORY.md`; the historical Go backend is separate and not integrated.
+After existing Arabic RTL login: **Listings and read-only Jobs native tabs**, with a NavigationStack per section and shared expiry UI. Rental list/image behavior is retained. No job create/edit/delete/run controls or requests, search triggering, live status stream, listing details/editing, redesign, mocks or IPA. Original shell/confirmation source remains retained but inactive. Read `PROJECT_HISTORY.md`; the historical Go backend is not integrated.
 
-## Current data/session contract
+## Jobs contract and states
 
-- One existing ephemeral URLSession for login, user probe, `/api/listings/table?page=…&pageSize=20` and `/api/listings/{id}/image`. `User-Agent: fredy-ios/1.0`; no AsyncImage/new/shared session, credential logging, disk cache, redirects or TLS exceptions.
-- Table envelope `{totalNumber, page, result, availableProviders}`; native DTO requires identity/envelope and treats display fields safely as optional. Map `title`, `price`/`currency`, `address`, `size`, `rooms`, `dealType` exactly.
-- No separate city field: display `address` under city/address as provided. No city guessing or geocoding. Only explicit EUR money is displayed as EUR; no conversion. Filter only `dealType == rent` locally, because the route has no general deal-type filter.
-- Explicit Load More and pull-to-refresh; raw total/page drive progress even for pages with no rentals, IDs deduplicate, later-page errors retain rows and retry the same page. Offset paging is not a server snapshot.
-- Page/image HTTP 401 invalidates local cookies and generation; clear rows/image cache and show expiry plus re-login. Reject stale requests after reauthentication. No proactive expiry polling, renewal, permanent restore or server logout feature.
-- Authenticated image bytes only; validate path/MIME/accepted size, downsample with ImageIO and retain a bounded per-screen memory cache. Uncached server images can return 302 and queue Fredy's normal preview capture; the app rejects the redirect and offers retry. Development tools did not trigger image capture/backfill.
-- Exact mapping, security/pagination limits and unexecuted acceptance matrix: `docs/LISTINGS.md`. Existing sign-in boundary: `docs/AUTHENTICATION.md`.
+- `GET /api/jobs/` is a plain array including disabled jobs visible to the user. Only decode `id`, optional `name`, Boolean `enabled`/`running` and nonnegative integer `numberOfFoundListings`. No invented aliases, missing flags defaulting false, missing counts defaulting zero, or generated identity.
+- Count means active, non-manually-deleted listings as defined by Fredy's storage subquery. Running/enabled statuses are snapshots at the last GET, not live monitoring. The footer explains manual refresh.
+- Same login-owned client, original ephemeral URLSession, signed cookies, descriptive User-Agent and common authenticated GET/status/generation guard. No extra session, jobs/data/events endpoint, provider/configuration binding, logging or persistence.
+- View-lifecycle load, native pull-to-refresh, explicit error retry, loading/empty/failure/expiry; preserve previous rows on refresh failure. Prevent duplicate requests, deduplicate IDs and check cancellation before publishing; cancel view-owned retry on disappearance.
+- Detected job/listing/image 401 invalidates the existing session; either feature signals `AuthenticatedTabs`, which replaces BOTH tabs with a shared expiry/re-login screen. Old section-owned view state/data is removed rather than keeping another cached tab visible. No proactive expiry polling or memory-zeroization guarantee.
+- Contract evidence, scope and still-required runtime matrix: `docs/JOBS.md`. Prior boundaries: `docs/AUTHENTICATION.md`, `docs/LISTINGS.md` (rental fields, raw-total pagination, authenticated images, rejected uncached provider redirects).
 
-## Verified evidence and gaps
+## Verified evidence and limits
 
-- Six executable Python source/project checks passed: 3 new listing contracts, 2 login contracts, one syntax/project/resource/localization test across 14 Swift files. New source contracts were red before implementation and green afterwards. These do not execute Swift, decode real payloads in Swift, or exercise URLSession.
-- Read installed route/filter/query source only; bounded read-only/query_only SQLite audit found 51 current non-hidden rows, all rent/EUR, with actual field types and no city column. No raw values, IDs or real-data fixtures published/indexed.
-- Live unauthenticated table GET returned HTTP 401. No credentials, session-store inspection or authenticated live API/image request in this task. Historical authenticated tests do not prove this native implementation.
-- Public-scope scan passed for 35 reviewed files; 27-file Graphify index was incrementally refreshed. No-change refresh preserved graph/history, and the legacy graph checksum stayed unchanged. No missing/dangling endpoints or exact duplicate edges; one known login name-resolution self-loop remains an extractor limitation. Recheck staged content before publishing, index only allowlisted inputs and preserve snapshots.
-- **Not verified:** Swift type-check/build; native login/listing/image cookie round trips; nullable decoding at runtime; pagination/retry/expiry/races; ImageIO WebP/scroll performance; simulator/device/RTL/Dynamic Type/VoiceOver. Oracle has no Swift, Xcode or Apple SDK. No IPA/archive.
-- No tool installs, subagents, direct Fredy/database/source/configuration or Cloudflare changes.
+- Nine executable Python source/project tests passed: 3 jobs, 3 listing, 2 login contracts and one project/syntax/resource/localization check across 18 Swift files. New job checks were red before implementation and green afterward. No Swift execution/type-check or native URLSession proof.
+- Inspected installed job GET/toClientJob/getJobs source without changes; bounded readonly/query_only database audit found one job and numeric storage/count types without reading out names/IDs/configuration. Runtime running flags were not queried from a separate process or invented.
+- Live unauthenticated GET `/api/jobs/`: HTTP 401. No real login, credential-store/session reads, authenticated job requests or job execution in this task. Historical REST success is not current native-client evidence.
+- Public-scope scan passed for 41 reviewed files; Graphify incrementally indexed 33 files, with a no-change byte/history check and legacy graph checksum preservation. No missing/dangling endpoints or exact duplicate edges; one known login symbol-resolution self-loop remains an extractor limitation. Recheck staged inputs before push.
+- Unverified: Swift/iOS compilation, login/job/listing cookie round trips, optional decoding at runtime, refresh/retry/cancellation, tab navigation/scroll preservation, cross-tab expiry/reauthentication races, RTL/Dynamic Type/dark mode/VoiceOver. No Swift/Xcode/Apple SDK on Oracle; no IPA/archive.
+- No tool installation, agents, direct database/source/configuration edits, Fredy or Cloudflare modifications. New jobs access is GET-only; existing authentication POST is unchanged.
 
-## Next checks (not permission to add features)
+## Next checks, not permission for new features
 
-1. On an authorized Mac, build/type-check without IPA and execute `docs/LISTINGS.md` acceptance matrix with credentials entered only in the app. Verify real login → page 1 → subsequent pages and authenticated stored-image decoding; don't log credentials/cookies/real response bodies.
-2. In isolated tests, cover missing optional fields/invalid IDs, non-rental-only pages, empty results, duplicates, offline/later-page retry, 403/429, missing/redirected/malformed image, page/image 401, cancellation and re-login while older requests complete. Do not deliberately rate-limit a live account.
-3. Inspect RTL, large text, dark mode, keyboard and VoiceOver on iPhone/simulator. Record actual results; source parsing is not compilation.
-4. Persistent sessions/logout, listing details/editing, jobs, background refresh, provider redirects/backfill and deployment changes require separate explicit authorization. Provider/source rights review remains open.
+1. On an authorized Mac/simulator/iPhone, build/type-check without IPA. Enter credentials only in the app. Verify same-session login → Listings/Jobs, actual flags/active counts, disabled jobs and refresh.
+2. Use isolated tests for empty/null/invalid payloads, false/zero, broken/duplicate IDs, stale refresh/error/cancellation and 403/429; do not exhaust a live account's limits. Verify 401 from either tab/image removes both cached sections, then re-login starts cleanly with no late publication.
+3. Inspect native Arabic RTL tabs, independent navigation/scroll state, large text, dark appearance and VoiceOver. Execute `docs/JOBS.md` and remaining listing/image acceptance checks; record actual evidence.
+4. Job mutation/run/search triggering, live SSE, details/backfill, persistent session/logout, background work and deployment changes need separate explicit authorization. Provider/source-rights review remains open.
 
-## Completion/privacy rules
+## Completion/privacy
 
-Follow `AGENTS.md`: preserve work; validate honestly; update history/handoff; review public/index allowlists; scan; incrementally refresh external Graphify; review/stage only reviewed files; commit/push main without force; read back the exact remote SHA. Keep private reports, listing/contact values, credentials, cookies, runtime configuration, raw responses, databases and graph artifacts out of Git/index inputs. Do not alter shared tooling or other project graphs.
+Follow `AGENTS.md`: preserve unrelated work; validate honestly; update history/handoff; review explicit public/index allowlists; secret-scan; incrementally refresh Graphify with snapshots/legacy preservation; review/stage only allowed paths; commit and push main without force; read back the exact remote SHA. Keep private reports, raw data, configuration, credentials/cookies, databases, generated graphs/builds and real-data fixtures out of Git/index inputs. Do not alter shared tools or other graphs.

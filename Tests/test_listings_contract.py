@@ -20,7 +20,8 @@ class ListingsSourceContract(unittest.TestCase):
         for required in ['fetchListingImage', 'NSCache', 'cacheGeneration == generation', 'kCGImageSourceThumbnailMaxPixelSize', 'Task.checkCancellation()', 'retry', '.sessionExpired']:
             self.assertIn(required, image)
         root = (ROOT / 'Sources/App/AppRootView.swift').read_text()
-        self.assertIn('ListingsView(service: model.service', root)
+        self.assertIn('AuthenticatedTabs(service: model.service', root)
+        self.assertIn('ListingsView(service: service', (ROOT / 'Sources/App/AuthenticatedTabs.swift').read_text())
         self.assertIn('model.returnToLogin()', root)
         self.assertNotIn('URLSession(', root)
         for source in [model, view, row, image]:
@@ -35,7 +36,7 @@ class ListingsSourceContract(unittest.TestCase):
         self.assertTrue('case 404: throw accept == "image/*" ? ListingsFailure.imageUnavailable : .server' in source, 'A missing table must not be reported as a missing image')
         self.assertEqual(source.count('URLSession('), 1)
         self.assertIn('session.data(for: request)', source)
-        for forbidden in ['URLSession.shared', 'HTTPCookieStorage.shared', 'AsyncImage', '/details', '/api/jobs', 'URL(string: id)']:
+        for forbidden in ['URLSession.shared', 'HTTPCookieStorage.shared', 'AsyncImage', '/details', 'URL(string: id)']:
             self.assertNotIn(forbidden, source)
 
     def test_real_nullable_listing_contract(self):

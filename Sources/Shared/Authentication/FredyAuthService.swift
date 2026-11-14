@@ -115,6 +115,15 @@ final class FredyAuthService: FredyClientServing {
         }
     }
 
+    func fetchJobs() async throws -> [SearchJob] {
+        let (data, response) = try await authenticatedRead(path: "api/jobs/")
+        guard response.mimeType == "application/json",
+              let jobs = try? JSONDecoder().decode([SearchJob].self, from: data) else {
+            throw ListingsFailure.invalidResponse
+        }
+        return jobs
+    }
+
     func fetchListings(page: Int, pageSize: Int) async throws -> ListingPage {
         guard page > 0, (1...1000).contains(pageSize) else { throw ListingsFailure.invalidResponse }
         let (data, response) = try await authenticatedRead(path: "api/listings/table", queryItems: [

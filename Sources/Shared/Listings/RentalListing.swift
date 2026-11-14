@@ -92,4 +92,4 @@ protocol FredyListingsServing {
 }
 
 @MainActor
-protocol FredyClientServing: FredyAuthServing, FredyListingsServing {}
+protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing {}

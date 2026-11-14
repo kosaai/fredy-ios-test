@@ -4,7 +4,7 @@ This is the history of the **Fredy Test native SwiftUI client experiment**, not 
 
 ## Two distinct workstreams
 
-- **This repository:** independently authored SwiftUI experiment, now fourteen Swift files and one app target. Authorized scope is Arabic/RTL login followed by real rental list/image reads over the same temporary cookie session. No listing-detail/edit or job implementation. Native execution remains unverified.
+- **This repository:** independently authored SwiftUI experiment, now eighteen Swift files and one app target. Authorized scope is Arabic/RTL login followed by rental list/image and read-only search-job reads over the same temporary cookie session, with native section tabs. No listing-detail/edit or job mutation implementation. Native execution remains unverified.
 - **Separate earlier work:** analysis of Fredy and an independently authored Go backend. That backend's commits and experiments are historical context only; no backend source, data, runtime configuration or fixtures have been imported here. Its architecture proposals do not silently become requirements or implemented features of this app.
 
 ## Completed research and backend stages
@@ -77,6 +77,18 @@ Loading/empty/error/retry/refresh/expiry are implemented. Page or image 401 clea
 Validation: the three new source checks were observed red then green; all six Python source/project tests passed (14 syntax trees, Xcode source/resource membership, scheme and translations included). Public-scope scan passed. Swift/Xcode/Apple SDK are absent; no Swift execution/type-check, UI build, real native pagination/cookies/images/expiry/cancellation, screenshot/accessibility check or IPA is claimed. Runtime acceptance and protocol limits are in `docs/LISTINGS.md`. No tools or agents were installed/launched; local review only.
 
 Maintenance verification: public-scope scan passed for 35 reviewed files; Graphify incrementally indexed 27 files using local AST/structural Markdown only. A no-change refresh preserved graph bytes/history and the legacy graph checksum remained unchanged. Diagnostics had no missing/dangling endpoints or exact duplicate edges; the existing single login call-resolution self-loop remains documented, with no source recursion.
+
+## Native read-only search jobs stage — 2026-11-14
+
+Authorized only GET-based search jobs and simple native navigation. Added nullable actual-field SearchJob DTO, a main-actor refresh model, read-only list rows and a two-tab authenticated shell with one NavigationStack per section. Listings remains the initial section; Arabic RTL/system styling and existing login/listing behavior are retained. Both tabs receive the same login-owned client and existing URLSession/cookies/User-Agent. The only new service operation is `fetchJobs()` using the existing authenticated GET helper for `/api/jobs/`, decoding a plain array. No mutations, run triggers, SSE, mocks, real-data fixtures, redesign or IPA.
+
+Grounding: installed GET route adds Boolean `running`; storage converts `enabled` to Bool and returns `numberOfFoundListings` for active, non-manually-deleted rows. Name/status/count may be unknown, never fabricated as false or zero; identity/envelope remain required. A readonly/query_only SQLite audit found one stored job and numeric/nonnegative count storage shapes without exposing job values or IDs. The unauthenticated HTTPS jobs GET returned 401; no credential store/session inspection, real login or authenticated response was used in this task. Runtime status values are not verified.
+
+Loading, actual empty array, bounded errors, manual refresh/retry and cancellation are implemented; a failed refresh keeps the prior snapshot. Job status is last-load data, not live monitoring. Either feature's detected 401 notifies the shared shell, which replaces BOTH tabs with expired-session/re-login UI to avoid leaving the other tab's cached data visible. No job edit/start/delete controls exist. Exact contract and remaining acceptance matrix: `docs/JOBS.md`.
+
+Validation: three new source checks were observed red then green; all nine Python source/project checks passed over 18 Swift syntax trees, project references, scheme and Arabic/English keys. These are not Swift runtime tests. Swift/Xcode/Apple SDK remain absent: native type-check/build, authenticated job decoding/refresh/cookies, tab state and cross-tab expiry/races/visual/accessibility behavior remain untested. No Fredy/Cloudflare changes, tool installs or additional agents; source review is local, not independent.
+
+Jobs-stage maintenance: publication allowlist/secret scan passed for 41 reviewed files; Graphify incrementally indexed 33 files with local AST/structural Markdown and zero LLM tokens. A no-change refresh preserved graph bytes/history; the legacy graph checksum was unchanged. No missing/dangling endpoints or exact duplicate edges; the existing single login call-resolution self-loop remains documented.
 
 ## Decisions preserved
 

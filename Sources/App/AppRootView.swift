@@ -5,11 +5,11 @@ struct AppRootView: View {
     @State private var model = LoginModel()
 
     var body: some View {
-        NavigationStack {
+        Group {
             if case .authenticated = model.state {
-                ListingsView(service: model.service, onSessionExpired: { model.returnToLogin() })
+                AuthenticatedTabs(service: model.service, onSessionExpired: { model.returnToLogin() })
             } else {
-                LoginView(model: model)
+                NavigationStack { LoginView(model: model) }
             }
         }
         // Keep the existing Arabic/RTL flow; no shell redesign.

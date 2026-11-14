@@ -56,6 +56,9 @@ struct ListingsView: View {
         .accessibilityIdentifier("listings.screen")
         .task { await model.loadInitialIfNeeded() }
         .refreshable { await model.reload() }
+        .onChange(of: model.state) { _, state in
+            if state == .sessionExpired { onSessionExpired() }
+        }
         .onDisappear { actionTask?.cancel() }
     }
 
