@@ -359,12 +359,96 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "A3100D000000000000000301";
 		};
+		"B4100D000000000000000101" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsPreferencesPage.swift";
+			"path" = "Sources/Features/Settings/SettingsPreferencesPage.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"B4100D000000000000000102" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4100D000000000000000101";
+		};
+		"B4100D000000000000000201" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsTravelTimePage.swift";
+			"path" = "Sources/Features/Settings/SettingsTravelTimePage.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"B4100D000000000000000202" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4100D000000000000000201";
+		};
+		"B4100D000000000000000301" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsListingDetailsPage.swift";
+			"path" = "Sources/Features/Settings/SettingsListingDetailsPage.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"B4100D000000000000000302" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4100D000000000000000301";
+		};
+		"B4100D000000000000000401" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsApplicationPage.swift";
+			"path" = "Sources/Features/Settings/SettingsApplicationPage.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"B4100D000000000000000402" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4100D000000000000000401";
+		};
+		"B4100D000000000000000501" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsNotificationsPage.swift";
+			"path" = "Sources/Features/Settings/SettingsNotificationsPage.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"B4100D000000000000000502" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4100D000000000000000501";
+		};
+		"B4100D000000000000000601" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsConnectionsPage.swift";
+			"path" = "Sources/Features/Settings/SettingsConnectionsPage.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"B4100D000000000000000602" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4100D000000000000000601";
+		};
+		"B4100D000000000000000701" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "SettingsMCPPage.swift";
+			"path" = "Sources/Features/Settings/SettingsMCPPage.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"B4100D000000000000000702" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B4100D000000000000000701";
+		};
 		"A3100D000000000000000900" = {
 			"isa" = "PBXGroup";
 			"children" = (
 				"A3100D000000000000000101",
 				"A3100D000000000000000201",
 				"A3100D000000000000000301",
+				"B4100D000000000000000101",
+				"B4100D000000000000000201",
+				"B4100D000000000000000301",
+				"B4100D000000000000000401",
+				"B4100D000000000000000501",
+				"B4100D000000000000000601",
+				"B4100D000000000000000701",
 			);
 			"name" = "Rental UI";
 			"sourceTree" = "<group>";
@@ -469,6 +553,13 @@
 				"A3100D000000000000000102",
 				"A3100D000000000000000202",
 				"A3100D000000000000000302",
+				"B4100D000000000000000102",
+				"B4100D000000000000000202",
+				"B4100D000000000000000302",
+				"B4100D000000000000000402",
+				"B4100D000000000000000502",
+				"B4100D000000000000000602",
+				"B4100D000000000000000702",
 				"C873147B6BDA042E143D98D7",
 				"BB73ADE07733C80136FAFE06",
 				"9D8D8DCDA1AD3A64E5D612DE",
