@@ -1,67 +1,97 @@
-{
-  "name": "Unsigned iPhone IPA",
-  "run-name": "Unsigned iPhone IPA | ${{ inputs.build_tag }}",
-  "on": {
-    "workflow_dispatch": {
-      "inputs": {
-        "build_tag": {
-          "description": "Unique Oracle monitor correlation tag",
-          "required": true,
-          "type": "string"
-        }
-      }
-    }
-  },
-  "permissions": {
-    "contents": "read"
-  },
-  "jobs": {
-    "build-unsigned": {
-      "name": "Build unsigned iPhone IPA",
-      "runs-on": "macos-26",
-      "timeout-minutes": 25,
-      "steps": [
-        {
-          "name": "Checkout exact dispatched commit",
-          "uses": "actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
-          "with": {
-            "persist-credentials": false
-          }
-        },
-        {
-          "name": "Verify macOS 26 and available Xcode device SDK",
-          "run": "set -euo pipefail\npython3 -c 'import platform; assert platform.system() == \"Darwin\"; assert platform.mac_ver()[0].split(\".\")[0] == \"26\"'\nxcode-select -p\nxcodebuild -version\nxcrun --sdk iphoneos --show-sdk-version\n"
-        },
-        {
-          "name": "Compile Release iphoneos arm64 without signing",
-          "run": "set -euo pipefail\nmkdir -p build\nxcodebuild -project FredyTest.xcodeproj -scheme FredyTest -configuration Release \\\n  -sdk iphoneos -destination 'generic/platform=iOS' -arch arm64 \\\n  -derivedDataPath build/DerivedData \\\n  CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' \\\n  DEVELOPMENT_TEAM='' PROVISIONING_PROFILE_SPECIFIER='' \\\n  ARCHS=arm64 ONLY_ACTIVE_ARCH=NO ENABLE_DEBUG_DYLIB=NO \\\n  build 2>&1 | tee build/xcodebuild.log\n"
-        },
-        {
-          "name": "Package and verify actual unsigned device IPA",
-          "run": "set -euo pipefail\nAPP='build/DerivedData/Build/Products/Release-iphoneos/FredyTest.app'\ntest -d \"$APP\"\ntest \"$(xcrun lipo -archs \"$APP/FredyTest\")\" = arm64\nif /usr/bin/codesign -d \"$APP\" >/dev/null 2>&1; then\n  printf '%s\\n' 'Unexpected app code signature'\n  exit 1\nfi\nmkdir -p build/package/Payload build/output\n/usr/bin/ditto \"$APP\" build/package/Payload/FredyTest.app\n(cd build/package && /usr/bin/zip -qry ../output/FredyTest-Unsigned.ipa Payload)\npython3 tools/verify_unsigned_ipa.py build/output/FredyTest-Unsigned.ipa | tee build/output/FredyTest-Unsigned.verify.json\n"
-        },
-        {
-          "name": "Upload verified unsigned IPA",
-          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
-          "with": {
-            "name": "FredyTest-Unsigned-${{ github.run_id }}",
-            "path": "build/output/FredyTest-Unsigned.ipa\nbuild/output/FredyTest-Unsigned.verify.json",
-            "if-no-files-found": "error",
-            "retention-days": 14
-          }
-        },
-        {
-          "name": "Retain build diagnostics only on failure",
-          "if": "failure()",
-          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
-          "with": {
-            "name": "FredyTest-Build-Logs-${{ github.run_id }}",
-            "path": "build/xcodebuild.log",
-            "if-no-files-found": "warn",
-            "retention-days": 14
-          }
-        }
-      ]
-    }
-  }
-}
+name: Unsigned iPhone IPA
+run-name: Unsigned iPhone IPA | ${{ inputs.build_tag }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_tag:
+        description: Unique Oracle monitor correlation tag
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build-unsigned:
+    name: Build unsigned iPhone IPA
+    runs-on: macos-26
+    timeout-minutes: 25
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Check Xcode and iPhone device SDK
+        run: |
+          set -euo pipefail
+          sw_vers
+          python3 -c 'import platform; assert platform.mac_ver()[0].split(".")[0] == "26", "Expected macOS 26"'
+          xcode-select -p
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+          xcodebuild -list -project FredyTest.xcodeproj
+
+      - name: Build Release for physical iPhone arm64 without signing
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          # Use the explicit PBX native target; no shared .xcscheme is required.
+          xcodebuild \
+            -project FredyTest.xcodeproj \
+            -target FredyTest \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build/DerivedData \
+            -arch arm64 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=NO \
+            ENABLE_DEBUG_DYLIB=NO \
+            build 2>&1 | tee build/xcodebuild.log
+
+      - name: Package and verify unsigned device IPA
+        run: |
+          set -euo pipefail
+          APP="build/DerivedData/Build/Products/Release-iphoneos/FredyTest.app"
+          test -d "$APP"
+          test -f "$APP/Info.plist"
+          test "$(xcrun lipo -archs "$APP/FredyTest")" = "arm64"
+          if /usr/bin/codesign -d "$APP" >/dev/null 2>&1; then
+            echo "Unexpected app code signature"
+            exit 1
+          fi
+          mkdir -p build/package/Payload build/output
+          /usr/bin/ditto "$APP" build/package/Payload/FredyTest.app
+          (cd build/package && /usr/bin/zip -qry ../output/FredyTest-Unsigned.ipa Payload)
+          python3 tools/verify_unsigned_ipa.py build/output/FredyTest-Unsigned.ipa \
+            | tee build/output/FredyTest-Unsigned.verify.json
+
+      - name: Upload verified IPA
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: FredyTest-Unsigned-${{ github.run_id }}
+          path: |
+            build/output/FredyTest-Unsigned.ipa
+            build/output/FredyTest-Unsigned.verify.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload compiler log on failure
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: FredyTest-Build-Logs-${{ github.run_id }}
+          path: build/xcodebuild.log
+          if-no-files-found: warn
+          retention-days: 14
