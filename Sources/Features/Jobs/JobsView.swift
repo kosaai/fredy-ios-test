@@ -164,8 +164,8 @@ private struct JobCard: View {
                                 .font(.system(size: 31, weight: .semibold, design: .rounded))
                                 .foregroundStyle(foreground)
                         } else {
-                            Text("—")
-                                .font(.system(size: 31, weight: .medium))
+                            Text("jobs.unavailable")
+                                .font(.caption)
                                 .foregroundStyle(secondary)
                         }
                         Text("الإعلانات")
