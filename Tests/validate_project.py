@@ -33,7 +33,7 @@ class NativeProjectChecks(unittest.TestCase):
         self.assertEqual(root["packageReferences"], [])
 
         files = list((ROOT / "Sources").rglob("*.swift"))
-        self.assertEqual(len(files), 25)  # 22 original + 3 native design screens
+        self.assertEqual(len(files), 32)  # 25 existing + 7 Fredy user settings screens
         parser = Parser(Language(tree_sitter_swift.language()))
         source = ""
         for path in files:
