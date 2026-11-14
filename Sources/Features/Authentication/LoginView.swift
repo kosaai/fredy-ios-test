@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Native animated sign-in / account-request presentation.
 /// Only existing Fredy sign-in is enabled. Fredy v31 user creation is admin-only.
@@ -101,7 +102,6 @@ struct LoginView: View {
                 .scrollDismissesKeyboard(.interactively)
                 .scrollIndicators(.hidden)
             }
-            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .toolbar(.hidden, for: .navigationBar)
         .accessibilityIdentifier("login.screen")
