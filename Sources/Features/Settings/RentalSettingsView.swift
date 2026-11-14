@@ -1,87 +1,77 @@
 import SwiftUI
 
-/// Native iPhone presentation of the seven user-settings areas present in Fredy v31.
-/// The existing login/listings/jobs client is unchanged. Server settings are not
-/// fetched or written here; every section describes that boundary explicitly.
+/// FindHaus settings, organized as a native iPhone-style vertical menu.
+/// All seven settings screens remain presentation-only unless explicitly integrated.
 struct RentalSettingsView: View {
     @Binding var darkAppearance: Bool
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedSection: FredySettingsSection = .preferences
+    @State private var navigationPath: [FindHausSettingsSection] = []
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 22) {
                     VStack(alignment: .leading, spacing: 9) {
-                        HStack(spacing: 10) {
+                        HStack(alignment: .firstTextBaseline, spacing: 10) {
                             Text("الإعدادات")
-                                .font(.system(size: 32, weight: .bold, design: .rounded))
+                                .font(.system(size: 33, weight: .bold, design: .rounded))
                             Label("خاصة بك", systemImage: "person.crop.circle")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .padding(.horizontal, 10)
-                                .padding(.vertical, 7)
+                                .padding(.vertical, 6)
                                 .background(.quaternary, in: Capsule())
                         }
-                        Text("الإعدادات العامة لجميع المستخدمين توجد في لوحة إدارة الخادم.")
+                        Text("إعدادات الخادم المشتركة تُدار من لوحة إدارة الخادم.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-                    .padding(.horizontal, 18)
 
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 14) {
-                            ForEach(FredySettingsSection.allCases) { section in
-                                Button {
-                                    selectedSection = section
-                                } label: {
-                                    VStack(spacing: 10) {
-                                        Text(section.title)
-                                            .font(.subheadline.weight(selectedSection == section ? .semibold : .regular))
-                                            .foregroundStyle(selectedSection == section ? Color.primary : Color.secondary)
-                                            .fixedSize(horizontal: true, vertical: false)
-                                        Capsule()
-                                            .fill(selectedSection == section ? Color.accentColor : Color.clear)
-                                            .frame(height: 3)
-                                    }
+                    VStack(spacing: 0) {
+                        ForEach(FindHausSettingsSection.allCases) { section in
+                            NavigationLink(value: section) {
+                                HStack(spacing: 13) {
+                                    Image(systemName: section.symbol)
+                                        .font(.system(size: 19, weight: .medium))
+                                        .foregroundStyle(Color.accentColor)
+                                        .frame(width: 28, height: 30)
+                                        .accessibilityHidden(true)
+
+                                    Text(section.title)
+                                        .font(.body)
+                                        .foregroundStyle(.primary)
+                                    Spacer(minLength: 8)
+
+                                    Image(systemName: "chevron.left")
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(.tertiary)
+                                        .accessibilityHidden(true)
                                 }
-                                .buttonStyle(.plain)
-                                .accessibilityAddTraits(selectedSection == section ? .isSelected : [])
+                                .frame(minHeight: 57)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityIdentifier("settings.open." + section.rawValue)
+
+                            if section != FindHausSettingsSection.allCases.last {
+                                Divider().padding(.leading, 41)
                             }
                         }
-                        .padding(.horizontal, 18)
                     }
+                    .padding(.horizontal, 17)
+                    .background(
+                        Color(uiColor: .secondarySystemGroupedBackground),
+                        in: RoundedRectangle(cornerRadius: 20)
+                    )
                     .accessibilityIdentifier("settings.sections")
 
-                    Group {
-                        switch selectedSection {
-                        case .preferences:
-                            SettingsPreferencesPage(darkAppearance: $darkAppearance)
-                        case .travelTime:
-                            SettingsTravelTimePage()
-                        case .listingDetails:
-                            SettingsListingDetailsPage()
-                        case .application:
-                            SettingsApplicationPage()
-                        case .notifications:
-                            SettingsNotificationsPage()
-                        case .connections:
-                            SettingsConnectionsPage()
-                        case .mcp:
-                            SettingsMCPPage(onOpenConnections: { selectedSection = .connections })
-                        }
-                    }
-                    .padding(.horizontal, 18)
-                    .id(selectedSection)
-
-                    Text("تعديل إعدادات الخادم غير مفعّل في هذه المرحلة. لا توجد بيانات حساب أو أدوات مفعّلة معروضة بصورة افتراضية.")
+                    Text("القيم المرتبطة بالخادم غير محمّلة حاليًا. تغييرها يحتاج ربط الإعدادات الفعلية أولًا.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 18)
-                        .padding(.bottom, 16)
                 }
-                .padding(.top, 20)
+                .padding(.horizontal, 18)
+                .padding(.top, 26)
+                .padding(.bottom, 28)
             }
             .background(Color(uiColor: .systemGroupedBackground))
             .navigationBarTitleDisplayMode(.inline)
@@ -90,24 +80,78 @@ struct RentalSettingsView: View {
                     Button("إغلاق") { dismiss() }
                 }
             }
+            .navigationDestination(for: FindHausSettingsSection.self) { section in
+                settingsDetail(for: section)
+            }
             .accessibilityIdentifier("settings.screen")
         }
     }
+
+    private func settingsDetail(for section: FindHausSettingsSection) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Group {
+                    switch section {
+                    case .general:
+                        SettingsPreferencesPage(darkAppearance: $darkAppearance)
+                    case .travelTime:
+                        SettingsTravelTimePage()
+                    case .listingDetails:
+                        SettingsListingDetailsPage()
+                    case .application:
+                        SettingsApplicationPage()
+                    case .notifications:
+                        SettingsNotificationsPage()
+                    case .connections:
+                        SettingsConnectionsPage()
+                    case .mcp:
+                        SettingsMCPPage(onOpenConnections: {
+                            navigationPath.append(.connections)
+                        })
+                    }
+                }
+
+                Text("إعدادات الخادم للعرض حاليًا؛ لم تُجلب القيم المحفوظة، ولا تُرسل تعديلات إلى الخادم.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 18)
+            .padding(.top, 19)
+            .padding(.bottom, 30)
+        }
+        .background(Color(uiColor: .systemGroupedBackground))
+        .navigationTitle(section.title)
+        .navigationBarTitleDisplayMode(.inline)
+    }
 }
 
-private enum FredySettingsSection: String, CaseIterable, Identifiable {
-    case preferences, travelTime, listingDetails, application, notifications, connections, mcp
+private enum FindHausSettingsSection: String, CaseIterable, Identifiable, Hashable {
+    case general, travelTime, listingDetails, application, notifications, connections, mcp
 
     var id: String { rawValue }
+
     var title: String {
         switch self {
-        case .preferences: "التفضيلات"
+        case .general: "الإعدادات العامة"
         case .travelTime: "وقت التنقل"
         case .listingDetails: "تفاصيل الإعلانات"
         case .application: "طلب السكن"
         case .notifications: "قنوات الإشعار"
         case .connections: "الاتصالات"
         case .mcp: "خادم MCP"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .general: "gearshape"
+        case .travelTime: "tram"
+        case .listingDetails: "building.2"
+        case .application: "doc.text"
+        case .notifications: "bell"
+        case .connections: "link"
+        case .mcp: "server.rack"
         }
     }
 }
