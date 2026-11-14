@@ -25,6 +25,21 @@ class LoginSourceContract(unittest.TestCase):
             for forbidden in ['URLSession', 'UserDefaults', 'print(', 'debugPrint(', 'Logger(']:
                 self.assertNotIn(forbidden, source)
 
+    def test_animated_auth_design_does_not_fake_registration_or_social_login(self):
+        view = (ROOT / "Sources/Features/Authentication/LoginView.swift").read_text()
+        for required in [
+            "matchedGeometryEffect", "withAnimation", "accessibilityReduceMotion",
+            "signInFields", "signUpFields", "register.submit", "SecureField",
+            "login.username", "login.password", "await model.signIn()",
+            ".disabled(true)", "لا يدعم الخادم التسجيل الذاتي",
+        ]:
+            self.assertIn(required, view)
+        for forbidden in [
+            "createUser(", "registerUser(", "GoogleSignIn", "ASAuthorization",
+            "URLSession(", "UserDefaults", "WKWebView",
+        ]:
+            self.assertNotIn(forbidden, view)
+
     def test_session_service_verifies_cookie_and_user_before_success(self):
         path = ROOT / "Sources/Shared/Authentication/FredyAuthService.swift"
         self.assertTrue(path.exists(), "Fredy session service has not been implemented")
