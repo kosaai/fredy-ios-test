@@ -31,6 +31,10 @@ API/service outages cannot guarantee remote cancellation. The helper records unc
 
 ## Evidence status
 
-Preparation is implemented and locally testable; first live build result is **pending**. No IPA is claimed at preparation time. The final outcome will be recorded after the one dispatched run and exact artifact/cancellation read-back.
+The first live attempt was interrupted in the Oracle agent session; its background queue monitor exited with code 1. That exit code alone is not a compiler log, and no IPA artifact has been independently verified. The original run ID, exact failing step and runner start time remain unverified.
+
+Workflow maintenance on 2026-11-14: converted the workflow to readable YAML, used the explicit Xcode PBX target rather than requiring a generated/shared scheme, and replaced the scheme-specific `-derivedDataPath` option with target-compatible `SYMROOT`, `OBJROOT` and `CONFIGURATION_BUILD_DIR` paths. Packaging now reads `build/Products/Release-iphoneos/FredyTest.app`. The external Oracle monitor now prints failed Actions step names on a failed run. These are reviewed configuration changes, not proof of a successful macOS build.
+
+Do not rerun automatically. On the next *explicitly authorized* attempt use the existing 300-second Oracle queue watchdog and check the exact GitHub Actions failed step or successful artifact before reporting the outcome.
 
 Local tests use explicit synthetic job metadata, fake clocks and minimal structural ZIP/Mach-O fixtures only to test watchdog/verifier branches; none are app mock data or a deliverable IPA. App source tests and tool unit tests are not an Xcode compile. No Apple signing data, Fredy or Cloudflare changes are included.
