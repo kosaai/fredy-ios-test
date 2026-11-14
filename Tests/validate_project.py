@@ -5,6 +5,8 @@ Optional parsers (installed outside this project):
 Run: python Tests/validate_project.py
 """
 import json
+import hashlib
+import struct
 from pathlib import Path
 import re
 import unittest
@@ -53,6 +55,23 @@ class NativeProjectChecks(unittest.TestCase):
         keys = set(re.findall(r'"((?:home|about|login|listings|jobs|tabs)\.[a-z_]+)"', translation_source))
         self.assertTrue(keys)
         self.assertTrue(keys <= set(catalog["strings"]))
+        # The user's selected FindHaus art is an actual Xcode app icon and image asset.
+        assets = ROOT / "Resources/FindHausAssets.xcassets"
+        app_icon = assets / "AppIcon.appiconset/FindHausIcon.png"
+        login_logo = assets / "BrandLogo.imageset/FindHausIcon.png"
+        for asset in [app_icon, login_logo]:
+            raw = asset.read_bytes()
+            self.assertEqual(raw[:8], b"\\x89PNG\\r\\n\\x1a\\n")
+            self.assertEqual(struct.unpack(">II", raw[16:24]), (1024, 1024))
+            self.assertEqual(hashlib.sha256(raw).hexdigest(),
+                             "498f0da9ca74fa240e8dcb53f790e38adac0dcc53c4134a4020c05b32a66c6ce")
+        icon_config = json.loads((assets / "AppIcon.appiconset/Contents.json").read_text())
+        logo_config = json.loads((assets / "BrandLogo.imageset/Contents.json").read_text())
+        self.assertEqual(icon_config["images"][0]["filename"], "FindHausIcon.png")
+        self.assertEqual(logo_config["images"][0]["filename"], "FindHausIcon.png")
+        self.assertIn("ASSETCATALOG_COMPILER_APPICON_NAME", project.read_text())
+        self.assertIn("FindHaus", project.read_text())
+
         for key in keys:
             for locale in ["en", "ar"]:
                 unit = catalog["strings"][key]["localizations"][locale]["stringUnit"]
