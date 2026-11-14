@@ -44,6 +44,10 @@ Removed the seven-section horizontal menu in RentalSettingsView.swift and replac
 
 Changed shared ListingRow to use the supplied visual reference: square authenticated photo to the left in Arabic RTL, text/info on the right, real EUR price in green, rooms/area with SF Symbols; removed any favorite/heart embellishments (none added). Updated ListingImageView to handle 116pt square thumbnails with its existing secure loader. Both Home and Listings automatically use the new layout. No invented bathrooms, sample listings, new backend calls or functional changes. Added a source contract test; compilation/appearance await user-run manual macos-26 IPA workflow.
 
+## 2026-11-15 — Simplify the Listings screen
+
+Removed the circled row of job/count chips, region chips and explanatory paragraph from active Listings UI. Kept real listing job selection initiated from Jobs and made a reset action available via the existing filter menu when needed. Text search and price/room filters remain. `SearchFilterChips` is no longer rendered. Source contract test updated. No live build yet; user dispatches FindHaus manual IPA workflow.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
