@@ -51,8 +51,8 @@ struct LoginView: View {
 
                 ScrollView {
                     VStack(spacing: 0) {
-                        Spacer(minLength: 18)
-
+                        // Fixed top anchor: switching modes changes the card height,
+                        // but must never re-center and jump the entire form.
                         VStack(spacing: 0) {
                             colorfulHeader
 
@@ -92,12 +92,11 @@ struct LoginView: View {
                         }
                         .frame(maxWidth: 445)
                         .padding(.horizontal, 20)
+                        .padding(.top, 18)
                         .padding(.bottom, 32)
-
-                        Spacer(minLength: 10)
                     }
-                    .frame(minHeight: geometry.size.height)
-                    .frame(maxWidth: .infinity)
+                    .frame(minHeight: geometry.size.height, alignment: .top)
+                    .frame(maxWidth: .infinity, alignment: .top)
                 }
                 .scrollDismissesKeyboard(.interactively)
                 .scrollIndicators(.hidden)
