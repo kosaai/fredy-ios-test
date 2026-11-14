@@ -6,7 +6,7 @@ struct SettingsNotificationsPage: View {
     var body: some View {
         VStack(spacing: 16) {
             SettingsCard("قنوات الإشعار",
-                         detail: "يدير Fredy الأصلي قنوات إشعار قابلة للإضافة والتعديل والاختبار والحذف، وتُربط بمهام البحث.") {
+                         detail: "يدير الخادم الأصلي قنوات إشعار قابلة للإضافة والتعديل والاختبار والحذف، وتُربط بمهام البحث.") {
                 Label("إشعارات تطبيق الآيفون", systemImage: "bell.badge")
                     .font(.headline)
 
