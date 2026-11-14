@@ -48,8 +48,10 @@ jobs:
             -target FredyTest \
             -configuration Release \
             -sdk iphoneos \
-            -derivedDataPath build/DerivedData \
             -arch arm64 \
+            SYMROOT="$PWD/build/Products" \
+            OBJROOT="$PWD/build/Intermediates" \
+            CONFIGURATION_BUILD_DIR="$PWD/build/Products/Release-iphoneos" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
@@ -63,7 +65,7 @@ jobs:
       - name: Package and verify unsigned device IPA
         run: |
           set -euo pipefail
-          APP="build/DerivedData/Build/Products/Release-iphoneos/FredyTest.app"
+          APP="build/Products/Release-iphoneos/FredyTest.app"
           test -d "$APP"
           test -f "$APP/Info.plist"
           test "$(xcrun lipo -archs "$APP/FredyTest")" = "arm64"
