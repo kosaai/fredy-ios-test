@@ -23,7 +23,7 @@ struct RentalSettingsView: View {
                                 .padding(.vertical, 7)
                                 .background(.quaternary, in: Capsule())
                         }
-                        Text("الإعدادات العامة لجميع المستخدمين توجد في إدارة Fredy.")
+                        Text("الإعدادات العامة لجميع المستخدمين توجد في لوحة إدارة الخادم.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -74,7 +74,7 @@ struct RentalSettingsView: View {
                     .padding(.horizontal, 18)
                     .id(selectedSection)
 
-                    Text("تغييرات إعدادات Fredy على الخادم غير مفعّلة في هذه المرحلة. لا توجد بيانات حساب أو أدوات مفعّلة معروضة بصورة افتراضية.")
+                    Text("تعديل إعدادات الخادم غير مفعّل في هذه المرحلة. لا توجد بيانات حساب أو أدوات مفعّلة معروضة بصورة افتراضية.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -146,7 +146,7 @@ struct SettingsCard<Content: View>: View {
 struct SettingsReadOnlyNote: View {
     let message: String
 
-    init(_ message: String = "العناصر هنا لعرض بنية الإعدادات. لا تُحمَّل القيم المحفوظة ولا تُرسل تغييرات إلى Fredy.") {
+    init(_ message: String = "العناصر هنا لعرض بنية الإعدادات. لا تُحمَّل القيم المحفوظة ولا تُرسل تغييرات إلى الخادم.") {
         self.message = message
     }
 
