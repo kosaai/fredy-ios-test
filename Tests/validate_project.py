@@ -16,6 +16,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class NativeProjectChecks(unittest.TestCase):
+    def test_rentals_use_compact_horizontal_cards_without_favorites(self):
+        card = (ROOT / "Sources/Features/Listings/ListingRow.swift").read_text()
+        image = (ROOT / "Sources/Features/Listings/ListingImageView.swift").read_text()
+        home = (ROOT / "Sources/Features/Home/HomeView.swift").read_text()
+        listings = (ROOT / "Sources/Features/Listings/ListingsView.swift").read_text()
+        self.assertIn("HStack(alignment: .top, spacing: 13)", card)
+        self.assertIn("thumbnailSize: photoSide", card)
+        self.assertIn("listings.row.horizontal", card)
+        self.assertIn("listing.euroPrice", card)
+        self.assertIn("listing.rooms", card)
+        self.assertIn("listing.size", card)
+        self.assertIn("listing.address", card)
+        self.assertIn("thumbnailSize: CGFloat = 116", image)
+        self.assertIn("ListingRow(", home)
+        self.assertIn("ListingRow(", listings)
+        for unwanted in ["heart", "favorite", "bathroom", "sample", "mock"]:
+            self.assertNotIn(unwanted, card.lower())
+
     def test_settings_use_vertical_native_navigation(self):
         settings = (ROOT / "Sources/Features/Settings/RentalSettingsView.swift").read_text()
         self.assertIn("NavigationStack(path: $navigationPath)", settings)
