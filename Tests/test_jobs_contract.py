@@ -38,6 +38,30 @@ class JobsSourceContract(unittest.TestCase):
         protocol = (ROOT / 'Sources/Shared/Listings/RentalListing.swift').read_text()
         self.assertIn('FredyListingsServing, FredyJobsServing', protocol)
 
+    def test_dashboard_uses_real_fredy_counts_and_confirmed_one_shot_run(self):
+        dto = (ROOT / 'Sources/Shared/Listings/RentalListing.swift').read_text()
+        service = (ROOT / 'Sources/Shared/Authentication/FredyAuthService.swift').read_text()
+        home = (ROOT / 'Sources/Features/Home/HomeView.swift').read_text()
+        self.assertIn('struct FindHausDashboardSnapshot: Decodable', dto)
+        for field in ['perDay', 'newToday', 'intervalMinutes', 'lastRunDate', 'nextRunDate']:
+            self.assertIn(field, dto)
+        self.assertIn('FredyDashboardServing', dto)
+        self.assertIn('authenticatedRead(path: "api/dashboard")', service)
+        self.assertIn('authenticatedWrite(path: "api/jobs/startAll")', service)
+        self.assertIn('response.statusCode == 202', service)
+        self.assertIn('dashboardService.fetchDashboardSnapshot()', home)
+        self.assertIn('dashboardService.startAllSearches()', home)
+        for label in ['إعلان جديد اليوم', 'البحث الدوري كل', 'آخر تشغيل:',
+                      'التشغيل القادم:', 'ابحث الآن', 'home.search_summary']:
+            self.assertIn(label, home)
+        self.assertIn('.confirmationDialog(', home)
+        self.assertIn('isPresented: $confirmingSearch', home)
+        self.assertIn('disabled(startingSearch', home)
+        self.assertIn('Task { await reloadDashboard() }', home)
+        self.assertNotIn('73 new', home)
+        self.assertNotIn('Telegram', home)
+        self.assertNotIn('URLSession(', home)
+
     def test_actual_job_fields_are_optional_without_invented_defaults(self):
         path = ROOT / 'Sources/Shared/Jobs/SearchJob.swift'
         self.assertTrue(path.exists(), 'Read-only job DTO is missing')
