@@ -29,6 +29,11 @@ struct RentalListing: Decodable, Identifiable, Sendable {
     let dealType: String?
     let jobID: String?
     let jobName: String?
+    let provider: String?
+    let link: String?
+    let isWatched: Bool?
+    let decision: String?
+    let publishedDate: Date?
 
     var isRental: Bool { dealType == "rent" }
     var euroPrice: Double? { currency == "EUR" ? price : nil }
@@ -37,6 +42,9 @@ struct RentalListing: Decodable, Identifiable, Sendable {
         case id, title, address, price, size, rooms, currency, dealType
         case jobID = "job_id"
         case jobName = "job_name"
+        case provider, link, isWatched, status
+        case publishedAt = "published_at"
+        case createdAt = "created_at"
     }
 
     init(from decoder: Decoder) throws {
@@ -54,6 +62,20 @@ struct RentalListing: Decodable, Identifiable, Sendable {
         dealType = values.optionalText(.dealType)
         jobID = values.optionalText(.jobID)
         jobName = values.optionalText(.jobName)
+        provider = values.optionalText(.provider)
+        link = values.optionalText(.link)
+        if let watchNumber = try? values.decodeIfPresent(Int.self, forKey: .isWatched) {
+            isWatched = watchNumber == 1
+        } else {
+            isWatched = try? values.decodeIfPresent(Bool.self, forKey: .isWatched)
+        }
+        decision = (try? values.decodeIfPresent(ListingDecisionRecord.self, forKey: .status))?.status
+        let timestamp = values.optionalNumber(.publishedAt) ?? values.optionalNumber(.createdAt)
+        if let timestamp, timestamp > 946_684_800_000, timestamp < 4_102_444_800_000 {
+            publishedDate = Date(timeIntervalSince1970: timestamp / 1000)
+        } else {
+            publishedDate = nil
+        }
     }
 }
 
@@ -101,4 +123,26 @@ protocol FredyListingsServing {
 }
 
 @MainActor
-protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating {}
+protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing {}
+
+private struct ListingDecisionRecord: Decodable {
+    let status: String?
+}
+
+/// Exact user-facing data returned by GET /api/listings/:listingId/application.
+struct ListingApplicationDraft: Decodable, Sendable {
+    let text: String
+    let hasProfile: Bool?
+    let missing: [String]?
+    let unknown: [String]?
+}
+
+/// Authenticated, explicit per-listing operations supported by the official
+/// Fredy v31 API. These are not synthetic local favorites or status values.
+@MainActor
+protocol FredyListingActionServing {
+    func toggleListingWatch(id: String) async throws
+    func setListingStatus(id: String, status: String?) async throws
+    func fetchListingApplication(id: String) async throws -> ListingApplicationDraft
+    func softRemoveListing(id: String) async throws
+}
