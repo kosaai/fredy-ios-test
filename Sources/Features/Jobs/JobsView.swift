@@ -55,13 +55,9 @@ struct JobsView: View {
             .padding(.top, 18)
             .padding(.bottom, 30)
         }
-        .environment(\.colorScheme, .dark)
-        .background(Color(red: 0.065, green: 0.065, blue: 0.063).ignoresSafeArea())
+        .background(Color(uiColor: .systemGroupedBackground).ignoresSafeArea())
         .navigationTitle("مهام البحث")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbarBackground(Color(red: 0.065, green: 0.065, blue: 0.063), for: .navigationBar)
-        .toolbarBackground(.visible, for: .navigationBar)
-        .toolbarColorScheme(.dark, for: .navigationBar)
         .accessibilityIdentifier("jobs.screen")
         .task { await model.loadIfNeeded() }
         .refreshable { await model.reload() }
@@ -86,10 +82,11 @@ private struct JobCard: View {
     let onSelect: () -> Void
     @State private var presentingDesignNotice = false
 
-    private let cardBackground = Color(red: 0.095, green: 0.095, blue: 0.092)
-    private let foreground = Color(red: 0.96, green: 0.96, blue: 0.96)
-    private let secondary = Color(red: 0.62, green: 0.62, blue: 0.61)
-    private let border = Color(red: 0.19, green: 0.19, blue: 0.18)
+    // Use semantic system colors; the original card layout works in both appearances.
+    private let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
+    private let foreground = Color.primary
+    private let secondary = Color.secondary
+    private let border = Color(uiColor: .separator)
 
     private var providers: String {
         guard let provider = job.provider, !provider.isEmpty else { return "المصدر غير متاح" }
@@ -187,10 +184,12 @@ private struct JobCard: View {
                 Button(action: showDesignNotice) {
                     ZStack(alignment: job.enabled == true ? .trailing : .leading) {
                         Capsule()
-                            .fill(job.enabled == true ? Color.white : Color(red: 0.35, green: 0.35, blue: 0.35))
+                            .fill(job.enabled == true
+                                  ? Color(red: 0.20, green: 0.68, blue: 0.43)
+                                  : Color(uiColor: .systemGray3))
                             .frame(width: 46, height: 27)
                         Circle()
-                            .fill(job.enabled == true ? Color.black : Color.white)
+                            .fill(Color.white)
                             .frame(width: 21, height: 21)
                             .padding(.horizontal, 3)
                     }
@@ -238,7 +237,7 @@ private struct JobCard: View {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 20, weight: .medium))
                         .frame(width: 43, height: 39)
-                        .background(Color(red: 0.15, green: 0.15, blue: 0.14),
+                        .background(Color(uiColor: .tertiarySystemGroupedBackground),
                                     in: Capsule())
                 }
                 .accessibilityLabel("مزيد من الخيارات")
