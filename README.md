@@ -55,7 +55,7 @@ Oracle has no Swift/Xcode/Apple SDK. Native type checking/build, real authentica
 
 No listing detail/edit/backfill, general job edit/delete or repeat-run controls, backend/database/Cloudflare/provider_details changes, analytics, credential persistence, signing or release publication.
 
-The prior manual-only unsigned-IPA workflow remains historical preparation. First run 43596808016 failed before Swift compilation after macos-26 preflight; there is no verified IPA. Existing local CI fixes are kept separate and uncommitted, not dispatched by this feature. Any later authorized attempt must retain macos-26 and the independent 300-second queue watchdog, without fallback/automatic retry. See `docs/UNSIGNED_IPA.md` and `HANDOFF.md`.
+The prior manual-only unsigned-IPA workflow remains historical preparation. First run 43596808016 failed before Swift compilation after macos-26 preflight; there is no verified IPA. Concurrent upstream CI changes were retained by a normal merge; earlier local CI edits are preserved separately in a verified local stash, not applied over upstream or dispatched by this feature. The full suite has one inherited workflow-policy error (JSON parser vs the upstream YAML file), reproduced on the upstream baseline; all 14 native source/project checks pass. Any later authorized build attempt must retain macos-26 and the independent 300-second queue watchdog, without fallback/automatic retry. See `docs/UNSIGNED_IPA.md` and `HANDOFF.md`.
 
 ## Project memory
 

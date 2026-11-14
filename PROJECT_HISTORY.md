@@ -114,6 +114,12 @@ Data preservation evidence: this task's initial readonly/query_only snapshot alr
 
 Pre-existing local CI changes in the workflow, watchdog, its tests and unsigned-IPA documentation are deliberately left uncommitted/separate. The worktree suite includes that additional null-runner regression; the exact staged feature snapshot was exported outside the repository and all 25 tests passed independently of those four local paths. Prior failed build evidence is retained; no new build is implied. The reviewed gate accepts 52 public files and 44 graph inputs; incremental maintenance follows `AGENTS.md` and preserves older snapshots and the unrelated historical graph. Two AST symbol-resolution self-loops are documented, not hidden or fixed by editing the graph.
 
+### Concurrent main reconciliation and final test status
+
+A final fetch found four upstream CI commits through `0708f7f97d4b5a929b5f1814b2053d934760060a` that were absent from the initial local tracking ref. Preserved all four pre-existing local CI files byte-for-byte in durable local stash `74b1a8de6273656179f4569468e3ae326ee86cfd`, verified their blob hashes, and retained upstream history through an ordinary non-force merge. The stash is not blindly reapplied over upstream and must not be dropped. No CI dispatch, backend write or IPA was performed.
+
+Final native source/project subset: **14 tests passed**, including all five new gates. Exact reconciled HEAD full suite: **25 tests, one inherited error** in the workflow-policy test, which parses upstream's readable YAML as JSON. Exact upstream baseline independently reproduced the identical error across 20 tests; failure-name comparison found no new regression. Earlier 26-worktree/25-staged passing runs above are evidence before this reconciliation, not a claim of a completely green final full suite. The unrelated CI test is left unchanged under this feature scope; Swift execution/build and prototype parity remain unverified.
+
 ## Decisions preserved
 
 - Do not copy Fredy implementation, SQL, assets or branding into the original app. Use facts/contracts only; legal/provider-rights review remains open.
