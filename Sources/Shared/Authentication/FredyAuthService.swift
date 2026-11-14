@@ -216,6 +216,20 @@ final class FredyAuthService: FredyClientServing {
         }
     }
 
+    func fetchDashboardSnapshot() async throws -> FindHausDashboardSnapshot {
+        let (data, response) = try await authenticatedRead(path: "api/dashboard")
+        guard response.mimeType == "application/json",
+              let snapshot = try? JSONDecoder().decode(FindHausDashboardSnapshot.self, from: data)
+        else { throw ListingsFailure.invalidResponse }
+        return snapshot
+    }
+
+    func startAllSearches() async throws {
+        // Exact Fredy v31 route; one user-confirmed POST, no retry or polling.
+        let response = try await authenticatedWrite(path: "api/jobs/startAll")
+        guard response.statusCode == 202 else { throw ListingsFailure.invalidResponse }
+    }
+
     func fetchJobs() async throws -> [SearchJob] {
         let (data, response) = try await authenticatedRead(path: "api/jobs/")
         guard response.mimeType == "application/json",
