@@ -38,3 +38,7 @@ Workflow maintenance on 2026-11-14: converted the workflow to readable YAML, use
 Do not rerun automatically. On the next *explicitly authorized* attempt use the existing 300-second Oracle queue watchdog and check the exact GitHub Actions failed step or successful artifact before reporting the outcome.
 
 Local tests use explicit synthetic job metadata, fake clocks and minimal structural ZIP/Mach-O fixtures only to test watchdog/verifier branches; none are app mock data or a deliverable IPA. App source tests and tool unit tests are not an Xcode compile. No Apple signing data, Fredy or Cloudflare changes are included.
+
+## FindHaus naming (2026-11-14)
+
+The current manual `macos-26` workflow now uploads `FindHaus-Unsigned.ipa` in a `FindHaus-Unsigned-<run-id>` artifact and checks that the compiled app has display name `FindHaus` and an `Assets.car` image catalog. Its internal Xcode target, embedded executable and `Payload/FredyTest.app` path are unchanged for compatibility. Historical FredyTest artifact names described above refer to earlier builds.
