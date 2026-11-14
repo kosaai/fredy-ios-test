@@ -5,16 +5,18 @@ import SwiftUI
 struct HomeView: View {
     @State private var model: ListingsModel
     let jobsModel: JobsModel
+    let listingActions: any FredyListingActionServing
     let onShowListings: () -> Void
     let onShowJobs: () -> Void
     let onSessionExpired: () -> Void
 
-    init(service: any FredyListingsServing, jobsModel: JobsModel,
+    init(service: any FredyClientServing, jobsModel: JobsModel,
          onShowListings: @escaping () -> Void,
          onShowJobs: @escaping () -> Void,
          onSessionExpired: @escaping () -> Void) {
         _model = State(initialValue: ListingsModel(service: service))
         self.jobsModel = jobsModel
+        self.listingActions = service
         self.onShowListings = onShowListings
         self.onShowJobs = onShowJobs
         self.onSessionExpired = onSessionExpired
@@ -92,6 +94,10 @@ struct HomeView: View {
                 } else {
                     ForEach(Array(model.items.prefix(3))) { listing in
                         ListingRow(listing: listing, images: model.images,
+                                   actions: listingActions,
+                                   onChanged: {
+                                       Task { await model.reload(); await jobsModel.reload() }
+                                   },
                                    onSessionExpired: model.expireSession)
                     }
                 }
