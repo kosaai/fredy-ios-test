@@ -45,6 +45,10 @@ Added the PNG paths to public allowlist as **SHA-256-pinned binaries**; updated 
 
 Current manual workflow labels/IPA artifact are branded `FindHaus-Unsigned.ipa`; the executable inside `Payload/FredyTest.app` remains unchanged for compatibility. The workflow additionally checks `CFBundleDisplayName=FindHaus` and bundled `Assets.car` before artifact upload.
 
+## FindHaus Settings navigation correction — 2026-11-14
+
+At the user's request, replaced the horizontal scrolling settings section tab strip with a native **vertical seven-row Settings menu**. Rows: الإعدادات العامة (renamed from التفضيلات), وقت التنقل, تفاصيل الإعلانات, طلب السكن, قنوات الإشعار, الاتصالات, خادم MCP. Each row uses an SF Symbol and navigation chevron and opens its original detailed SwiftUI settings content with the standard iOS back button. MCP's "connections" entry pushes its existing Connections page. Settings remains a sheet launched from the original toolbar and retains its close button on the root page. No new API calls, saved values, backend changes, forced colors, sample data, or account mutations. Updated a source-structure test in Tests/validate_project.py. Manual macos-26 unsigned FindHaus IPA workflow unchanged; user must run it to verify compilation and appearance. Graphify on Oracle not refreshed.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
