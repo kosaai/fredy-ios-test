@@ -5,8 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       build_tag:
-        description: Unique Oracle monitor correlation tag
-        required: true
+        description: Optional build label (Oracle queue monitor supplies its own unique tag)
+        required: false
+        default: manual
         type: string
 
 permissions:
@@ -28,9 +29,11 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Check Xcode and iPhone device SDK
+      - name: Check Xcode, iPhone SDK and source commit
         run: |
           set -euo pipefail
+          echo "Building commit: $GITHUB_SHA"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
           sw_vers
           python3 -c 'import platform; assert platform.mac_ver()[0].split(".")[0] == "26", "Expected macOS 26"'
           xcode-select -p
