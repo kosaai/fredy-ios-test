@@ -119,16 +119,19 @@ struct ListingRow: View {
                         .accessibilityLabel(watched == true ? "إزالة من المتابعة" : "إضافة إلى المتابعة")
                         .accessibilityIdentifier("listing.watch")
                     }
+                    .overlay(alignment: .topTrailing) {
+                        if let publishedDate = listing.publishedDate {
+                            Text(publishedDate, style: .relative)
+                                .font(.system(size: 9, weight: .medium))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 5)
+                                .background(.regularMaterial, in: Capsule())
+                                .padding(5)
+                        }
+                    }
                     .accessibilityIdentifier("listings.thumbnail")
-            }
-
-            if let publishedDate = listing.publishedDate {
-                HStack(spacing: 5) {
-                    Image(systemName: "clock")
-                    Text(publishedDate, style: .relative)
-                }
-                .font(.caption2)
-                .foregroundStyle(.secondary)
             }
 
             Divider()
