@@ -42,23 +42,23 @@ class AddSearchContract(unittest.TestCase):
         for forbidden in ['.task { await model.saveAndSearch()', 'URLSession(', 'https://']:
             self.assertNotIn(forbidden, view)
 
-    def test_job_region_filters_keep_raw_pagination_and_reject_stale_pages(self):
+    def test_job_selection_is_preserved_without_cluttered_filter_chips(self):
         source = (ROOT / 'Sources/Shared/Authentication/FredyAuthService.swift').read_text()
-        self.assertIn('URLQueryItem(name: "jobNameFilter"', source, 'Exact job-id server filter is missing')
+        self.assertIn('URLQueryItem(name: "jobNameFilter"', source)
         model = (ROOT / 'Sources/Features/Listings/ListingsModel.swift').read_text()
         for token in ['requestGeneration', 'generation == requestGeneration', 'func changeJob(',
                       'jobID: selectedJobID', 'response.totalNumber', 'response.result.isEmpty']:
             self.assertIn(token, model)
         listing = (ROOT / 'Sources/Shared/Listings/RentalListing.swift').read_text()
         self.assertIn('case jobID = "job_id"', listing)
-        chips = ROOT / 'Sources/Features/Listings/SearchFilterChips.swift'
-        self.assertTrue(chips.is_file())
-        for token in ['job.id', 'numberOfFoundListings', 'regionLabel', 'jobs.active_short', 'jobs.all_searches']:
-            self.assertIn(token, chips.read_text())
         view = (ROOT / 'Sources/Features/Listings/ListingsView.swift').read_text()
-        for token in ['SearchFilterChips(', 'selectedRegion', 'allowedJobIDs', 'listing.jobID',
-                      '.task(id:', 'model.changeJob(', 'jobsModel.reload()']:
+        for token in ['@Binding var selectedJobID: String?', 'model.changeJob(selectedJobID)',
+                      '.task(id:', 'jobsModel.reload()', 'selectedJobID = nil',
+                      'عرض إعلانات كل الأبحاث', 'TextField("بحث ضمن الإعلانات المحمّلة"']:
             self.assertIn(token, view)
+        for unwanted in ['SearchFilterChips(', 'selectedRegion', 'jobs.active_count_note',
+                         'jobs.region_from_url', 'allowedJobIDs']:
+            self.assertNotIn(unwanted, view)
 
     def test_creation_cannot_upsert_existing_id_and_filtered_page_cannot_widen(self):
         model = (ROOT / 'Sources/Features/Jobs/AddSearchModel.swift').read_text()
