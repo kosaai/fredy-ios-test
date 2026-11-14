@@ -30,12 +30,12 @@ class WorkflowPolicyTests(unittest.TestCase):
         commands = '\n'.join(s.get('run', '') for s in job['steps'])
         for required in ['xcodebuild', '-sdk iphoneos', '-arch arm64', 'generic/platform=iOS',
                          'CODE_SIGNING_ALLOWED=NO', 'CODE_SIGNING_REQUIRED=NO', 'ditto',
-                         'Payload/FredyTest.app', 'verify_unsigned_ipa.py', 'FredyTest-Unsigned.ipa']:
+                         'Payload/FredyTest.app', 'verify_unsigned_ipa.py', 'FindHaus-Unsigned.ipa']:
             self.assertIn(required, commands)
         self.assertNotIn('-exportArchive', commands)
-        upload = [s for s in job['steps'] if s.get('with', {}).get('name', '').startswith('FredyTest-Unsigned-')]
+        upload = [s for s in job['steps'] if s.get('with', {}).get('name', '').startswith('FindHaus-Unsigned-')]
         self.assertEqual(len(upload), 1)
-        self.assertIn('FredyTest-Unsigned.ipa', upload[0]['with']['path'])
+        self.assertIn('FindHaus-Unsigned.ipa', upload[0]['with']['path'])
         self.assertEqual(upload[0]['with']['if-no-files-found'], 'error')
 
 
