@@ -2,6 +2,12 @@
 
 This is the history of the **Fredy Test native SwiftUI client experiment**, not a claim that a full property app has been delivered. Entries summarize retained Oracle reports and observed tests. Original reports, raw responses, credentials and deployment configuration stay outside this repository and outside its graph corpus. Evidence fingerprints are listed in `docs/provenance.json`; they establish document identity, not independent reproduction of every historical claim.
 
+## 2026-11-14 — Native rental UI layout, direct main
+
+User authorized direct GitHub edits and manual IPA workflow, no Codex. Rebuilt authenticated UI navigation as native four-tab SwiftUI (Home, Listings, Jobs, Map), with top-bar Budget and Settings sheets. Added separate MapKit, local-input rental budget, and visual settings views; redesigned Home/Jobs/Listings/ListingRow. No sample listings, hardcoded counts, sample financial inputs, fake pins or Telegram. Home and existing listing/job screens retain their real authenticated Fredy client reads; the new map cannot show pins until coordinate fields are supported. Existing search creation API and authentication logic were not modified.
+
+Registered three Swift files into the single iPhone native target (total 25), updated public Graphify allowlists and project source test. Updated app display name only (رصد العقارات); kept FredyTest executable, bundle identifier, iPhoneOS release artifact workflow, and no-code-signing policy. No Apple toolchain available through the GitHub connector; build and live device appearance remain user-run pending. Graphify was not refreshed on Oracle; only its declared scope was updated. Earlier known CI policy test parses readable YAML as JSON, not caused or resolved by this UI work.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
