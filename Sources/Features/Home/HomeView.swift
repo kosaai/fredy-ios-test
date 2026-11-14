@@ -35,7 +35,7 @@ struct HomeView: View {
                         .font(.system(size: 30, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
                         .fixedSize(horizontal: false, vertical: true)
-                    Text("نتائج عمليات البحث المحفوظة على Fredy")
+                    Text("نتائج عمليات البحث المحفوظة")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.76))
                     Button(action: onShowListings) {
@@ -52,8 +52,8 @@ struct HomeView: View {
                 .padding(22)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
-                    LinearGradient(colors: [.init(red: 0.17, green: 0.17, blue: 0.18),
-                                            .init(red: 0.07, green: 0.07, blue: 0.08)],
+                    LinearGradient(colors: [.init(red: 0.31, green: 0.38, blue: 0.99),
+                                            .init(red: 0.25, green: 0.30, blue: 0.81)],
                                    startPoint: .topLeading, endPoint: .bottomTrailing),
                     in: RoundedRectangle(cornerRadius: 26)
                 )
@@ -88,7 +88,7 @@ struct HomeView: View {
                 } else if model.items.isEmpty {
                     ContentUnavailableView("لا توجد إعلانات لعرضها",
                                            systemImage: "building.2",
-                                           description: Text("لا توجد نتائج محمّلة من Fredy."))
+                                           description: Text("لا توجد نتائج محمّلة من الخادم."))
                 } else {
                     ForEach(Array(model.items.prefix(3))) { listing in
                         ListingRow(listing: listing, images: model.images,
