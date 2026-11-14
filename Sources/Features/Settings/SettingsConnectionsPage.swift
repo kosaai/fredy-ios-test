@@ -6,7 +6,7 @@ struct SettingsConnectionsPage: View {
     var body: some View {
         VStack(spacing: 16) {
             SettingsCard("اتصالات MCP المعتمدة",
-                         detail: "يعرض Fredy التطبيقات التي سبق منحها وصول OAuth إلى مهامك وإعلاناتك، ونوع الصلاحية وتاريخ منحها، مع إمكانية إلغاء الوصول.") {
+                         detail: "يعرض الخادم التطبيقات التي سبق منحها وصول OAuth إلى مهامك وإعلاناتك، ونوع الصلاحية وتاريخ منحها، مع إمكانية إلغاء الوصول.") {
                 LabeledContent("الجهة المتصلة") {
                     Text("غير محمّلة").foregroundStyle(.secondary)
                 }
@@ -18,7 +18,7 @@ struct SettingsConnectionsPage: View {
                     Text("غير محمّل").foregroundStyle(.secondary)
                 }
 
-                SettingsReadOnlyNote("لم تُجلب قائمة اتصالات OAuth الفعلية من Fredy. لا يمكن افتراض عدم وجود اتصالات ولا يمكن إلغاء أي وصول من هذه الصفحة حاليًا.")
+                SettingsReadOnlyNote("لم تُجلب قائمة اتصالات OAuth الفعلية من الخادم. لا يمكن افتراض عدم وجود اتصالات ولا يمكن إلغاء أي وصول من هذه الصفحة حاليًا.")
                 Button(role: .destructive) {
                     // No destructive server request or synthetic client identifier.
                 } label: {
