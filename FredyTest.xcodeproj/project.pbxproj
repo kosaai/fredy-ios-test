@@ -513,10 +513,22 @@
 			"name" = "Sources";
 			"sourceTree" = "<group>";
 		};
+		"F1DA55E70000000000000001" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "folder.assetcatalog";
+			"name" = "FindHausAssets.xcassets";
+			"path" = "Resources/FindHausAssets.xcassets";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"F1DA55E70000000000000002" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F1DA55E70000000000000001";
+		};
 		"2B1C52BD870760779685BF3F" = {
 			"isa" = "PBXGroup";
 			"children" = (
 				"72CF1A89BFE35FF7D4E91959",
+				"F1DA55E70000000000000001",
 			);
 			"name" = "Resources";
 			"sourceTree" = "<group>";
@@ -582,6 +594,7 @@
 			"buildActionMask" = "2147483647";
 			"files" = (
 				"3142AABEBD6D728E601ABE5D",
+				"F1DA55E70000000000000002",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
@@ -616,7 +629,8 @@
 				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"GENERATE_INFOPLIST_FILE" = "YES";
-				"INFOPLIST_KEY_CFBundleDisplayName" = "رصد العقارات";
+				"INFOPLIST_KEY_CFBundleDisplayName" = "FindHaus";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
 				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -650,7 +664,8 @@
 				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"GENERATE_INFOPLIST_FILE" = "YES";
-				"INFOPLIST_KEY_CFBundleDisplayName" = "رصد العقارات";
+				"INFOPLIST_KEY_CFBundleDisplayName" = "FindHaus";
+				"ASSETCATALOG_COMPILER_APPICON_NAME" = "AppIcon";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
 				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
 				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
