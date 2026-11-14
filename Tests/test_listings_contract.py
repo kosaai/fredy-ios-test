@@ -39,6 +39,44 @@ class ListingsSourceContract(unittest.TestCase):
         for forbidden in ['URLSession.shared', 'HTTPCookieStorage.shared', 'AsyncImage', '/details', 'URL(string: id)']:
             self.assertNotIn(forbidden, source)
 
+    def test_real_fredy_listing_actions_use_verified_session_and_safe_removal(self):
+        service = (ROOT / 'Sources/Shared/Authentication/FredyAuthService.swift').read_text()
+        dto = (ROOT / 'Sources/Shared/Listings/RentalListing.swift').read_text()
+        row = (ROOT / 'Sources/Features/Listings/ListingRow.swift').read_text()
+        home = (ROOT / 'Sources/Features/Home/HomeView.swift').read_text()
+        listings = (ROOT / 'Sources/Features/Listings/ListingsView.swift').read_text()
+
+        for action in ['toggleListingWatch', 'setListingStatus',
+                       'fetchListingApplication', 'softRemoveListing']:
+            self.assertIn('func ' + action + '(', service)
+            self.assertIn('func ' + action + '(', dto)
+        for route in ['api/listings/watch', 'api/listings/\\(id)/status',
+                      'api/listings/\\(id)/application', 'api/listings/']:
+            self.assertIn(route, service)
+        self.assertIn('authenticatedWrite(path: "api/listings/", body: body, method: "DELETE")', service)
+        self.assertIn('"hardDelete": false', service)
+        self.assertIn('guard sessionVerified else', service)
+        self.assertIn('URLSessionConfiguration.ephemeral', service)
+
+        for name in ['isWatched', 'status', 'published_at', 'created_at', 'link',
+                     'provider', 'ListingApplicationDraft']:
+            self.assertIn(name, dto)
+        for name in ['"star.fill"', '"star"', '"listing.watch"',
+                     '"listing.status"', '"listing.application"',
+                     '"listing.external_link"', '"listing.more"',
+                     'showingLetter', 'confirmingRemoval', 'UIPasteboard.general.string',
+                     'onChanged()', 'Button("مقبول")', 'Button("مرفوض")']:
+            self.assertIn(name, row)
+        self.assertLess(row.index('UIPasteboard.general.string = letterText'),
+                        row.index('try await actions.setListingStatus(id: listingID, status: "applied")'))
+        for forbidden in ['heart', 'favorite', 'hardDelete": true',
+                          'URLSession(', 'https://', 'UserDefaults']:
+            self.assertNotIn(forbidden, row)
+        for source in [home, listings]:
+            self.assertIn('actions: listingActions', source)
+            self.assertIn('onChanged:', source)
+            self.assertIn('await model.reload()', source)
+
     def test_real_nullable_listing_contract(self):
         path = ROOT / 'Sources/Shared/Listings/RentalListing.swift'
         self.assertTrue(path.exists(), 'Actual Fredy listing DTO is missing')
