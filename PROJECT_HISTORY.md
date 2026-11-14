@@ -36,6 +36,10 @@ Replaced the animated Login/Sign up banner illustration with `Image("BrandLogo")
 
 Added the PNG paths to public allowlist as **SHA-256-pinned binaries**; updated `tools/check_public_scope.py` to accept only explicitly hashed PNG assets while refusing unreviewed binaries. Source/asset validation added in `Tests/validate_project.py`. No external Oracle Graphify refresh could be executed from the GitHub connector; allowlisted asset metadata JSON files for the next incremental indexing. The icon asset and SHA are source-verified, but Apple Xcode compilation and launcher appearance must be checked via the user's manual GitHub Actions run and real device.
 
+## 2026-11-14 — Vertical iOS settings list
+
+Removed the seven-section horizontal menu in RentalSettingsView.swift and replaced it with a familiar vertical Settings list, navigating to each existing detail page. Renamed the "التفضيلات" menu item to "الإعدادات العامة". Existing detail pages, server read-only constraints, MCP-to-Connections navigation, and light/dark system behavior are preserved. Tests/validate_project.py now checks structure. No Xcode build or workflow triggered; user will manually dispatch FindHaus unsigned IPA workflow.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
