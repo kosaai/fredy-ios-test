@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Compact rental card shared by the Home and Listings screens.
 /// All values and images come from the authenticated Fredy listing response.
-/// The API does not currently provide bathroom counts, so none are displayed.
+/// Only fields provided by the authenticated listing response are rendered.
 @MainActor
 struct ListingRow: View {
     let listing: RentalListing
