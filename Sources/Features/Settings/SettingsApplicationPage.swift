@@ -70,7 +70,7 @@ struct SettingsApplicationPage: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            SettingsReadOnlyNote("هذه الحقول فارغة عمدًا لأنها لا تعرض ملفك الشخصي المحفوظ. ما تكتبه داخل الصفحة مؤقت ولا يُرسل إلى Fredy.")
+            SettingsReadOnlyNote("هذه الحقول فارغة عمدًا لأنها لا تعرض ملفك الشخصي المحفوظ. ما تكتبه داخل الصفحة مؤقت ولا يُرسل إلى الخادم.")
 
             SettingsCard("معلومات التواصل", detail: "بيانات نموذج طلب السكن ورسالة التواصل مع المالك.") {
                 ForEach(Self.contacts) { field in profileInput(field) }
@@ -118,7 +118,7 @@ struct SettingsApplicationPage: View {
             }
 
             SettingsCard("قالب رسالة طلب السكن",
-                         detail: "يعرض Fredy رسالة الطلب ويتيح تحرير قالب حسب اللغة، وإدراج الحقول المتغيرة ومعاينة النص الناتج عبر الخادم.") {
+                         detail: "يعرض الخادم رسالة الطلب ويتيح تحرير قالب حسب اللغة، وإدراج الحقول المتغيرة ومعاينة النص الناتج عبر الخادم.") {
                 Picker("لغة الرسالة", selection: $language) {
                     Text("الألمانية").tag("de")
                     Text("الإنجليزية").tag("en")
@@ -155,7 +155,7 @@ struct SettingsApplicationPage: View {
                 Divider()
                 Text("معاينة الرسالة")
                     .font(.subheadline.weight(.semibold))
-                Text("تحتاج معاينة القالب الحقيقي إلى خدمة Fredy؛ لن نعرض رسالة مُنشأة من بيانات غير محفوظة.")
+                Text("تحتاج معاينة القالب الحقيقي إلى خدمة الخادم؛ لن نعرض رسالة مُنشأة من بيانات غير محفوظة.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
