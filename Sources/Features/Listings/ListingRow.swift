@@ -291,7 +291,18 @@ struct ListingRow: View {
             return
         }
         if let failure = error as? ListingsFailure {
-            errorMessage = String(localized: String.LocalizationValue(failure.localizationKey))
+            switch failure {
+            case .accessDenied:
+                errorMessage = "ليس لديك صلاحية لتنفيذ هذا الإجراء."
+            case .rateLimited:
+                errorMessage = "طلبات كثيرة. حاول مجددًا لاحقًا."
+            case .invalidInput, .invalidResponse:
+                errorMessage = "لم يقبل الخادم العملية المطلوبة."
+            case .conflict:
+                errorMessage = "تعارض مع حالة الإعلان الحالية."
+            default:
+                errorMessage = "تعذر الاتصال بالخادم أو إتمام الطلب."
+            }
         } else {
             errorMessage = "تعذر تنفيذ الطلب. تحقق من الاتصال وأعد المحاولة."
         }
