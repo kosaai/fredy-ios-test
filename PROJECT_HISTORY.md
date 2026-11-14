@@ -40,6 +40,10 @@ Added the PNG paths to public allowlist as **SHA-256-pinned binaries**; updated 
 
 Removed the seven-section horizontal menu in RentalSettingsView.swift and replaced it with a familiar vertical Settings list, navigating to each existing detail page. Renamed the "التفضيلات" menu item to "الإعدادات العامة". Existing detail pages, server read-only constraints, MCP-to-Connections navigation, and light/dark system behavior are preserved. Tests/validate_project.py now checks structure. No Xcode build or workflow triggered; user will manually dispatch FindHaus unsigned IPA workflow.
 
+## 2026-11-14 — Compact horizontal property cards
+
+Changed shared ListingRow to use the supplied visual reference: square authenticated photo to the left in Arabic RTL, text/info on the right, real EUR price in green, rooms/area with SF Symbols; removed any favorite/heart embellishments (none added). Updated ListingImageView to handle 116pt square thumbnails with its existing secure loader. Both Home and Listings automatically use the new layout. No invented bathrooms, sample listings, new backend calls or functional changes. Added a source contract test; compilation/appearance await user-run manual macos-26 IPA workflow.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
