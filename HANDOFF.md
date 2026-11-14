@@ -6,6 +6,12 @@ Public repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/
 
 After existing Arabic RTL login: **Listings and read-only Jobs native tabs**, with a NavigationStack per section and shared expiry UI. Rental list/image behavior is retained. No job create/edit/delete/run controls or requests, search triggering, live status stream, listing details/editing, redesign, mocks or IPA. Original shell/confirmation source remains retained but inactive. Read `PROJECT_HISTORY.md`; the historical Go backend is not integrated.
 
+## First unsigned IPA build — authorized, pending attempt
+
+A new explicit task authorizes a GitHub Actions device IPA, superseding only the earlier no-IPA restriction. Existing app features are unchanged. Manual workflow `.github/workflows/unsigned-ipa.yml` uses macos-26 only, Xcode Release iphoneos arm64, no signing, full Payload packaging, structural verifier and artifact upload. `tools/actions_queue.py` runs on Oracle: one tagged dispatch, a strict 300-second queue deadline with external cancellation/read-back, no alternate runner or automatic retry, then build monitoring if execution begins. Details: `docs/UNSIGNED_IPA.md`.
+
+At this preparation commit no Mac execution or IPA is claimed. After the live attempt update this section with run/SHA, actual runner evidence, cancellation or compiler outcome and verified artifact if any. An unsigned IPA needs external signing and does not prove runtime features. No credentials/signing material or logs/IPA enter Git/index inputs.
+
 ## Jobs contract and states
 
 - `GET /api/jobs/` is a plain array including disabled jobs visible to the user. Only decode `id`, optional `name`, Boolean `enabled`/`running` and nonnegative integer `numberOfFoundListings`. No invented aliases, missing flags defaulting false, missing counts defaulting zero, or generated identity.

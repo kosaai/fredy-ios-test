@@ -2,6 +2,7 @@
   "version": 1,
   "policy": "Explicit reviewed public files only; raw evidence and runtime secrets are not inputs.",
   "files": [
+    ".github/workflows/unsigned-ipa.yml",
     ".gitignore",
     "AGENTS.md",
     "FredyTest.xcodeproj/project.pbxproj",
@@ -30,6 +31,7 @@
     "Sources/Shared/Jobs/SearchJob.swift",
     "Sources/Shared/Listings/RentalListing.swift",
     "Tests/requirements.txt",
+    "Tests/test_build_tools.py",
     "Tests/test_jobs_contract.py",
     "Tests/test_listings_contract.py",
     "Tests/test_login_contract.py",
@@ -39,12 +41,16 @@
     "docs/GRAPHIFY.md",
     "docs/JOBS.md",
     "docs/LISTINGS.md",
+    "docs/UNSIGNED_IPA.md",
     "docs/provenance.json",
+    "tools/actions_queue.py",
     "tools/check_public_scope.py",
     "tools/public-scope.json",
-    "tools/refresh_graph.py"
+    "tools/refresh_graph.py",
+    "tools/verify_unsigned_ipa.py"
   ],
   "graph_files": [
+    ".github/workflows/unsigned-ipa.yml",
     "AGENTS.md",
     "HANDOFF.md",
     "PROJECT_HISTORY.md",
@@ -67,6 +73,7 @@
     "Sources/Shared/Components/InfoBlock.swift",
     "Sources/Shared/Jobs/SearchJob.swift",
     "Sources/Shared/Listings/RentalListing.swift",
+    "Tests/test_build_tools.py",
     "Tests/test_jobs_contract.py",
     "Tests/test_listings_contract.py",
     "Tests/test_login_contract.py",
@@ -76,7 +83,10 @@
     "docs/GRAPHIFY.md",
     "docs/JOBS.md",
     "docs/LISTINGS.md",
+    "docs/UNSIGNED_IPA.md",
+    "tools/actions_queue.py",
     "tools/check_public_scope.py",
-    "tools/refresh_graph.py"
+    "tools/refresh_graph.py",
+    "tools/verify_unsigned_ipa.py"
   ]
 }

@@ -43,7 +43,7 @@ A second native tab loads the plain array from `GET /api/jobs/` with the same au
 
 ## Deliberately excluded
 
-No listing detail/edit/backfill, job creation/edit/deletion/runs, search triggering, backend changes, Cloudflare changes, analytics, persistent credentials, release pipeline, archive or IPA. Existing Home/About code is not redesigned or presented in the new authentication flow.
+No listing detail/edit/backfill, job creation/edit/deletion/runs, search triggering, backend changes, Cloudflare changes, analytics, persistent credentials, App Store/release publishing or signed archive. Only the newly authorized unsigned-device CI packaging is included. Existing Home/About code is not redesigned or presented in the new authentication flow.
 
 ## Verification
 
@@ -62,6 +62,10 @@ The first command needs the parsers listed in `Tests/requirements.txt`. Oracle a
 Live read-only probe in the login task: unauthenticated `GET /api/login/user` returned HTTP 200 with `{}`. No credentials were used and no login POST was sent. The listing-stage unauthenticated table GET returned 401; a read-only local type/count audit verified actual nullable field names, with no raw listing fixtures imported. The jobs-stage unauthenticated GET returned 401; read-only route/storage inspection confirmed actual job fields without importing response/configuration fixtures. Prior authenticated API evidence is historical, not proof of this native implementation.
 
 Swift, Xcode and Apple SDKs are unavailable here: type-checking, compilation, actual URLSession cookie handling, successful/failed native sign-in, real authenticated listing/image fetches, jobs decoding/refresh, tab navigation and shared expiry/cancellation, pagination, previews, device/simulator layout and VoiceOver remain untested. No IPA or archive.
+
+## Unsigned iPhone IPA (first attempt authorized)
+
+Manual GitHub Actions on **macos-26 only** can compile Release iphoneos arm64 without signing and upload verified `Payload/FredyTest.app` as `FredyTest-Unsigned.ipa`. Dispatch through the reusable Oracle queue watchdog, not an unattended `gh workflow run`: cancel at 300 seconds if no runner execution is observed, with no fallback or automatic retry. See `docs/UNSIGNED_IPA.md`. Live result is pending until the run/artifact is verified; no IPA is claimed by adding the workflow. An unsigned IPA needs later external signing before iPhone installation.
 
 ## Project memory and safety
 

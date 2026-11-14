@@ -90,6 +90,10 @@ Validation: three new source checks were observed red then green; all nine Pytho
 
 Jobs-stage maintenance: publication allowlist/secret scan passed for 41 reviewed files; Graphify incrementally indexed 33 files with local AST/structural Markdown and zero LLM tokens. A no-change refresh preserved graph bytes/history; the legacy graph checksum was unchanged. No missing/dangling endpoints or exact duplicate edges; the existing single login call-resolution self-loop remains documented.
 
+## First unsigned iPhone IPA preparation — 2026-11-14
+
+The user explicitly authorized the first real iPhone unsigned build on macos-26 only, with external Oracle queue monitoring and cancellation after 300 seconds without observed execution. Added a manual-only, least-permission, pinned-action workflow for Release iphoneos arm64/no signing/full Payload packaging and verified artifact upload; a reusable one-dispatch queue/build monitor; an independent ZIP/plist/arm64/iOS/unsigned verifier; and offline timing/structural policy tests. No app source/functionality, Fredy, Cloudflare or signing credentials changed. This entry is preparation, NOT a successful build/IPA claim. Live outcome and exact run/artifact must follow separately; no automatic retry or runner fallback is authorized.
+
 ## Decisions preserved
 
 - Do not copy Fredy implementation, SQL, assets or branding into the original app. Use facts/contracts only; legal/provider-rights review remains open.
