@@ -14,6 +14,10 @@ Important: the external Oracle Graphify incremental refresh was **not run** from
 
 The Jobs screen now uses the dark Fredy-web-inspired card from the user's reference screenshot: identity/status dot at left, actual stored provider ID, locale-relative lastRunAt from server milliseconds, actual active listing count at right, and bottom controls visually arranged as enabled-state switch, Run, Edit, Duplicate, and overflow with Delete Listings / Delete Job. Only tapping the listings count navigates to the existing filtered rental feed. All new mutation/action controls show an informational alert and **never call an endpoint**, as the user currently authorized UI-only work. Status/amounts/counts come from JobsModel's authenticated GET and are not synthetic. The change replaces only Sources/Features/Jobs/JobsView.swift, preserves all original job creation behavior, and requires user-triggered Xcode build via the existing manual macos-26 workflow to verify compilation and rendering. External Oracle Graphify remains untouched; no new public file paths were introduced.
 
+## Appearance correction (same day)
+
+User clarified the Fredy screenshot was **only a reference for the job card layout and action buttons**, not a request for dark colors. Removed all JobsView-forced dark color scheme, dark toolbar, fixed dark page/card/menu palette. Job cards now inherit iOS/system light or dark appearance using semantic system colors while retaining Fredy-style structure: name/provider/last run/real count, visual enabled switch, Run, Edit, Duplicate and overflow options. New action controls remain non-mutating UI placeholders; selecting a job still navigates to real listings. No backend or workflow changes.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
