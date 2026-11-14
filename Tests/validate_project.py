@@ -42,7 +42,7 @@ class NativeProjectChecks(unittest.TestCase):
             source += raw.decode("utf-8") + "\n"
         self.assertEqual(source.count("@main"), 1)
         self.assertIn("NavigationStack", source)
-        self.assertIn("NavigationLink", source)
+        self.assertIn("TabView", source)  # Native four-tab navigation, no forced About link
         for forbidden in ["AsyncImage", "WKWebView", "UserDefaults", "Keychain", "http://", "NSAllowsArbitraryLoads"]:
             self.assertNotIn(forbidden, source)
         self.assertFalse(list(ROOT.rglob("*.ipa")))
