@@ -4,7 +4,7 @@ This is the history of the **Fredy Test native SwiftUI client experiment**, not 
 
 ## Two distinct workstreams
 
-- **This repository:** independently authored SwiftUI experiment, now nine Swift files and one app target. The newly authorized feature is Arabic/RTL login to existing Fredy using a temporary cookie session. No property or job implementation. Native execution remains unverified.
+- **This repository:** independently authored SwiftUI experiment, now fourteen Swift files and one app target. Authorized scope is Arabic/RTL login followed by real rental list/image reads over the same temporary cookie session. No listing-detail/edit or job implementation. Native execution remains unverified.
 - **Separate earlier work:** analysis of Fredy and an independently authored Go backend. That backend's commits and experiments are historical context only; no backend source, data, runtime configuration or fixtures have been imported here. Its architecture proposals do not silently become requirements or implemented features of this app.
 
 ## Completed research and backend stages
@@ -65,6 +65,18 @@ Validation: executable Python source-contract checks were observed failing befor
 Maintenance: public-scope checks passed for 28 reviewed files; the 20-file Graphify corpus was incrementally refreshed, a repeated no-change refresh preserved graph/history, and the legacy graph checksum was unchanged. One extractor call-resolution self-loop is retained and documented in `docs/GRAPHIFY.md`; it is not source recursion. No missing/dangling endpoints or exact duplicate edges were reported.
 
 Limits: Oracle has neither Swift nor Xcode/Apple SDK; native type-check/build, URLSession's actual cookie round trip, correct/incorrect app sign-in, cancellation and visual/accessibility checks are **not executed**. Historical authenticated REST success is not evidence that this Swift client runs. Follow the runtime matrix before declaring native authentication verified.
+
+## Native rental listings stage — 2026-11-14
+
+The user authorized only the real rental list after login. The existing ephemeral Fredy client is shared through its original login owner; there is still one URLSession, with the same cookie jar, User-Agent and redirect/TLS policy. The authenticated root now presents a standard SwiftUI List, without redesigning login or the legacy shell. Added nullable actual-field DTO/envelope, page model, row and authenticated image loader; fourteen Swift files in one native target. No mock data, hardcoded listings, provider fixtures, jobs, searches, detail/write endpoints or IPA.
+
+Contract grounding: read installed table/image/filter/query source and performed a bounded read-only local SQLite type/count audit. This snapshot contained 51 non-hidden rental/EUR rows. The API has `address`, not a separate city field, and `size`, not an invented area field; nullable/malformed optional values are safe. Only explicitly EUR prices are formatted as EUR. Client-side `dealType == rent` filtering is necessary because the current route normalizer exposes no general deal-type filter. Pagination tracks the raw server total/page, not the filtered count, with deduplication and same-page retry. No listing values, IDs, raw responses or image fixtures were imported. A live unauthenticated table GET returned 401; no authenticated REST/native result is claimed.
+
+Loading/empty/error/retry/refresh/expiry are implemented. Page or image 401 clears local cookies, rows and the bounded thumbnail cache; a generation/cancellation guard rejects stale responses and the screen offers re-login. Images use Fredy's authenticated endpoint only; provider redirects remain rejected. Uncached Fredy image GETs can queue preview capture in the server's existing behavior; development tools did not request those images or trigger capture/backfill. This is not a Fredy or Cloudflare modification.
+
+Validation: the three new source checks were observed red then green; all six Python source/project tests passed (14 syntax trees, Xcode source/resource membership, scheme and translations included). Public-scope scan passed. Swift/Xcode/Apple SDK are absent; no Swift execution/type-check, UI build, real native pagination/cookies/images/expiry/cancellation, screenshot/accessibility check or IPA is claimed. Runtime acceptance and protocol limits are in `docs/LISTINGS.md`. No tools or agents were installed/launched; local review only.
+
+Maintenance verification: public-scope scan passed for 35 reviewed files; Graphify incrementally indexed 27 files using local AST/structural Markdown only. A no-change refresh preserved graph bytes/history and the legacy graph checksum remained unchanged. Diagnostics had no missing/dangling endpoints or exact duplicate edges; the existing single login call-resolution self-loop remains documented, with no source recursion.
 
 ## Decisions preserved
 

@@ -14,13 +14,13 @@ final class LoginModel {
     var username = ""
     var password = ""
     private(set) var state: LoginState = .idle
-    @ObservationIgnored private let service: any FredyAuthServing
+    @ObservationIgnored let service: any FredyClientServing
 
     init() {
         service = FredyAuthService()
     }
 
-    init(service: any FredyAuthServing) {
+    init(service: any FredyClientServing) {
         self.service = service
     }
 
@@ -28,6 +28,12 @@ final class LoginModel {
 
     var canSubmit: Bool {
         !isLoading && !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !password.isEmpty
+    }
+
+    func returnToLogin() {
+        username = ""
+        password = ""
+        state = .failed(.sessionNotVerified)
     }
 
     func signIn() async {

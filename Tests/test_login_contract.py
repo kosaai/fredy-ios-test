@@ -18,7 +18,7 @@ class LoginSourceContract(unittest.TestCase):
         for required in ['SecureField', 'TextField', '.username', '.password', 'ProgressView', '.failed', '.disabled(model.isLoading)', '.textInputAutocapitalization(.never)']:
             self.assertIn(required, view)
         root = (ROOT / "Sources/App/AppRootView.swift").read_text()
-        for required in ['LoginView', 'AuthenticatedView', '.rightToLeft', 'Locale(identifier: "ar")']:
+        for required in ['LoginView', 'ListingsView', '.rightToLeft', 'Locale(identifier: "ar")']:
             self.assertIn(required, root)
         self.assertIn('user.username', success)
         for source in [model, view, success]:
@@ -35,7 +35,7 @@ class LoginSourceContract(unittest.TestCase):
             self.assertIn(required, source)
         self.assertLess(source.index('path: "api/login"'), source.index('path: "api/login/user"'))
         self.assertIn('Task.checkCancellation()', source)
-        for forbidden in ['HTTPCookieStorage.shared', 'URLSession.shared', 'UserDefaults', 'print(', 'debugPrint(', 'Logger(', '/api/listings', '/api/jobs']:
+        for forbidden in ['HTTPCookieStorage.shared', 'URLSession.shared', 'UserDefaults', 'print(', 'debugPrint(', 'Logger(', '/api/jobs']:
             self.assertNotIn(forbidden, source)
         self.assertNotRegex(source, r'password\s*[:=]\s*"[^"\n]+"')
         self.assertNotRegex(source, r'setValue\([^\n]+forHTTPHeaderField:\s*"(?:Cookie|Authorization)"')

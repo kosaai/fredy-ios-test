@@ -36,10 +36,12 @@ protocol FredyAuthServing {
 /// One isolated, memory-only cookie jar for this test client's lifetime.
 /// Neither requests, response bodies, credentials nor cookie values are logged.
 @MainActor
-final class FredyAuthService: FredyAuthServing {
+final class FredyAuthService: FredyClientServing {
     private static let origin = URL(string: "https://fredy.salatiq.online")
     private let session: URLSession
     private let cookieStorage: HTTPCookieStorage?
+    private var sessionGeneration = 0
+    private var sessionVerified = false
 
     init() {
         let configuration = URLSessionConfiguration.ephemeral
@@ -63,10 +65,13 @@ final class FredyAuthService: FredyAuthServing {
     }
 
     func signIn(username: String, password: String) async throws -> FredyUser {
+        sessionGeneration += 1
+        let generation = sessionGeneration
+        sessionVerified = false
         clearCookies()
         var verified = false
         defer {
-            if !verified {
+            if !verified && generation == sessionGeneration {
                 clearCookies()
             }
         }
@@ -94,6 +99,8 @@ final class FredyAuthService: FredyAuthServing {
                 throw LoginFailure.sessionNotVerified
             }
             try Task.checkCancellation()
+            guard generation == sessionGeneration else { throw CancellationError() }
+            sessionVerified = true
             verified = true
             return user
         } catch is CancellationError {
@@ -108,19 +115,87 @@ final class FredyAuthService: FredyAuthServing {
         }
     }
 
+    func fetchListings(page: Int, pageSize: Int) async throws -> ListingPage {
+        guard page > 0, (1...1000).contains(pageSize) else { throw ListingsFailure.invalidResponse }
+        let (data, response) = try await authenticatedRead(path: "api/listings/table", queryItems: [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "pageSize", value: String(pageSize))
+        ])
+        guard response.mimeType == "application/json",
+              let decoded = try? JSONDecoder().decode(ListingPage.self, from: data),
+              decoded.page == page, decoded.result.count <= pageSize else {
+            throw ListingsFailure.invalidResponse
+        }
+        return decoded
+    }
+
+    func fetchListingImage(id: String) async throws -> Data {
+        // Fredy IDs are nanoids. Reject path separators/escaping, never repair an ID.
+        guard !id.isEmpty, id.utf8.allSatisfy({
+            (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 || $0 == 95
+        }) else { throw ListingsFailure.imageUnavailable }
+        let (data, response) = try await authenticatedRead(path: "api/listings/\(id)/image", accept: "image/*")
+        guard response.mimeType?.hasPrefix("image/") == true, !data.isEmpty,
+              data.count <= 8 * 1024 * 1024 else { throw ListingsFailure.imageUnavailable }
+        return data
+    }
+
+    private func authenticatedRead(
+        path: String,
+        queryItems: [URLQueryItem] = [],
+        accept: String = "application/json"
+    ) async throws -> (Data, HTTPURLResponse) {
+        try Task.checkCancellation()
+        guard sessionVerified else { throw ListingsFailure.sessionExpired }
+        let generation = sessionGeneration
+        do {
+            let (data, response) = try await perform(path: path, method: "GET", queryItems: queryItems, accept: accept)
+            try Task.checkCancellation()
+            guard generation == sessionGeneration else { throw CancellationError() }
+            if response.statusCode == 401 {
+                sessionVerified = false
+                sessionGeneration += 1
+                clearCookies()
+                throw ListingsFailure.sessionExpired
+            }
+            switch response.statusCode {
+            case 200: return (data, response)
+            case 403: throw ListingsFailure.accessDenied
+            case 404: throw accept == "image/*" ? ListingsFailure.imageUnavailable : .server
+            case 429: throw ListingsFailure.rateLimited
+            default: throw ListingsFailure.server
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let failure as ListingsFailure {
+            throw failure
+        } catch let error as URLError where error.code == .cancelled {
+            throw CancellationError()
+        } catch {
+            throw ListingsFailure.network
+        }
+    }
+
     private func perform(
         path: String,
         method: String,
-        body: Data? = nil
+        body: Data? = nil,
+        queryItems: [URLQueryItem] = [],
+        accept: String = "application/json"
     ) async throws -> (Data, HTTPURLResponse) {
         guard let url = Self.origin?.appendingPathComponent(path) else {
             throw LoginFailure.serverUnavailable
         }
-        var request = URLRequest(url: url)
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            throw LoginFailure.serverUnavailable
+        }
+        if !queryItems.isEmpty { components.queryItems = queryItems }
+        guard let requestURL = components.url else { throw LoginFailure.serverUnavailable }
+        var request = URLRequest(url: requestURL)
         request.httpMethod = method
         request.httpBody = body
         request.setValue("fredy-ios/1.0", forHTTPHeaderField: "User-Agent")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(accept, forHTTPHeaderField: "Accept")
         request.setValue("no-store", forHTTPHeaderField: "Cache-Control")
         if body != nil {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")

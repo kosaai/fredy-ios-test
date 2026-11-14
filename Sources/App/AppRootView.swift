@@ -6,13 +6,13 @@ struct AppRootView: View {
 
     var body: some View {
         NavigationStack {
-            if case .authenticated(let user) = model.state {
-                AuthenticatedView(user: user)
+            if case .authenticated = model.state {
+                ListingsView(service: model.service, onSessionExpired: { model.returnToLogin() })
             } else {
                 LoginView(model: model)
             }
         }
-        // Only the authentication flow is in scope for this step.
+        // Keep the existing Arabic/RTL flow; no shell redesign.
         .environment(\.locale, Locale(identifier: "ar"))
         .environment(\.layoutDirection, .rightToLeft)
     }
