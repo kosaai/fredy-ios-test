@@ -1,0 +1,322 @@
+// !$*UTF8*$!
+{
+	"archiveVersion" = "1";
+	"classes" = {
+	};
+	"objectVersion" = "56";
+	"objects" = {
+		"FC153E0A4A8A6E633E3CECE2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AppRootView.swift";
+			"path" = "Sources/App/AppRootView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"BA4A1D2AE9DD8BFC83EDA63B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "FC153E0A4A8A6E633E3CECE2";
+		};
+		"C258930B9552C14E5A5E61CB" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "FredyTestApp.swift";
+			"path" = "Sources/App/FredyTestApp.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"132AC5643CFD6E240E7481C4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C258930B9552C14E5A5E61CB";
+		};
+		"7F43D7F7A507F8EA77BD95CA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AboutView.swift";
+			"path" = "Sources/Features/About/AboutView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"5D78D3E15517EC813CB6DCA2" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "7F43D7F7A507F8EA77BD95CA";
+		};
+		"6313265A191775FF58D80DE2" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "HomeView.swift";
+			"path" = "Sources/Features/Home/HomeView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"D06FE69A94CF6600F3705844" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "6313265A191775FF58D80DE2";
+		};
+		"12FDBFCC8F4DFB30B3E34185" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "InfoBlock.swift";
+			"path" = "Sources/Shared/Components/InfoBlock.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"C873147B6BDA042E143D98D7" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "12FDBFCC8F4DFB30B3E34185";
+		};
+		"72CF1A89BFE35FF7D4E91959" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "text.json.xcstrings";
+			"path" = "Resources/Localizable.xcstrings";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"3142AABEBD6D728E601ABE5D" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "72CF1A89BFE35FF7D4E91959";
+		};
+		"A8792157CB4F27FB949C035F" = {
+			"isa" = "PBXFileReference";
+			"explicitFileType" = "wrapper.application";
+			"includeInIndex" = "0";
+			"path" = "FredyTest.app";
+			"sourceTree" = "BUILT_PRODUCTS_DIR";
+		};
+		"085ED06E573690BA3A56BC1E" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"FC153E0A4A8A6E633E3CECE2",
+				"C258930B9552C14E5A5E61CB",
+			);
+			"name" = "App";
+			"sourceTree" = "<group>";
+		};
+		"A15EE0B95CCD73C972B337A9" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"6313265A191775FF58D80DE2",
+			);
+			"name" = "Home";
+			"sourceTree" = "<group>";
+		};
+		"9F82F807C95FD6421240D780" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"7F43D7F7A507F8EA77BD95CA",
+			);
+			"name" = "About";
+			"sourceTree" = "<group>";
+		};
+		"916AF14E8C387953D16D69AB" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"A15EE0B95CCD73C972B337A9",
+				"9F82F807C95FD6421240D780",
+			);
+			"name" = "Features";
+			"sourceTree" = "<group>";
+		};
+		"A9E17FA6FB1E9260B3926C35" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"12FDBFCC8F4DFB30B3E34185",
+			);
+			"name" = "Shared";
+			"sourceTree" = "<group>";
+		};
+		"596B73E0DA7F040AAF99B86E" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"085ED06E573690BA3A56BC1E",
+				"916AF14E8C387953D16D69AB",
+				"A9E17FA6FB1E9260B3926C35",
+			);
+			"name" = "Sources";
+			"sourceTree" = "<group>";
+		};
+		"2B1C52BD870760779685BF3F" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"72CF1A89BFE35FF7D4E91959",
+			);
+			"name" = "Resources";
+			"sourceTree" = "<group>";
+		};
+		"6F7199ED7B63CDA338A0FB82" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"A8792157CB4F27FB949C035F",
+			);
+			"name" = "Products";
+			"sourceTree" = "<group>";
+		};
+		"AA0596BBDB4DCC95D5D4F10C" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"596B73E0DA7F040AAF99B86E",
+				"2B1C52BD870760779685BF3F",
+				"6F7199ED7B63CDA338A0FB82",
+			);
+			"sourceTree" = "<group>";
+		};
+		"9261F04E014268C1FB6C1C5E" = {
+			"isa" = "PBXSourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"BA4A1D2AE9DD8BFC83EDA63B",
+				"132AC5643CFD6E240E7481C4",
+				"5D78D3E15517EC813CB6DCA2",
+				"D06FE69A94CF6600F3705844",
+				"C873147B6BDA042E143D98D7",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"B04831CC372489EBF0287850" = {
+			"isa" = "PBXResourcesBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+				"3142AABEBD6D728E601ABE5D",
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"0B0EAC1C67A2F2EB9E6EB6F7" = {
+			"isa" = "PBXFrameworksBuildPhase";
+			"buildActionMask" = "2147483647";
+			"files" = (
+			);
+			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"5DF0EAF287A59303D4EFEAF3" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"CLANG_ENABLE_MODULES" = "YES";
+				"SDKROOT" = "iphoneos";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"SWIFT_VERSION" = "5.0";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf";
+				"SWIFT_ACTIVE_COMPILATION_CONDITIONS" = "DEBUG";
+			};
+			"name" = "Debug";
+		};
+		"B8EB4DC6EE71CC2FBFD201B8" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"PRODUCT_BUNDLE_IDENTIFIER" = "online.salatiq.FredyTest";
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"TARGETED_DEVICE_FAMILY" = "1";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"INFOPLIST_KEY_CFBundleDisplayName" = "Fredy Test";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
+				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"MARKETING_VERSION" = "0.1.0";
+				"CURRENT_PROJECT_VERSION" = "1";
+				"ENABLE_PREVIEWS" = "YES";
+				"SWIFT_EMIT_LOC_STRINGS" = "YES";
+			};
+			"name" = "Debug";
+		};
+		"C62D9534737287C44FD6EF43" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"CLANG_ENABLE_MODULES" = "YES";
+				"SDKROOT" = "iphoneos";
+				"IPHONEOS_DEPLOYMENT_TARGET" = "17.0";
+				"SWIFT_VERSION" = "5.0";
+				"SWIFT_OPTIMIZATION_LEVEL" = "-O";
+				"DEBUG_INFORMATION_FORMAT" = "dwarf-with-dsym";
+			};
+			"name" = "Release";
+		};
+		"2EF9ECCD715FED9D8FF379BE" = {
+			"isa" = "XCBuildConfiguration";
+			"buildSettings" = {
+				"PRODUCT_BUNDLE_IDENTIFIER" = "online.salatiq.FredyTest";
+				"PRODUCT_NAME" = "$(TARGET_NAME)";
+				"TARGETED_DEVICE_FAMILY" = "1";
+				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
+				"SUPPORTS_MACCATALYST" = "NO";
+				"SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD" = "NO";
+				"CODE_SIGN_STYLE" = "Automatic";
+				"GENERATE_INFOPLIST_FILE" = "YES";
+				"INFOPLIST_KEY_CFBundleDisplayName" = "Fredy Test";
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation" = "YES";
+				"INFOPLIST_KEY_UILaunchScreen_Generation" = "YES";
+				"INFOPLIST_KEY_UISupportedInterfaceOrientations" = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				"MARKETING_VERSION" = "0.1.0";
+				"CURRENT_PROJECT_VERSION" = "1";
+				"ENABLE_PREVIEWS" = "YES";
+				"SWIFT_EMIT_LOC_STRINGS" = "YES";
+			};
+			"name" = "Release";
+		};
+		"1922B098E983995960BE56B0" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"5DF0EAF287A59303D4EFEAF3",
+				"C62D9534737287C44FD6EF43",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+		};
+		"6FA5FFADD6E6A4C127CEE419" = {
+			"isa" = "XCConfigurationList";
+			"buildConfigurations" = (
+				"B8EB4DC6EE71CC2FBFD201B8",
+				"2EF9ECCD715FED9D8FF379BE",
+			);
+			"defaultConfigurationIsVisible" = "0";
+			"defaultConfigurationName" = "Debug";
+		};
+		"34A04005BCAF206EEC990BD9" = {
+			"isa" = "PBXNativeTarget";
+			"buildConfigurationList" = "6FA5FFADD6E6A4C127CEE419";
+			"buildPhases" = (
+				"9261F04E014268C1FB6C1C5E",
+				"0B0EAC1C67A2F2EB9E6EB6F7",
+				"B04831CC372489EBF0287850",
+			);
+			"buildRules" = (
+			);
+			"dependencies" = (
+			);
+			"name" = "FredyTest";
+			"packageProductDependencies" = (
+			);
+			"productName" = "FredyTest";
+			"productReference" = "A8792157CB4F27FB949C035F";
+			"productType" = "com.apple.product-type.application";
+		};
+		"244210E48437B6556980A702" = {
+			"isa" = "PBXProject";
+			"attributes" = {
+				"BuildIndependentTargetsInParallel" = "YES";
+				"LastUpgradeCheck" = "1500";
+				"TargetAttributes" = {
+					"34A04005BCAF206EEC990BD9" = {
+						"CreatedOnToolsVersion" = "15.0";
+					};
+				};
+			};
+			"buildConfigurationList" = "1922B098E983995960BE56B0";
+			"compatibilityVersion" = "Xcode 14.0";
+			"developmentRegion" = "en";
+			"hasScannedForEncodings" = "0";
+			"knownRegions" = (
+				"en",
+				"ar",
+				"Base",
+			);
+			"mainGroup" = "AA0596BBDB4DCC95D5D4F10C";
+			"packageReferences" = (
+			);
+			"productRefGroup" = "6F7199ED7B63CDA338A0FB82";
+			"projectDirPath" = "";
+			"projectRoot" = "";
+			"targets" = (
+				"34A04005BCAF206EEC990BD9",
+			);
+		};
+	};
+	"rootObject" = "244210E48437B6556980A702";
+}

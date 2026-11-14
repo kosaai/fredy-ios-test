@@ -1,0 +1,159 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "home.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A simple starting point"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بداية بسيطة"
+          }
+        }
+      }
+    },
+    "home.message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A native interface for the Fredy test app."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "واجهة أصلية لتطبيق Fredy التجريبي."
+          }
+        }
+      }
+    },
+    "home.local": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local interface only"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "واجهة محلية فقط"
+          }
+        }
+      }
+    },
+    "home.note": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This version does not connect to any server or use account data."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا الإصدار لا يتصل بأي خادم ولا يستخدم بيانات حساب."
+          }
+        }
+      }
+    },
+    "about.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About this test"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عن هذه التجربة"
+          }
+        }
+      }
+    },
+    "about.scope": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current scope"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نطاق هذه الخطوة"
+          }
+        }
+      }
+    },
+    "about.scope_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only the app structure and local screens are included. Login, networking, property data and search tasks are not implemented."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يتضمن المشروع هيكل التطبيق والشاشات المحلية فقط. لم يُضف تسجيل الدخول أو الاتصال بالشبكة أو بيانات العقارات أو مهام البحث."
+          }
+        }
+      }
+    },
+    "about.design": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Native by design"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تصميم أصلي"
+          }
+        }
+      }
+    },
+    "about.design_message": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Built with standard SwiftUI navigation, system colors and scalable text. The interface follows the device language and appearance."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "واجهة مبنية بعناصر SwiftUI القياسية وألوان النظام ونصوص قابلة للتكبير، وتتبع لغة الجهاز ومظهره."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

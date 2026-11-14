@@ -1,0 +1,69 @@
+{
+  "reviewed_utc_date": "2026-11-14",
+  "policy": "Public sanitized summaries only. Originals remain external; hashes prove document identity, not current runtime behavior.",
+  "reports": [
+    {
+      "basename": "fredy-stage1-ar.md",
+      "sha256": "d48b8aa374f866667bb8e91873df9970324d205793b1127679aafa15bb03843a"
+    },
+    {
+      "basename": "fredy-stage2-technical-ar.md",
+      "sha256": "a8e3fe55a2e7f4f121d354234e2bac31b2ea90454f285ac4c2d0008ad9bc0140"
+    },
+    {
+      "basename": "fredy-stage3-independent-architecture-ar.md",
+      "sha256": "2f0bfdcea2769dd28d9c7b6c57783fe4f1f88e143b1edd185f0e9e65521f662f"
+    },
+    {
+      "basename": "stage4.2-backend-startup-ar.md",
+      "sha256": "fba921eee45ee3963af0bcf4fcc809380fd9b77d9c27e3b1d46e10b468279242"
+    },
+    {
+      "basename": "stage4.3-integration-tests-ar.md",
+      "sha256": "af8fa1bc76c79d380c1d829bbde2dc991cebbbfd4edec7db3d5d86dedf90d063"
+    },
+    {
+      "basename": "stage4.4.1-immoscout-analysis-ar.md",
+      "sha256": "2fa628fe310afc0ed8d8e3d45465e2ed674a889c2f858043ee4d216810cbb756"
+    },
+    {
+      "basename": "stage4.4.2-immoscout-search-ar.md",
+      "sha256": "a705137bd0ce8fcdf7a592a014975a9e4197929790530078de0090b9554f486e"
+    },
+    {
+      "basename": "stage4.4.3-immoscout-parser-ar.md",
+      "sha256": "223924fb3b05aa8ed51355ba4039455b67786034a828888a00f48c3990647792"
+    },
+    {
+      "basename": "stage4.4.4-immoscout-live-ar.md",
+      "sha256": "f107157dabe5cd55b7026aa254b3bd0029d8fbf47638e61e0ac113af9e913528"
+    },
+    {
+      "basename": "stage4.4.5-immoscout-fix-ar.md",
+      "sha256": "92c2384e6fd44cdc9cc5d1270eee2e004293c9aecf7a34b7ae6c1009dad68b20"
+    },
+    {
+      "basename": "fredy-stage1-api-inspection-ar.md",
+      "sha256": "857d459b0d4c6a162705702d0a035c90cbeb277db961931e9604da6a4a3fff10"
+    },
+    {
+      "basename": "fredy-missing-description-images-ar.md",
+      "sha256": "d33a0288e0ecf0330bca5a1fec55a51c7265f1465f6b7af53648b83f4fd12e81"
+    }
+  ],
+  "later_partial_probe": {
+    "stage": "4.4.6",
+    "artifact_basename": "result.json",
+    "sha256": "7cfd45385c91a30fb6b803060a84f20045a80520e4d5d01a5e7394f438d6cbff",
+    "safe_observation": {
+      "http_status": 200,
+      "items_count": 50,
+      "complete": false
+    }
+  },
+  "legacy_graph": {
+    "project_id": "fredy",
+    "sha256_before": "4351ebcedeaa9cfb59530cc952b92b2de300a970557d961b8589e65ce1deae3c",
+    "action": "Preserve; do not refresh or merge into this project."
+  }
+}
