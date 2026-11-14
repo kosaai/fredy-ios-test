@@ -1,10 +1,20 @@
 # Handoff
 
+## Native iPhone interface refresh — 2026-11-14
+
+The user requested a **SwiftUI-only visual refresh**, direct on main, with a manual GitHub Actions IPA build. The active authenticated app shell now uses four native bottom tabs: Home, Listings, Jobs, Map. Budget and Settings are top-bar sheets. The bundle display name is **رصد العقارات**, with the same FredyTest executable/bundle ID and unsigned IPA packaging.
+
+Existing login, ephemeral session, authenticated rental data/images, jobs API, select-job filters, and the prior explicit Add Search workflow remain in place. Home reads real loaded rental rows and jobs; counts are clearly labelled loaded jobs/rows, not a fabricated server-wide total. Listings and Jobs are styled native cards. Small client-side listing filters apply only to already loaded pages. Budget calculates solely from user-entered values; no hardcoded money values or backend call. Settings supports local appearance selection. MapKit shows a live base map but **no fake property pins**: the current RentalListing DTO has no coordinates. No external notifications, Telegram, new backend endpoints, job toggles or scheduled runs were added.
+
+New sources: Sources/Features/Map/RentalMapView.swift, Budget/RentalBudgetView.swift, Settings/RentalSettingsView.swift. Project target and public/index allowlists were updated to include all **25 Swift files**; source project-count test updated. Build remains a separate manual-only GitHub Actions workflow at .github/workflows/unsigned-ipa.yml (macos-26, iphoneos arm64, unsigned). The user explicitly owns dispatch. Do not claim that these Swift changes were compiled or device-tested until the workflow succeeds.
+
+Important: the external Oracle Graphify incremental refresh was **not run** from the GitHub connector. The three new paths were added to its allowlist for the next authorized Oracle refresh. Existing Graphify history remains untouched. The inherited YAML-as-JSON test failure in Tests/test_build_tools.py was not addressed in this UI-only work.
+
 ## Current deliverable
 
-Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **22 Swift sources**, no third-party app dependencies.
+Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
 
-The explicitly authorized extension implements Arabic RTL **Add Search by URL** with (+), name + pasted German ImmoScout24 rental URL, and **Save & Search**. Existing login/session, rental rows/images/pagination and native Listings/Jobs tabs remain. Jobs are selectable; Home is the existing all-accessible-jobs rental feed with job/URL-region filter chips and actual per-job active counts. No redesign, fabricated listings, direct provider requests, detail backfill, backend changes or IPA. The approved visual prototype asset was not available for comparison; visual parity is unverified.
+The explicitly authorized extension implements Arabic RTL **Add Search by URL** with (+), name + pasted German ImmoScout24 rental URL, and **Save & Search**. Existing login/session, rental rows/images/pagination and native Listings/Jobs tabs remain. Jobs are selectable; Home is the existing all-accessible-jobs rental feed with job/URL-region filter chips and actual per-job active counts. The previous integration task did not include UI redesign; the later native UI refresh is described above. No fabricated listings, direct provider requests, detail backfill or backend changes. The approved visual prototype asset was not available for comparison; visual parity is unverified.
 
 Read `docs/ADD_SEARCH.md` for the exact inspected API, safety decisions, data scopes and iPhone acceptance matrix. `docs/JOBS.md` and `docs/LISTINGS.md` preserve earlier stage evidence; their older no-mutation restriction is superseded only by this explicit new action.
 
