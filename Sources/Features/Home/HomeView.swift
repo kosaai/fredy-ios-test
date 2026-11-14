@@ -4,7 +4,16 @@ import SwiftUI
 @MainActor
 struct HomeView: View {
     @State private var model: ListingsModel
+    @State private var dashboard: FindHausDashboardSnapshot?
+    @State private var dashboardLoading = false
+    @State private var dashboardError: String?
+    @State private var confirmingSearch = false
+    @State private var startingSearch = false
+    @State private var searchNotice: String?
+    @State private var showingSearchNotice = false
+
     let jobsModel: JobsModel
+    let dashboardService: any FredyDashboardServing
     let listingActions: any FredyListingActionServing
     let onShowListings: () -> Void
     let onShowJobs: () -> Void
@@ -16,6 +25,7 @@ struct HomeView: View {
          onSessionExpired: @escaping () -> Void) {
         _model = State(initialValue: ListingsModel(service: service))
         self.jobsModel = jobsModel
+        self.dashboardService = service
         self.listingActions = service
         self.onShowListings = onShowListings
         self.onShowJobs = onShowJobs
@@ -29,36 +39,100 @@ struct HomeView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 22) {
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("متابعة البحث عن الإيجار")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.72))
-                    Text("عقاراتك في مكان واحد")
-                        .font(.system(size: 30, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Text("نتائج عمليات البحث المحفوظة")
+                // Fredy dashboard metrics, never fabricated from a single loaded page.
+                VStack(alignment: .leading, spacing: 18) {
+                    Text(Date.now, format: .dateTime.weekday(.wide).month(.wide).day()
+                        .locale(Locale(identifier: "ar")))
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.76))
-                    Button(action: onShowListings) {
-                        Label("عرض الإعلانات", systemImage: "arrow.up.left")
-                            .fontWeight(.semibold)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 6)
+                        .foregroundStyle(.secondary)
+
+                    if let count = dashboard?.newToday {
+                        Text(count == 0 ? "لا توجد إعلانات جديدة اليوم" :
+                             "\(count) إعلان جديد اليوم")
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .foregroundStyle(.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .accessibilityIdentifier("home.today_count")
+                    } else {
+                        Text(dashboardLoading ? "جار تحميل إعلانات اليوم..." :
+                             "عدد الإعلانات الجديدة اليوم غير متاح")
+                            .font(.title3.bold())
+                            .foregroundStyle(.secondary)
+                    }
+
+                    HStack(alignment: .top, spacing: 9) {
+                        Circle()
+                            .fill(enabledJobsCount > 0 && jobsModel.state == .loaded ?
+                                  Color.green : Color.secondary)
+                            .frame(width: 9, height: 9)
+                            .padding(.top, 7)
+
+                        VStack(alignment: .leading, spacing: 5) {
+                            if jobsModel.state == .loaded && enabledJobsCount == 0 {
+                                Text("لا توجد مهام بحث دوري مفعّلة")
+                            } else if enabledJobsCount > 0,
+                                      let minutes = dashboard?.intervalMinutes {
+                                Text("البحث الدوري كل \(minutes) دقيقة")
+                            } else {
+                                Text("جدولة البحث غير متاحة")
+                            }
+
+                            if let last = dashboard?.lastRunDate {
+                                HStack(spacing: 5) {
+                                    Text("آخر تشغيل:")
+                                    Text(last, style: .relative)
+                                }
+                            }
+
+                            if enabledJobsCount > 0, let next = dashboard?.nextRunDate {
+                                HStack(spacing: 5) {
+                                    Text("التشغيل القادم:")
+                                    Text(next, style: .relative)
+                                }
+                            }
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    }
+
+                    Button {
+                        confirmingSearch = true
+                    } label: {
+                        HStack(spacing: 10) {
+                            if startingSearch {
+                                ProgressView().tint(.white)
+                            } else {
+                                Image(systemName: "play.fill")
+                            }
+                            Text(startingSearch ? "جار إرسال طلب البحث" : "ابحث الآن")
+                                .fontWeight(.semibold)
+                        }
+                        .padding(.vertical, 7)
+                        .padding(.horizontal, 12)
                     }
                     .buttonStyle(.borderedProminent)
-                    .tint(.white)
-                    .foregroundStyle(.black)
-                    .padding(.top, 6)
+                    .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
+                    .disabled(startingSearch || jobsModel.state != .loaded ||
+                              jobsModel.jobs.isEmpty)
+                    .accessibilityIdentifier("home.search_now")
+
+                    if let dashboardError {
+                        Label(dashboardError, systemImage: "exclamationmark.triangle")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                        Button("إعادة تحميل الإحصاءات") {
+                            Task { await reloadDashboard() }
+                        }
+                        .font(.footnote.weight(.medium))
+                    }
                 }
-                .padding(22)
+                .padding(23)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
-                    LinearGradient(colors: [.init(red: 0.31, green: 0.38, blue: 0.99),
-                                            .init(red: 0.25, green: 0.30, blue: 0.81)],
-                                   startPoint: .topLeading, endPoint: .bottomTrailing),
-                    in: RoundedRectangle(cornerRadius: 26)
+                    Color(uiColor: .secondarySystemGroupedBackground),
+                    in: RoundedRectangle(cornerRadius: 25)
                 )
+                .accessibilityIdentifier("home.search_summary")
 
                 HStack(spacing: 10) {
                     metric(value: model.items.count, title: "إعلانات محمّلة",
@@ -154,14 +228,77 @@ struct HomeView: View {
         .accessibilityIdentifier("home.screen")
         .task {
             await jobsModel.loadIfNeeded()
+            await reloadDashboard()
             await model.loadInitialIfNeeded()
         }
         .refreshable {
             await jobsModel.reload()
+            await reloadDashboard()
             await model.reload()
+        }
+        .confirmationDialog(
+            "تشغيل البحث الآن لكل المهام؟",
+            isPresented: $confirmingSearch,
+            titleVisibility: .visible
+        ) {
+            Button("تشغيل البحث مرة واحدة") { startSearchNow() }
+            Button("إلغاء", role: .cancel) {}
+        } message: {
+            Text("سيرسل التطبيق طلبًا واحدًا إلى Fredy. قبول الطلب لا يعني اكتمال البحث أو العثور على إعلانات جديدة.")
+        }
+        .alert("حالة طلب البحث", isPresented: $showingSearchNotice) {
+            Button("حسنًا", role: .cancel) {}
+        } message: {
+            Text(searchNotice ?? "لا توجد نتيجة متاحة.")
         }
         .onChange(of: model.state) { _, state in
             if state == .sessionExpired { onSessionExpired() }
+        }
+    }
+
+    private func reloadDashboard() async {
+        guard !dashboardLoading else { return }
+        dashboardLoading = true
+        dashboardError = nil
+        defer { dashboardLoading = false }
+
+        do {
+            let fresh = try await dashboardService.fetchDashboardSnapshot()
+            try Task.checkCancellation()
+            dashboard = fresh
+        } catch is CancellationError {
+            return
+        } catch let failure as ListingsFailure {
+            if failure == .sessionExpired {
+                onSessionExpired()
+            } else {
+                dashboardError = "تعذر تحميل أحدث إحصاءات الخادم."
+            }
+        } catch {
+            dashboardError = "تعذر تحميل أحدث إحصاءات الخادم."
+        }
+    }
+
+    private func startSearchNow() {
+        guard !startingSearch, jobsModel.state == .loaded,
+              !jobsModel.jobs.isEmpty else { return }
+        startingSearch = true
+
+        Task {
+            defer { startingSearch = false }
+            do {
+                try await dashboardService.startAllSearches()
+                searchNotice = "قبل الخادم طلب تشغيل البحث. النتائج ليست جاهزة بعد؛ اسحب لتحديث الصفحة لاحقًا."
+            } catch let failure as ListingsFailure {
+                if failure == .sessionExpired {
+                    onSessionExpired()
+                    return
+                }
+                searchNotice = "لم يؤكد الخادم بدء البحث. لم تُرسل أي طلبات إضافية."
+            } catch {
+                searchNotice = "تعذر إرسال طلب البحث. يمكنك المحاولة يدويًا لاحقًا."
+            }
+            showingSearchNotice = true
         }
     }
 
