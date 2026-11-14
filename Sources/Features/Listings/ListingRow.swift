@@ -1,81 +1,93 @@
 import SwiftUI
 
+/// Compact rental card shared by the Home and Listings screens.
+/// All values and images come from the authenticated Fredy listing response.
+/// The API does not currently provide bathroom counts, so none are displayed.
 @MainActor
 struct ListingRow: View {
     let listing: RentalListing
     let images: ListingImageLoader
     let onSessionExpired: () -> Void
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ListingImageView(listingID: listing.id, loader: images,
-                             onSessionExpired: onSessionExpired)
-                .frame(maxWidth: .infinity)
-                .frame(height: 202)
-                .clipped()
+    private let photoSide: CGFloat = 116
 
-            VStack(alignment: .leading, spacing: 11) {
-                HStack(alignment: .firstTextBaseline) {
-                    if let price = listing.euroPrice {
-                        Text(price, format: .currency(code: "EUR"))
-                            .font(.system(size: 25, weight: .bold, design: .rounded))
-                    } else {
-                        Text("listings.unavailable")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer(minLength: 8)
-                    if let jobName = listing.jobName {
-                        Text(jobName)
-                            .font(.caption2)
-                            .lineLimit(1)
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 6)
-                            .background(Color(uiColor: .tertiarySystemGroupedBackground),
-                                        in: Capsule())
-                    }
-                }
+    var body: some View {
+        HStack(alignment: .top, spacing: 13) {
+            VStack(alignment: .leading, spacing: 9) {
                 Text(listing.title ?? String(localized: "listings.untitled",
                                              locale: Locale(identifier: "ar")))
-                    .font(.headline)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.primary)
+                    .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                Label {
-                    Text(listing.address ?? String(localized: "listings.unavailable",
-                                                   locale: Locale(identifier: "ar")))
-                        .lineLimit(3)
-                } icon: {
-                    Image(systemName: "mappin.and.ellipse")
+                if let address = listing.address {
+                    Text(address)
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
 
-                HStack(spacing: 18) {
-                    Label {
-                        if let size = listing.size {
-                            Text(size.formatted(.number.locale(Locale(identifier: "ar"))) + " m²")
-                        } else {
-                            Text("listings.unavailable")
-                        }
-                    } icon: { Image(systemName: "square.dashed") }
+                if let price = listing.euroPrice {
+                    Text(price, format: .currency(code: "EUR"))
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.14, green: 0.47, blue: 0.34))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                } else {
+                    Text("listings.unavailable")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
 
-                    Label {
-                        if let rooms = listing.rooms {
+                HStack(spacing: 13) {
+                    if let rooms = listing.rooms {
+                        Label {
                             Text(rooms, format: .number.locale(Locale(identifier: "ar")))
-                        } else {
-                            Text("listings.unavailable")
+                        } icon: {
+                            Image(systemName: "door.left.hand.closed")
                         }
-                    } icon: { Image(systemName: "door.left.hand.closed") }
+                    }
+
+                    if let size = listing.size {
+                        Label {
+                            Text(size, format: .number.locale(Locale(identifier: "ar")))
+                            + Text(" m²")
+                        } icon: {
+                            Image(systemName: "square.dashed")
+                        }
+                    }
                 }
-                .font(.caption)
+                .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(17)
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            ListingImageView(listingID: listing.id, loader: images,
+                             onSessionExpired: onSessionExpired,
+                             thumbnailSize: photoSide)
+                .frame(width: photoSide, height: photoSide)
+                .background(Color(uiColor: .tertiarySystemGroupedBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .accessibilityIdentifier("listings.thumbnail")
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 22))
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .background(
+            Color(uiColor: .secondarySystemGroupedBackground),
+            in: RoundedRectangle(cornerRadius: 19)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: 19)
+                .strokeBorder(Color(uiColor: .separator).opacity(0.18), lineWidth: 0.5)
+        }
         .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("listings.row.horizontal")
     }
 }
