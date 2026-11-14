@@ -326,6 +326,49 @@
 			"path" = "FredyTest.app";
 			"sourceTree" = "BUILT_PRODUCTS_DIR";
 		};
+		"A3100D000000000000000101" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "RentalMapView.swift";
+			"path" = "Sources/Features/Map/RentalMapView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"A3100D000000000000000102" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A3100D000000000000000101";
+		};
+		"A3100D000000000000000201" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "RentalBudgetView.swift";
+			"path" = "Sources/Features/Budget/RentalBudgetView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"A3100D000000000000000202" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A3100D000000000000000201";
+		};
+		"A3100D000000000000000301" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "RentalSettingsView.swift";
+			"path" = "Sources/Features/Settings/RentalSettingsView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"A3100D000000000000000302" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "A3100D000000000000000301";
+		};
+		"A3100D000000000000000900" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"A3100D000000000000000101",
+				"A3100D000000000000000201",
+				"A3100D000000000000000301",
+			);
+			"name" = "Rental UI";
+			"sourceTree" = "<group>";
+		};
 		"085ED06E573690BA3A56BC1E" = {
 			"isa" = "PBXGroup";
 			"children" = (
@@ -360,6 +403,7 @@
 				"35DC9BD48D15EB5AA9AEDA78",
 				"F129EBA4A2A86EA77C882F29",
 				"873088390CA15EB00EBC2EF9",
+				"A3100D000000000000000900",
 			);
 			"name" = "Features";
 			"sourceTree" = "<group>";
@@ -422,6 +466,9 @@
 				"132AC5643CFD6E240E7481C4",
 				"5D78D3E15517EC813CB6DCA2",
 				"D06FE69A94CF6600F3705844",
+				"A3100D000000000000000102",
+				"A3100D000000000000000202",
+				"A3100D000000000000000302",
 				"C873147B6BDA042E143D98D7",
 				"BB73ADE07733C80136FAFE06",
 				"9D8D8DCDA1AD3A64E5D612DE",
