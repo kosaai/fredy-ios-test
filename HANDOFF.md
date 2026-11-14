@@ -34,6 +34,14 @@ User supplied an image of a pastel/orange rounded account card and a video of an
 
 New test assertion in `Tests/test_login_contract.py`; no new Swift source or PBX change, so **32 Swift sources remain**. Existing user-owned GitHub Actions manual `macos-26` unsigned IPA workflow is unchanged and was NOT run. Linux/container cannot compile iOS SwiftUI; real Xcode compilation/animation appearance must be verified by the user's manual Actions build and device test. External Oracle Graphify was not refreshed from the GitHub connector.
 
+## 2026-11-14 — FindHaus native brand refresh
+
+User selected **FindHaus** and uploaded the blue, cyan and violet house/magnifying-glass logo. On `main`, cropped this selected image to a centered 1024×1024 PNG and committed **the exact same reviewed binary blob** in both `Resources/FindHausAssets.xcassets/AppIcon.appiconset` and `BrandLogo.imageset`. Registered the asset catalog with the Xcode target, configured `ASSETCATALOG_COMPILER_APPICON_NAME=AppIcon` and `CFBundleDisplayName=FindHaus` for Debug/Release.
+
+Replaced the animated Login/Sign up banner illustration with `Image("BrandLogo")` and visible FindHaus title, updated the background/banner/pill/primary application accents to the logo's blue–cyan–violet palette, Home hero gradient, and the top-level tab tint. **No animation logic or real login/auth/API code changed.** Existing manual unsigned IPA workflow remains on `macos-26` and was **not dispatched**. Server, session cookie, Xcode target/executable, bundle identifier and repository name are intentionally unchanged (internal technical identifiers). User-visible old branding in localization and settings was replaced, while technical documentation retains accurate Fredy provenance.
+
+Added the PNG paths to public allowlist as **SHA-256-pinned binaries**; updated `tools/check_public_scope.py` to accept only explicitly hashed PNG assets while refusing unreviewed binaries. Source/asset validation added in `Tests/validate_project.py`. No external Oracle Graphify refresh could be executed from the GitHub connector; allowlisted asset metadata JSON files for the next incremental indexing. The icon asset and SHA are source-verified, but Apple Xcode compilation and launcher appearance must be checked via the user's manual GitHub Actions run and real device.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
