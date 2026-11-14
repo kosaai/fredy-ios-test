@@ -26,6 +26,14 @@ Replaced the earlier single Settings form with seven selectable native sections:
 
 Seven new Swift sources under `Sources/Features/Settings/`, explicitly registered in the Xcode PBX target, with public and Graphify allowlists updated; **32 total native Swift files**. Existing authentication, real listings/jobs/search form remain unchanged. The manual `macos-26` unsigned IPA workflow remains as previously configured, not dispatched. Swift compilation and real-device layout are **not verified** until user-run GitHub Actions. External Oracle Graphify refresh cannot be performed through the GitHub connector, and was not claimed completed.
 
+## Animated native authentication card — 2026-11-14
+
+User supplied an image of a pastel/orange rounded account card and a video of animated Login/Sign up transitions, and requested both UI states inside the SwiftUI iPhone app. Replaced ONLY `Sources/Features/Authentication/LoginView.swift` with a native SwiftUI blue-abstract backdrop, illustrated coral/yellow/green banner, white rounded card, animated sliding mode pill (`matchedGeometryEffect`), spring resizing/field transitions, pill inputs, eye toggle and black action button. Arabic RTL preserved, native SF Symbols used, Reduce Motion respected and login password handling/ephemeral Fredy authenticated session logic unchanged.
+
+**Critical source boundary:** pinned Fredy v31 `lib/api/routes/userRoute.js` creates users ONLY behind adminHook at `POST /api/admin/users`; there is no unauthenticated registration or Google OAuth login in the existing authenticated client. The Sign up form is a visual in-memory form with a clearly disabled submit and explicit Arabic explanation that only the server administrator can create users. There is NO fake signup request, Google button, account creation success, simulated login, or new server endpoint. Existing authenticated login still invokes `LoginModel.signIn()`. Signup password/confirmation are cleared when leaving the screen or switching modes. Do not describe account creation as functional until a separately authorized real workflow exists.
+
+New test assertion in `Tests/test_login_contract.py`; no new Swift source or PBX change, so **32 Swift sources remain**. Existing user-owned GitHub Actions manual `macos-26` unsigned IPA workflow is unchanged and was NOT run. Linux/container cannot compile iOS SwiftUI; real Xcode compilation/animation appearance must be verified by the user's manual Actions build and device test. External Oracle Graphify was not refreshed from the GitHub connector.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
