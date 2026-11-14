@@ -55,8 +55,9 @@ struct ListingImageView: View {
             if let image {
                 Image(uiImage: image)
                     .resizable()
-                    .scaledToFit()
-                    .frame(height: 180)
+                    .scaledToFill()
+                    .frame(height: 202)
+                    .clipped()
                     .accessibilityLabel(Text("listings.main_image"))
             } else if let failure {
                 VStack {
