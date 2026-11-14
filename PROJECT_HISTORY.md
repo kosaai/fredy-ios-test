@@ -24,6 +24,10 @@ Replaced the earlier single Settings form with seven selectable native sections:
 
 Seven new Swift sources under `Sources/Features/Settings/`, explicitly registered in the Xcode PBX target, with public and Graphify allowlists updated; **32 total native Swift files**. Existing authentication, real listings/jobs/search form remain unchanged. The manual `macos-26` unsigned IPA workflow remains as previously configured, not dispatched. Swift compilation and real-device layout are **not verified** until user-run GitHub Actions. External Oracle Graphify refresh cannot be performed through the GitHub connector, and was not claimed completed.
 
+## 2026-11-14 — Animated login/account visual design
+
+Based on user's orange rounded account-card screenshot and tab-swap animation video, replaced native LoginView form styling with SwiftUI shape artwork, animated login/signup mode selector and card height change, secure pill fields, eye toggle, and black button, with Arabic RTL. Existing login credentials continue to be sent only through the original ephemeral FredyAuthService, unchanged. Official pinned Fredy v31 has admin-only user creation (`POST /api/admin/users` under adminHook), no anonymous signup or Google sign-in; signup UI is intentionally not submittable and says so, not a fake integration. Added source contract test. No other screens, PBX file count, server files or workflow changed. Build unverified pending user-triggered macos-26 Actions.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
