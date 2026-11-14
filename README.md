@@ -4,7 +4,7 @@ An independently authored native SwiftUI iPhone client experiment: Arabic RTL si
 
 ## Open and structure
 
-Xcode 15+, iOS 17+. Open `FredyTest.xcodeproj` and shared scheme `FredyTest`. One app target, **25 Swift files**, no third-party app dependencies/project generator/signing team. App/Features/Shared folders retain the original organization; Home is active with real loaded listings and jobs; the legacy About screen remains inactive. Native SwiftUI four-tab Home/Listings/Jobs/Map navigation with top Budget/Settings sheets, MapKit and Arabic RTL. Appearance follows the system until changed locally in Settings.
+Xcode 15+, iOS 17+. Open `FredyTest.xcodeproj` and shared scheme `FredyTest`. One app target, **32 Swift files**, no third-party app dependencies/project generator/signing team. App/Features/Shared folders retain the original organization; Home is active with real loaded listings and jobs; the legacy About screen remains inactive. Native SwiftUI four-tab Home/Listings/Jobs/Map navigation with top Budget/Settings sheets, MapKit and Arabic RTL. Appearance follows the system until changed locally in Settings.
 
 - `Features/Authentication`: existing login form and client owner.
 - `Features/Listings`: rental feed, raw pagination, rows, authenticated images and filter chips.
@@ -18,6 +18,10 @@ Xcode 15+, iOS 17+. Open `FredyTest.xcodeproj` and shared scheme `FredyTest`. On
 The active tab bar presents Home, Listings, Jobs and Map. Budget and Settings open as top-bar sheets. The display name is «رصد العقارات» while the app target and IPA binary remain FredyTest. No sample ads, figures or property coordinates are embedded. Existing authorized Fredy login, listings, images and jobs reads remain intact; no new backend features or external notifications were connected. The map is a native real basemap without property pins because the current API DTO does not include latitude/longitude. New screens are independent Swift files registered in the Xcode target. See HANDOFF.md.
 
 Build via the existing [manual GitHub Actions workflow](https://github.com/kosaai/fredy-ios-test/actions/workflows/unsigned-ipa.yml); the user triggers it. Swift compilation and appearance require the actual macOS build and iPhone check.
+
+## User settings (native SwiftUI)
+
+The iOS settings sheet has all seven Fredy v31 user-settings categories: Preferences, Travel time, Listing details, Application, Notification channels, Connections and MCP server. Their complete UI structure was researched against the official source; MCP includes upstream read/write tool catalog. This iteration does **not** load or save real account settings, permissions, OAuth grants or MCP tool enablement. Sections requiring real server state explicitly state they are not loaded, and destructive controls are disabled. Notification integrations outside the iPhone app (including Telegram) are excluded. User-entered application/travel drafts remain temporary. The appearance is native adaptive iOS, not forced dark. The manual IPA build verifies Swift compilation only when the user dispatches it.
 
 ## Authentication and privacy
 
