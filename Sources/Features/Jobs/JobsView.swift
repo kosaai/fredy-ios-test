@@ -1,5 +1,7 @@
 import SwiftUI
 
+/// Fredy-inspired job cards. Read-only visual controls until the corresponding
+/// existing Fredy REST operations are explicitly authorized for this screen.
 @MainActor
 struct JobsView: View {
     @State private var model: JobsModel
@@ -18,26 +20,13 @@ struct JobsView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 16) {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text("إدارة البحث").font(.caption).foregroundStyle(.secondary)
-                    Text("الأبحاث").font(.system(size: 32, weight: .bold, design: .rounded))
-                    Text("عمليات البحث المحفوظة ومعلومات تشغيلها الفعلية.")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
                 if model.state == .sessionExpired {
                     Label("listings.session_expired", systemImage: "lock")
                     Button("listings.sign_in", action: onSessionExpired)
                         .buttonStyle(.borderedProminent)
                 } else {
                     ForEach(model.jobs) { job in
-                        Button { onSelect(job.id) } label: {
-                            JobRow(job: job)
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityHint(Text("jobs.show_results"))
+                        JobCard(job: job, onSelect: { onSelect(job.id) })
                     }
 
                     if model.isLoading || model.state == .idle {
@@ -58,15 +47,16 @@ struct JobsView: View {
                         Text("jobs.snapshot_note")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
+                            .padding(.horizontal, 4)
                     }
                 }
             }
-            .padding(.horizontal, 17)
-            .padding(.top, 20)
-            .padding(.bottom, 26)
+            .padding(.horizontal, 14)
+            .padding(.top, 18)
+            .padding(.bottom, 30)
         }
         .background(Color(uiColor: .systemGroupedBackground))
-        .navigationTitle("jobs.title")
+        .navigationTitle("مهام البحث")
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("jobs.screen")
         .task { await model.loadIfNeeded() }
@@ -87,79 +77,179 @@ struct JobsView: View {
 }
 
 @MainActor
-private struct JobRow: View {
+private struct JobCard: View {
     let job: SearchJob
+    let onSelect: () -> Void
+    @State private var presentingDesignNotice = false
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            HStack(alignment: .top, spacing: 14) {
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(job.name ?? String(localized: "jobs.untitled",
-                                            locale: Locale(identifier: "ar")))
-                        .font(.headline)
-                        .fixedSize(horizontal: false, vertical: true)
-                    if let region = job.regionLabel {
-                        Label(region, systemImage: "mappin")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    HStack(spacing: 7) {
-                        Circle()
-                            .fill(job.running == true ? Color.orange :
-                                    job.enabled == true ? Color.green : Color.secondary)
-                            .frame(width: 7, height: 7)
-                        if let running = job.running {
-                            Text(LocalizedStringKey(running ? "jobs.running" : "jobs.not_running"))
-                        } else {
-                            Text("jobs.unknown")
-                        }
-                    }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                }
-                Spacer()
-                VStack(alignment: .trailing, spacing: 4) {
-                    if let count = job.numberOfFoundListings {
-                        Text(count, format: .number)
-                            .font(.system(.title, design: .rounded, weight: .bold))
-                    } else {
-                        Text("jobs.unavailable")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Text("jobs.listing_count")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-            }
+    private let cardBackground = Color(red: 0.095, green: 0.095, blue: 0.092)
+    private let foreground = Color(red: 0.96, green: 0.96, blue: 0.96)
+    private let secondary = Color(red: 0.62, green: 0.62, blue: 0.61)
+    private let border = Color(red: 0.19, green: 0.19, blue: 0.18)
 
-            Divider()
-
-            HStack {
-                Label {
-                    if let enabled = job.enabled {
-                        Text(LocalizedStringKey(enabled ? "jobs.enabled" : "jobs.disabled"))
-                    } else {
-                        Text("jobs.unknown")
-                    }
-                } icon: {
-                    Image(systemName: "arrow.clockwise")
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-                Spacer()
-                Text("jobs.show_results")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color(red: 0.74, green: 0.27, blue: 0.23))
-                Image(systemName: "chevron.left")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.secondary)
+    private var providers: String {
+        guard let provider = job.provider, !provider.isEmpty else { return "المصدر غير متاح" }
+        let titles = provider.map { entry -> String in
+            switch entry.id.lowercased() {
+            case "immoscout": return "Immoscout"
+            case "immowelt": return "Immowelt"
+            case "kleinanzeigen": return "Kleinanzeigen"
+            default: return entry.id
             }
         }
-        .padding(18)
-        .background(Color(uiColor: .secondarySystemGroupedBackground),
-                    in: RoundedRectangle(cornerRadius: 22))
-        .accessibilityElement(children: .combine)
+        return titles.joined(separator: " · ")
+    }
+
+    private var lastRunDescription: String {
+        guard let timestamp = job.lastRunAt, timestamp > 0 else {
+            return "آخر تشغيل غير متاح"
+        }
+        let relative = RelativeDateTimeFormatter()
+        relative.locale = Locale(identifier: "ar")
+        relative.unitsStyle = .full
+        let date = Date(timeIntervalSince1970: timestamp / 1_000)
+        return "آخر تشغيل " + relative.localizedString(for: date, relativeTo: Date())
+    }
+
+    private var statusTint: Color {
+        if job.running == true { return Color(red: 0.93, green: 0.68, blue: 0.37) }
+        if job.enabled == true { return Color(red: 0.56, green: 0.78, blue: 0.65) }
+        return secondary
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Match the Fredy web card's left identity / right listings count.
+            HStack(alignment: .top, spacing: 14) {
+                HStack(alignment: .top, spacing: 14) {
+                    Circle()
+                        .fill(statusTint)
+                        .frame(width: 10, height: 10)
+                        .padding(.top, 11)
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(job.name ?? String(localized: "jobs.untitled",
+                                                locale: Locale(identifier: "ar")))
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundStyle(foreground)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.leading)
+
+                        Text(providers)
+                            .font(.system(size: 16))
+                            .foregroundStyle(secondary)
+
+                        Text(lastRunDescription)
+                            .font(.system(size: 15))
+                            .foregroundStyle(secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                Spacer(minLength: 8)
+                Button(action: onSelect) {
+                    VStack(alignment: .trailing, spacing: 5) {
+                        if let count = job.numberOfFoundListings {
+                            Text(count, format: .number)
+                                .font(.system(size: 31, weight: .semibold, design: .rounded))
+                                .foregroundStyle(foreground)
+                        } else {
+                            Text("—")
+                                .font(.system(size: 31, weight: .medium))
+                                .foregroundStyle(secondary)
+                        }
+                        Text("الإعلانات")
+                            .font(.system(size: 13))
+                            .foregroundStyle(secondary)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("عرض الإعلانات المحفوظة لهذه المهمة")
+            }
+            .environment(\.layoutDirection, .leftToRight)
+            .padding(.bottom, 27)
+
+            Rectangle()
+                .fill(border)
+                .frame(height: 1)
+
+            HStack(spacing: 10) {
+                Button(action: showDesignNotice) {
+                    ZStack(alignment: job.enabled == true ? .trailing : .leading) {
+                        Capsule()
+                            .fill(job.enabled == true ? Color.white : Color(red: 0.35, green: 0.35, blue: 0.35))
+                            .frame(width: 46, height: 27)
+                        Circle()
+                            .fill(job.enabled == true ? Color.black : Color.white)
+                            .frame(width: 21, height: 21)
+                            .padding(.horizontal, 3)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("تفعيل أو إيقاف البحث الدوري")
+                .accessibilityValue(job.enabled == true ? "مفعّل" : job.enabled == false ? "متوقف" : "غير معروف")
+
+                Spacer(minLength: 0)
+
+                Button(action: showDesignNotice) {
+                    Label("تشغيل", systemImage: "play.fill")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(foreground)
+                        .padding(.horizontal, 13)
+                        .frame(height: 39)
+                        .overlay(RoundedRectangle(cornerRadius: 10)
+                            .stroke(border.opacity(1.0), lineWidth: 1.5))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("تشغيل مهمة البحث")
+
+                Button(action: showDesignNotice) {
+                    Image(systemName: "pencil")
+                        .font(.system(size: 19))
+                        .frame(width: 35, height: 42)
+                }
+                .accessibilityLabel("تعديل المهمة")
+
+                Button(action: showDesignNotice) {
+                    Image(systemName: "square.on.square")
+                        .font(.system(size: 19))
+                        .frame(width: 35, height: 42)
+                }
+                .accessibilityLabel("نسخ المهمة")
+
+                Menu {
+                    Button(role: .destructive, action: showDesignNotice) {
+                        Label("حذف جميع إعلانات هذه المهمة", systemImage: "list.bullet.minus")
+                    }
+                    Button(role: .destructive, action: showDesignNotice) {
+                        Label("حذف المهمة", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .font(.system(size: 20, weight: .medium))
+                        .frame(width: 43, height: 39)
+                        .background(Color(red: 0.15, green: 0.15, blue: 0.14),
+                                    in: Capsule())
+                }
+                .accessibilityLabel("مزيد من الخيارات")
+            }
+            .foregroundStyle(secondary)
+            .environment(\.layoutDirection, .leftToRight)
+            .padding(.top, 16)
+        }
+        .padding(20)
+        .background(cardBackground, in: RoundedRectangle(cornerRadius: 18))
+        .overlay(RoundedRectangle(cornerRadius: 18)
+            .stroke(border, lineWidth: 1))
+        .alert("واجهة التحكم", isPresented: $presentingDesignNotice) {
+            Button("حسنًا", role: .cancel) {}
+        } message: {
+            Text("هذا الزر للعرض حاليًا. لم يُنفَّذ أي تغيير على مهام Fredy أو إعلاناتها.")
+        }
+    }
+
+    private func showDesignNotice() {
+        presentingDesignNotice = true
     }
 }
