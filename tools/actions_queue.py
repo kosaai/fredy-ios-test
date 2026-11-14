@@ -100,7 +100,10 @@ def main():
     def emit(state):
         report['state'] = state
         save()
-        print(json.dumps({'state': state, 'run_id': run_id, 'run_url': report.get('run_url')}), flush=True)
+        summary = {'state': state, 'run_id': run_id, 'run_url': report.get('run_url')}
+        if state == 'build_failed':
+            summary['failed_steps'] = report.get('failed_steps', [])
+        print(json.dumps(summary), flush=True)
 
     def cancel():
         if run_id is None:
@@ -182,8 +185,21 @@ def main():
                 artifacts = api(f'{prefix}/actions/runs/{run_id}/artifacts?per_page=100')
                 report['artifacts'] = [{k: a.get(k) for k in ['id', 'name', 'size_in_bytes', 'expired', 'digest']}
                                        for a in artifacts.get('artifacts', [])]
+                if run.get('conclusion') != 'success':
+                    try:
+                        jobs = api(f'{prefix}/actions/runs/{run_id}/jobs?per_page=100').get('jobs', [])
+                        report['failed_steps'] = [
+                            {'job': job.get('name'), 'step': step.get('name'),
+                             'conclusion': step.get('conclusion')}
+                            for job in jobs for step in job.get('steps', [])
+                            if step.get('conclusion') == 'failure'
+                        ]
+                    except (RuntimeError, subprocess.TimeoutExpired):
+                        report['failed_steps_unavailable'] = True
+                    emit('build_failed')
+                    return 1
                 emit('build_finished')
-                return 0 if run.get('conclusion') == 'success' else 1
+                return 0
             time.sleep(5)
         cancel()
         emit('build_monitor_timeout')
