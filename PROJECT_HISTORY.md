@@ -8,6 +8,10 @@ User authorized direct GitHub edits and manual IPA workflow, no Codex. Rebuilt a
 
 Registered three Swift files into the single iPhone native target (total 25), updated public Graphify allowlists and project source test. Updated app display name only (رصد العقارات); kept FredyTest executable, bundle identifier, iPhoneOS release artifact workflow, and no-code-signing policy. No Apple toolchain available through the GitHub connector; build and live device appearance remain user-run pending. Graphify was not refreshed on Oracle; only its declared scope was updated. Earlier known CI policy test parses readable YAML as JSON, not caused or resolved by this UI work.
 
+## 2026-11-14 — Jobs screen restored to Fredy web-card appearance
+
+At the user's request, the live SwiftUI Jobs list has been restyled to closely match their screenshot of the upstream Fredy dark job cards. Real job names, provider ids, last-run timestamps, enabled/running values and found-listing counts are presented without example fixtures. The original switch, Run, pencil, copy and overflow-delete actions are present as **visual, non-mutating controls**, all reporting their non-connected state. The existing selection-to-listings navigation and authenticated jobs refresh are retained. No new REST mutations, notifications or backend changes. Compilation and visual verification still require the user's manual macos-26 iPhone IPA build.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
