@@ -24,7 +24,7 @@ struct SettingsPreferencesPage: View {
             }
 
             SettingsCard("حذف الإعلانات",
-                         detail: "في Fredy تختار الحذف القابل للاستعادة أو الحذف النهائي، ويمكنك تجاوز تأكيد الحذف.") {
+                         detail: "تستطيع اختيار الحذف القابل للاستعادة أو الحذف النهائي، مع خيار تجاوز التأكيد.") {
                 Picker("طريقة الحذف", selection: $deletionChoice) {
                     ForEach(DeletionChoice.allCases, id: \.self) { choice in
                         Text(choice.rawValue).tag(choice)
@@ -38,7 +38,7 @@ struct SettingsPreferencesPage: View {
                         .font(.footnote)
                         .foregroundStyle(.orange)
                 }
-                SettingsReadOnlyNote("طريقة الحذف وخيار التأكيد يُعرضان ويُغيَّران محليًا في هذه الصفحة فقط؛ لا تُجلب القيمة الحقيقية ولا تُحفظ في Fredy.")
+                SettingsReadOnlyNote("طريقة الحذف وخيار التأكيد يُعرضان ويُغيَّران محليًا فقط؛ لا تُجلب القيمة الحقيقية ولا تُحفظ في الخادم.")
             }
         }
         .accessibilityIdentifier("settings.preferences")
