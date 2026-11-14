@@ -116,7 +116,7 @@ private enum FredySettingsSection: String, CaseIterable, Identifiable {
 struct SettingsCard<Content: View>: View {
     let title: String
     let detail: String?
-    @ViewBuilder let content: Content
+    let content: Content
 
     init(_ title: String, detail: String? = nil, @ViewBuilder content: () -> Content) {
         self.title = title
