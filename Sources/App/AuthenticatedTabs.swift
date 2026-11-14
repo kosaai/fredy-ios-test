@@ -4,16 +4,20 @@ import SwiftUI
 struct AuthenticatedTabs: View {
     let service: any FredyClientServing
     let onSessionExpired: () -> Void
+
     @State private var expired = false
-    @State private var selection: SectionTab = .listings
+    @State private var selection: SectionTab = .home
     @State private var selectedJobID: String?
     @State private var addingSearch = false
+    @State private var showingBudget = false
+    @State private var showingSettings = false
+    @State private var darkAppearance = false
     @State private var saveTask: Task<Void, Never>?
     @State private var refreshToken = 0
     @State private var jobsModel: JobsModel
     @State private var workflow: AddSearchModel
 
-    private enum SectionTab: Hashable { case listings, jobs }
+    private enum SectionTab: Hashable { case home, listings, jobs, map }
 
     init(service: any FredyClientServing, onSessionExpired: @escaping () -> Void) {
         self.service = service
@@ -35,15 +39,25 @@ struct AuthenticatedTabs: View {
                 .navigationTitle("login.title")
             }
         } else {
-            // iOS 17-compatible native tabs, one navigation stack per section.
+            // Native TabView adopts the system's Liquid Glass appearance on supported iOS versions.
             TabView(selection: $selection) {
+                NavigationStack {
+                    HomeView(service: service, jobsModel: jobsModel,
+                             onShowListings: { selection = .listings },
+                             onShowJobs: { selection = .jobs },
+                             onSessionExpired: expire)
+                        .toolbar { topActions }
+                }
+                .tabItem { Label("الرئيسية", systemImage: "house.fill") }
+                .tag(SectionTab.home)
+
                 NavigationStack {
                     ListingsView(service: service, jobsModel: jobsModel,
                                  selectedJobID: $selectedJobID, refreshToken: refreshToken,
                                  onSessionExpired: expire)
-                        .toolbar { addSearchButton }
+                        .toolbar { topActions }
                 }
-                .tabItem { Label("tabs.listings", systemImage: "house.fill") }
+                .tabItem { Label("tabs.listings", systemImage: "building.2.fill") }
                 .tag(SectionTab.listings)
 
                 NavigationStack {
@@ -57,11 +71,23 @@ struct AuthenticatedTabs: View {
                                     .background(.regularMaterial)
                             }
                         }
-                        .toolbar { addSearchButton }
+                        .toolbar {
+                            topActions
+                            addSearchButton
+                        }
                 }
-                .tabItem { Label("tabs.jobs", systemImage: "list.bullet.rectangle.fill") }
+                .tabItem { Label("tabs.jobs", systemImage: "magnifyingglass") }
                 .tag(SectionTab.jobs)
+
+                NavigationStack {
+                    RentalMapView()
+                        .toolbar { topActions }
+                }
+                .tabItem { Label("الخريطة", systemImage: "map.fill") }
+                .tag(SectionTab.map)
             }
+            .tint(Color(red: 0.74, green: 0.27, blue: 0.23))
+            .preferredColorScheme(darkAppearance ? .dark : nil)
             .task { await jobsModel.loadIfNeeded() }
             .onChange(of: jobsModel.state) { _, state in
                 if state == .sessionExpired { expire() }
@@ -70,10 +96,35 @@ struct AuthenticatedTabs: View {
                 if phase == .sessionExpired { expire() }
             }
             .onChange(of: workflow.resultsRevision) { _, _ in refreshToken += 1 }
+            .sheet(isPresented: $showingBudget) {
+                RentalBudgetView()
+            }
+            .sheet(isPresented: $showingSettings) {
+                RentalSettingsView(darkAppearance: $darkAppearance)
+            }
             .sheet(isPresented: $addingSearch, onDismiss: { refreshToken += 1 }) {
                 AddSearchView(model: workflow, onSave: saveSearch, onSelect: selectJob)
             }
             .onDisappear { saveTask?.cancel() }
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var topActions: some ToolbarContent {
+        ToolbarItemGroup(placement: .topBarTrailing) {
+            Button {
+                showingBudget = true
+            } label: {
+                Label("الميزانية", systemImage: "wallet.pass")
+            }
+            .accessibilityIdentifier("navigation.budget")
+
+            Button {
+                showingSettings = true
+            } label: {
+                Label("الإعدادات", systemImage: "gearshape")
+            }
+            .accessibilityIdentifier("navigation.settings")
         }
     }
 
@@ -105,9 +156,10 @@ struct AuthenticatedTabs: View {
     }
 
     private func expire() {
-        // Remove BOTH tabs and their view-owned data/tasks on any detected 401.
         expired = true
         addingSearch = false
+        showingBudget = false
+        showingSettings = false
         saveTask?.cancel()
     }
 }
