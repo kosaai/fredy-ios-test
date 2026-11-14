@@ -52,6 +52,10 @@ Removed the circled row of job/count chips, region chips and explanatory paragra
 
 Studied official Fredy v31 card components, routes and app-letter workflow. Added the genuine watch star, listing status (none/applied/rejected/accepted), relative listing age, provider name, copyable server-generated application letter (copy then mark applied), original HTTPS listing link, and confirmed **soft** removal to existing horizontal rental cards. Kept original authenticated URLSession and images, login behavior, page controls, and FindHaus styling; no heart, mock or fabricated property values. Service uses existing authenticated client, explicit user actions only, recoverable deletion. Updated nullable DTO fields and two screen service injections; source checks updated. Await user-triggered Actions compilation/device testing. No automatic deployment or new notification integrations.
 
+## 2026-11-15 — Native dashboard summary and one-shot Search Now
+
+Studied official Fredy v31 Dashboard.jsx, todayHeadline.js, dashboardRouter.js and jobRouter.js. Replaced FindHaus Home's prior gradient hero with the requested date/new-today/schedule/search-now presentation using the **actual** authenticated dashboard metrics (`GET /api/dashboard`) rather than loaded-page counts. Unknown metrics are displayed as unavailable. Verified the route `POST /api/jobs/startAll`; added confirmation and one-time dispatch via the existing authenticated session, with truthful HTTP 202 queued status and no polling or fictitious completion. No Telegram notification warning/capability. Added source check. No iPhone build triggered; remaining unfinished settings/Map/Jobs actions should be wired and tested incrementally by Codex, never invented.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
