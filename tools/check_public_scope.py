@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Check the explicit public file boundary without printing secret values."""
 import json
+import hashlib
 from pathlib import Path
 import re
 import subprocess
@@ -15,8 +16,11 @@ def checked_files():
     if len(allowed) != len(manifest["files"]):
         raise RuntimeError("Duplicate public path")
     graph = set(manifest["graph_files"])
+    binary_assets = manifest.get("binary_assets", {})
     if not graph <= allowed:
         raise RuntimeError("Graph corpus is not a subset of public files")
+    if not set(binary_assets) <= allowed or set(binary_assets) & graph:
+        raise RuntimeError("Binary assets must be explicitly allowlisted, outside the Graphify text index")
     patterns = [
         r"-----BEGIN (?:[A-Z ]+ )?PRIVATE KEY-----",
         r"(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})",
@@ -33,6 +37,12 @@ def checked_files():
             failures.append((relative, "invalid public path")); continue
         if any(part.lower() in {"private", "secrets", "sessions", "cookies", "reports", "graphify-out", ".git"} for part in path.relative_to(ROOT).parts):
             failures.append((relative, "private path")); continue
+        if relative in binary_assets:
+            if path.suffix.lower() != ".png" or path.stat().st_size > 1_000_000:
+                failures.append((relative, "unsupported or oversized binary asset"))
+            elif hashlib.sha256(path.read_bytes()).hexdigest() != binary_assets[relative]:
+                failures.append((relative, "binary content hash mismatch"))
+            continue
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeError:
@@ -48,7 +58,12 @@ def checked_files():
         for relative in subprocess.check_output(["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"], cwd=ROOT).decode().split("\0"):
             if not relative or relative not in allowed:
                 continue
-            staged = subprocess.check_output(["git", "show", ":" + relative], cwd=ROOT).decode("utf-8")
+            staged_bytes = subprocess.check_output(["git", "show", ":" + relative], cwd=ROOT)
+            if relative in binary_assets:
+                if hashlib.sha256(staged_bytes).hexdigest() != binary_assets[relative]:
+                    failures.append((relative, "staged binary content hash mismatch"))
+                continue
+            staged = staged_bytes.decode("utf-8")
             for number, pattern in enumerate(patterns, 1):
                 if re.search(pattern, staged):
                     failures.append((relative, f"staged sensitive pattern {number}"))
