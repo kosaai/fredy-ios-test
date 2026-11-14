@@ -16,6 +16,24 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class NativeProjectChecks(unittest.TestCase):
+    def test_settings_use_vertical_native_navigation(self):
+        settings = (ROOT / "Sources/Features/Settings/RentalSettingsView.swift").read_text()
+        self.assertIn("NavigationStack(path: $navigationPath)", settings)
+        self.assertIn("NavigationLink(value: section)", settings)
+        self.assertIn("navigationDestination(for: FindHausSettingsSection.self)", settings)
+        self.assertIn("settings.sections", settings)
+        self.assertIn('case .general: "الإعدادات العامة"', settings)
+        self.assertNotIn('ScrollView(.horizontal', settings)
+        self.assertNotIn('case .preferences: "التفضيلات"', settings)
+        for page in [
+            "SettingsPreferencesPage", "SettingsTravelTimePage",
+            "SettingsListingDetailsPage", "SettingsApplicationPage",
+            "SettingsNotificationsPage", "SettingsConnectionsPage",
+            "SettingsMCPPage",
+        ]:
+            self.assertIn(page + "(", settings)
+        self.assertIn("navigationPath.append(.connections)", settings)
+
     def test_native_login_is_a_complete_xcode_project(self):
         project = ROOT / "FredyTest.xcodeproj/project.pbxproj"
         self.assertTrue(project.is_file(), "Native Xcode project is not created yet")
