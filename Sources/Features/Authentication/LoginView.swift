@@ -122,7 +122,7 @@ struct LoginView: View {
     private var skyBackground: some View {
         GeometryReader { proxy in
             ZStack {
-                Color(red: 0.83, green: 0.89, blue: 0.96)
+                Color(red: 0.88, green: 0.93, blue: 1.0)
                 Circle()
                     .fill(Color.white.opacity(0.27))
                     .frame(width: 330, height: 330)
@@ -149,8 +149,8 @@ struct LoginView: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            Color(red: 0.95, green: 0.56, blue: 0.44),
-                            Color(red: 0.93, green: 0.46, blue: 0.37)
+                            Color(red: 0.31, green: 0.38, blue: 0.99),
+                            Color(red: 0.32, green: 0.73, blue: 0.95)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -158,27 +158,33 @@ struct LoginView: View {
                 )
             GeometryReader { proxy in
                 Circle()
-                    .fill(Color(red: 0.93, green: 0.80, blue: 0.46))
+                    .fill(Color(red: 0.55, green: 0.60, blue: 1.0))
                     .frame(width: 205, height: 205)
                     .offset(x: proxy.size.width * 0.68, y: 78)
                 Circle()
-                    .fill(Color(red: 0.43, green: 0.77, blue: 0.62))
+                    .fill(Color(red: 0.30, green: 0.78, blue: 1.0))
                     .frame(width: 240, height: 240)
                     .offset(x: -118, y: 118)
             }
             .clipShape(RoundedRectangle(cornerRadius: 36))
 
             VStack(spacing: 8) {
-                Image(systemName: "building.2.crop.circle")
-                    .font(.system(size: 24, weight: .light))
-                    .accessibilityHidden(true)
+                Image("BrandLogo")
+                    .resizable()
+                    .interpolation(.high)
+                    .scaledToFit()
+                    .frame(width: 72, height: 72)
+                    .clipShape(RoundedRectangle(cornerRadius: 18))
+                    .accessibilityLabel("شعار FindHaus")
+                Text("FindHaus")
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
                 Text(mode.title)
-                    .font(.system(size: 33, weight: .bold, design: .rounded))
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
                     .contentTransition(.opacity)
                     .multilineTextAlignment(.center)
             }
             .foregroundStyle(.white)
-            .padding(.bottom, 33)
+            .padding(.bottom, 25)
         }
         .frame(height: 220)
         .accessibilityIdentifier("login.header")
@@ -268,7 +274,7 @@ struct LoginView: View {
                 Label(LocalizedStringKey(error.localizationKey),
                       systemImage: "exclamationmark.triangle")
                     .font(.footnote)
-                    .foregroundStyle(Color(red: 0.67, green: 0.22, blue: 0.18))
+                    .foregroundStyle(Color(red: 0.31, green: 0.38, blue: 0.99))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
                     .accessibilityIdentifier("login.error")
@@ -288,7 +294,7 @@ struct LoginView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 53)
             }
-            .buttonStyle(BlackPillButtonStyle())
+            .buttonStyle(FindHausPillButtonStyle())
             .disabled(!model.canSubmit)
             .accessibilityIdentifier("login.submit")
             .padding(.top, 6)
@@ -349,12 +355,12 @@ struct LoginView: View {
             // The Fredy v31 create-user endpoint is admin-only. Never pretend
             // that this form successfully registered a new account.
             Button("إنشاء حساب") {}
-                .buttonStyle(BlackPillButtonStyle())
+                .buttonStyle(FindHausPillButtonStyle())
                 .disabled(true)
                 .accessibilityIdentifier("register.submit")
                 .padding(.top, 6)
 
-            Label("إنشاء حساب Fredy متاح لمسؤول الخادم من لوحة الإدارة. لا يدعم الخادم التسجيل الذاتي.",
+            Label("إنشاء الحسابات متاح لمسؤول الخادم فقط. لا يدعم الخادم التسجيل الذاتي.",
                   systemImage: "info.circle")
                 .font(.footnote)
                 .foregroundStyle(subdued)
@@ -446,14 +452,14 @@ private struct PillInputStyle: ViewModifier {
     }
 }
 
-private struct BlackPillButtonStyle: ButtonStyle {
+private struct FindHausPillButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 16, weight: .bold))
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .frame(height: 54)
-            .background(Color(red: 0.07, green: 0.07, blue: 0.08), in: Capsule())
+            .background(Color(red: 0.31, green: 0.38, blue: 0.99), in: Capsule())
             .opacity(configuration.isPressed ? 0.76 : 1)
             .scaleEffect(configuration.isPressed ? 0.985 : 1)
     }
