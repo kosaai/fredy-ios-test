@@ -253,7 +253,7 @@ private struct JobCard: View {
         .alert("واجهة التحكم", isPresented: $presentingDesignNotice) {
             Button("حسنًا", role: .cancel) {}
         } message: {
-            Text("هذا الزر للعرض حاليًا. لم يُنفَّذ أي تغيير على مهام Fredy أو إعلاناتها.")
+            Text("هذا الزر للعرض حاليًا. لم يُنفَّذ أي تغيير على مهام البحث أو الإعلانات.")
         }
     }
 
