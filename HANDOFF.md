@@ -42,6 +42,9 @@ Replaced the animated Login/Sign up banner illustration with `Image("BrandLogo")
 
 Added the PNG paths to public allowlist as **SHA-256-pinned binaries**; updated `tools/check_public_scope.py` to accept only explicitly hashed PNG assets while refusing unreviewed binaries. Source/asset validation added in `Tests/validate_project.py`. No external Oracle Graphify refresh could be executed from the GitHub connector; allowlisted asset metadata JSON files for the next incremental indexing. The icon asset and SHA are source-verified, but Apple Xcode compilation and launcher appearance must be checked via the user's manual GitHub Actions run and real device.
 
+
+Current manual workflow labels/IPA artifact are branded `FindHaus-Unsigned.ipa`; the executable inside `Payload/FredyTest.app` remains unchanged for compatibility. The workflow additionally checks `CFBundleDisplayName=FindHaus` and bundled `Assets.car` before artifact upload.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
