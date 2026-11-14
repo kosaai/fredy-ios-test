@@ -10,6 +10,10 @@ New sources: Sources/Features/Map/RentalMapView.swift, Budget/RentalBudgetView.s
 
 Important: the external Oracle Graphify incremental refresh was **not run** from the GitHub connector. The three new paths were added to its allowlist for the next authorized Oracle refresh. Existing Graphify history remains untouched. The inherited YAML-as-JSON test failure in Tests/test_build_tools.py was not addressed in this UI-only work.
 
+## Fredy web Jobs card alignment — 2026-11-14
+
+The Jobs screen now uses the dark Fredy-web-inspired card from the user's reference screenshot: identity/status dot at left, actual stored provider ID, locale-relative lastRunAt from server milliseconds, actual active listing count at right, and bottom controls visually arranged as enabled-state switch, Run, Edit, Duplicate, and overflow with Delete Listings / Delete Job. Only tapping the listings count navigates to the existing filtered rental feed. All new mutation/action controls show an informational alert and **never call an endpoint**, as the user currently authorized UI-only work. Status/amounts/counts come from JobsModel's authenticated GET and are not synthetic. The change replaces only Sources/Features/Jobs/JobsView.swift, preserves all original job creation behavior, and requires user-triggered Xcode build via the existing manual macos-26 workflow to verify compilation and rendering. External Oracle Graphify remains untouched; no new public file paths were introduced.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.
