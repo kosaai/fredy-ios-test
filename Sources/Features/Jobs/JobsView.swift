@@ -55,9 +55,13 @@ struct JobsView: View {
             .padding(.top, 18)
             .padding(.bottom, 30)
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        .environment(\.colorScheme, .dark)
+        .background(Color(red: 0.065, green: 0.065, blue: 0.063).ignoresSafeArea())
         .navigationTitle("مهام البحث")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbarBackground(Color(red: 0.065, green: 0.065, blue: 0.063), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         .accessibilityIdentifier("jobs.screen")
         .task { await model.loadIfNeeded() }
         .refreshable { await model.reload() }
