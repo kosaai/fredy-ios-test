@@ -123,7 +123,7 @@ protocol FredyListingsServing {
 }
 
 @MainActor
-protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing {}
+protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing, FredyDashboardServing {}
 
 private struct ListingDecisionRecord: Decodable {
     let status: String?
@@ -145,4 +145,53 @@ protocol FredyListingActionServing {
     func setListingStatus(id: String, status: String?) async throws
     func fetchListingApplication(id: String) async throws -> ListingApplicationDraft
     func softRemoveListing(id: String) async throws
+}
+
+
+/// Fredy's authenticated dashboard snapshot (GET /api/dashboard).
+/// A missing per-day array means "unknown", not a zero count.
+struct FindHausDashboardSnapshot: Decodable, Sendable {
+    struct General: Decodable, Sendable {
+        let interval: Double?
+        let lastRun: Double?
+        let nextRun: Double?
+    }
+
+    struct Trend: Decodable, Sendable {
+        struct Day: Decodable, Sendable {
+            let count: Int
+        }
+        let perDay: [Day]?
+    }
+
+    let general: General?
+    let trend: Trend?
+
+    var newToday: Int? {
+        guard let count = trend?.perDay?.last?.count, count >= 0 else { return nil }
+        return count
+    }
+
+    var intervalMinutes: Int? {
+        guard let interval = general?.interval, interval.isFinite,
+              interval > 0, interval <= Double(Int.max) else { return nil }
+        return Int(interval)
+    }
+
+    var lastRunDate: Date? { date(milliseconds: general?.lastRun) }
+    var nextRunDate: Date? { date(milliseconds: general?.nextRun) }
+
+    private func date(milliseconds: Double?) -> Date? {
+        guard let value = milliseconds, value.isFinite,
+              value > 946_684_800_000, value < 4_102_444_800_000 else { return nil }
+        return Date(timeIntervalSince1970: value / 1000)
+    }
+}
+
+@MainActor
+protocol FredyDashboardServing {
+    func fetchDashboardSnapshot() async throws -> FindHausDashboardSnapshot
+    /// Enqueue one manually requested server-side search of the user's jobs.
+    /// HTTP 202 acknowledges the request, not completion or new results.
+    func startAllSearches() async throws
 }
