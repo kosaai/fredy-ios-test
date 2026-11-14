@@ -1,10 +1,10 @@
 # Project history (public, sanitized)
 
-This is the history of the **Fredy Test SwiftUI shell**, not a claim that a full property app has been delivered. Entries summarize retained Oracle reports and observed tests. Original reports, raw responses, credentials and deployment configuration stay outside this repository and outside its graph corpus. Evidence fingerprints are listed in `docs/provenance.json`; they establish document identity, not independent reproduction of every historical claim.
+This is the history of the **Fredy Test native SwiftUI client experiment**, not a claim that a full property app has been delivered. Entries summarize retained Oracle reports and observed tests. Original reports, raw responses, credentials and deployment configuration stay outside this repository and outside its graph corpus. Evidence fingerprints are listed in `docs/provenance.json`; they establish document identity, not independent reproduction of every historical claim.
 
 ## Two distinct workstreams
 
-- **This repository:** independently authored, local-only SwiftUI UI shell, five Swift files, one app target, English/Arabic text. No login, networking, property or job implementation.
+- **This repository:** independently authored SwiftUI experiment, now nine Swift files and one app target. The newly authorized feature is Arabic/RTL login to existing Fredy using a temporary cookie session. No property or job implementation. Native execution remains unverified.
 - **Separate earlier work:** analysis of Fredy and an independently authored Go backend. That backend's commits and experiments are historical context only; no backend source, data, runtime configuration or fixtures have been imported here. Its architecture proposals do not silently become requirements or implemented features of this app.
 
 ## Completed research and backend stages
@@ -53,6 +53,18 @@ Created a native Xcode project with Home/About screens, standard navigation, sys
 The existing shell is prepared for publication on `main` with this sanitized history, `HANDOFF.md`, `AGENTS.md`, a strict public-file allowlist and a separate external Graphify index. Source functionality remains unchanged: all five Swift files were compared byte-for-byte with the original scaffold archive. The graph uses installed local AST extraction plus deterministic Markdown section/reference indexing; it is not an LLM semantic analysis. Existing historical graphs and private evidence are retained outside this repository.
 
 Archival verification on 2026-11-14: native scaffold validation passed; public-scope gate accepted clean files and rejected a synthetic secret, a staged-only secret and an out-of-allowlist graph input. Incremental extraction was exercised; a repeated no-change refresh preserved graph bytes and history count. The legacy Fredy graph SHA-256 remained unchanged. No tools were installed, no additional agents were launched, and no app, Fredy or Cloudflare behavior changed. Publication is complete only when the remote main SHA is verified against the delivery commit.
+
+## Native login stage — 2026-11-14
+
+The user explicitly authorized only native sign-in to the existing Fredy HTTPS REST service. Added a small main-actor observable login model, Arabic RTL Form with SecureField/loading/errors, an ephemeral URLSession service and a verified-user confirmation view. The existing App/Features/Shared layout, one app target and original Home/About/component source remain intact. This stage chooses the existing-Fredy REST experiment; it does not integrate the separate Go backend.
+
+The client sends the required descriptive User-Agent on JSON POST login and GET user verification, requires a Secure session cookie plus a complete typed user and rejects redirects. HTTP 200 with an empty object is not success. Credentials are not embedded, logged or persisted; cookie storage is private/in-memory, failed attempts discard local cookies, password input is cleared before awaiting, and cancellation is checked before showing success. No persistent login, logout UI, listings, jobs, redesign, IPA or deployment changes were added. Details and future runtime checks: `docs/AUTHENTICATION.md`.
+
+Validation: executable Python source-contract checks were observed failing before implementation and then passing. All three Python checks passed, including Swift syntax trees, OpenStep project and source/resource membership, scheme and English/Arabic keys. A live unauthenticated GET user probe returned HTTP 200 with `{}`. Installed server route/user-mapping source was read only; no credential store or real login POST was used. No tools or additional agents were installed/launched. Source review is local, not an independent review or a runtime proof.
+
+Maintenance: public-scope checks passed for 28 reviewed files; the 20-file Graphify corpus was incrementally refreshed, a repeated no-change refresh preserved graph/history, and the legacy graph checksum was unchanged. One extractor call-resolution self-loop is retained and documented in `docs/GRAPHIFY.md`; it is not source recursion. No missing/dangling endpoints or exact duplicate edges were reported.
+
+Limits: Oracle has neither Swift nor Xcode/Apple SDK; native type-check/build, URLSession's actual cookie round trip, correct/incorrect app sign-in, cancellation and visual/accessibility checks are **not executed**. Historical authenticated REST success is not evidence that this Swift client runs. Follow the runtime matrix before declaring native authentication verified.
 
 ## Decisions preserved
 

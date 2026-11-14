@@ -153,6 +153,262 @@
           }
         }
       }
+    },
+    "login.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Fredy"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تسجيل الدخول إلى Fredy"
+          }
+        }
+      }
+    },
+    "login.intro": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in with your existing Fredy account."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سجّل الدخول باستخدام حسابك الحالي في Fredy."
+          }
+        }
+      }
+    },
+    "login.username": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اسم المستخدم"
+          }
+        }
+      }
+    },
+    "login.password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كلمة المرور"
+          }
+        }
+      }
+    },
+    "login.submit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تسجيل الدخول"
+          }
+        }
+      }
+    },
+    "login.submitting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signing in…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جارٍ تسجيل الدخول…"
+          }
+        }
+      }
+    },
+    "login.privacy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your password is not saved. The session stays in memory only; reopening the app requires signing in again."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا تُحفظ كلمة المرور. تبقى الجلسة في الذاكرة فقط؛ يلزم تسجيل الدخول مجددًا بعد إغلاق التطبيق."
+          }
+        }
+      }
+    },
+    "login.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signed in successfully"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم تسجيل الدخول بنجاح"
+          }
+        }
+      }
+    },
+    "login.success_note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fredy verified this session. No listings or jobs are fetched in this step."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تحقّق Fredy من هذه الجلسة. لا يتم جلب الإعلانات أو المهام في هذه المرحلة."
+          }
+        }
+      }
+    },
+    "login.error_required": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter your username and password."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أدخل اسم المستخدم وكلمة المرور."
+          }
+        }
+      }
+    },
+    "login.error_credentials": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The username or password is incorrect. Re-enter your password to try again."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اسم المستخدم أو كلمة المرور غير صحيح. أعد إدخال كلمة المرور للمحاولة مجددًا."
+          }
+        }
+      }
+    },
+    "login.error_rate_limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many attempts. Wait before trying again."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "محاولات كثيرة. انتظر قبل المحاولة مجددًا."
+          }
+        }
+      }
+    },
+    "login.error_access": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server or its security gateway refused access. Try again later."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رفض الخادم أو بوابة الحماية الاتصال. حاول لاحقًا."
+          }
+        }
+      }
+    },
+    "login.error_session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The login session could not be verified. Sign in again."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذّر التحقق من جلسة الدخول. سجّل الدخول مجددًا."
+          }
+        }
+      }
+    },
+    "login.error_server": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fredy is temporarily unavailable. Try again later."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خدمة Fredy غير متاحة مؤقتًا. حاول لاحقًا."
+          }
+        }
+      }
+    },
+    "login.error_network": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not connect securely to Fredy. Check your connection and try again."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعذّر الاتصال الآمن بـ Fredy. تحقّق من اتصالك وحاول مجددًا."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -1,68 +1,58 @@
 # Fredy Test
 
-A minimal, independently authored native SwiftUI iPhone test shell. This is a local UI scaffold, not a functional Fredy client. No Fredy source, logo, account data, server URL or credentials are included.
+A minimal, independently authored native SwiftUI iPhone client experiment. The only live feature is **Arabic/RTL sign-in to the existing Fredy REST API**. This is not a listings/jobs client and does not include Fredy source, assets, real account data or credentials.
 
 ## Open the project
 
-Requirements: Xcode 15 or later; iOS 17 or later. Open `FredyTest.xcodeproj` and select the shared `FredyTest` scheme. No third-party app dependencies or project generator are required. Device signing needs your own development team; none is embedded.
+Xcode 15+, iOS 17+. Open `FredyTest.xcodeproj`, select the shared `FredyTest` scheme, and choose a simulator. No third-party app dependencies or project generator. Device signing requires your own team; none is embedded. The app has not been compiled on this Oracle Linux host.
 
 ## Structure
 
 ```text
 Sources/
-  App/                    # App entry point and root NavigationStack
-  Features/Home/          # Local welcome screen
-  Features/About/         # Scope and interface information
-  Shared/Components/      # Reusable InfoBlock view
-Resources/
-  Localizable.xcstrings   # English and Arabic
-FredyTest.xcodeproj/      # Native Xcode project and shared scheme
-Tests/
-  validate_project.py     # Offline structural/syntax checks
-  requirements.txt        # Development-only validation tools
+  App/                       # Root owns one observable login model
+  Features/Authentication/   # Arabic native form, state and verified-user screen
+  Features/Home/             # Original shell retained, not the current root
+  Features/About/            # Original shell retained unchanged
+  Shared/Authentication/    # Isolated ephemeral URLSession and Fredy user contract
+  Shared/Components/        # Original reusable InfoBlock
+Resources/Localizable.xcstrings # English/Arabic; authentication deliberately uses Arabic RTL
+FredyTest.xcodeproj/          # One native app target and shared scheme
+Tests/                       # Offline syntax/project/source-contract checks
 ```
 
-One application target, five small Swift files. No unnecessary view models, service layer, global state or routing framework.
+Nine app Swift files. System Form/List/navigation, text styles and semantic colors; no redesign or UI framework. Installed SwiftUI and Apple HIG guidance was consulted, including accounts, text fields, buttons, progress, accessibility and RTL. This is not a HIG/accessibility certification.
 
-## Interface
+## Authentication
 
-- Two local screens with standard NavigationStack, List, Sections, NavigationLink and system back navigation.
-- System text styles and semantic colors; follows system appearance and text sizing.
-- English and Arabic translations, native leading alignment and automatic RTL. No forced production language or layout direction.
-- Text-labelled navigation, a 44 pt minimum navigation label height, accessibility identifiers and a decorative symbol hidden from VoiceOver.
-- Previews for English and for Arabic/RTL with dark appearance and large accessibility text. Previews have not been rendered on this host.
-- No custom animation, permission prompts, custom Liquid Glass, third-party SDKs or copied assets. SF Symbols are used only in the interface, not as app branding.
+Fixed authorized HTTPS origin: `https://fredy.salatiq.online`. `User-Agent: fredy-ios/1.0` on both requests. A JSON login POST is followed by a GET user probe **using the same URLSession and its session cookies**. Success requires a Secure session cookie and a complete authenticated user, not merely HTTP 200. See `docs/AUTHENTICATION.md` for the contract, privacy choices and runtime acceptance matrix.
 
-## Guidance used
+No credential/cookie logging or disk persistence; the password field clears on submission, backgrounding and disappearance. Cookies live only in this session's ephemeral storage. After process termination, sign in again. There is no persistent session restoration, logout UI, token auth, automatic retry or biometric login.
 
-Installed skills: `swiftui-ui-patterns`, `swiftui-expert-skill`, and `apple-hig`.
+## Deliberately excluded
 
-Apple HIG operative guidance: “Be clear and direct.” (Design principles); “Adapt to orientation, Dark Mode, and Dynamic Type.” (Designing for iOS). Native components, system typography and unclipped multiline content apply those principles. This is not a certification of HIG or accessibility compliance.
-
-- https://developer.apple.com/design/human-interface-guidelines/design-principles
-- https://developer.apple.com/design/human-interface-guidelines/designing-for-ios
-- https://developer.apple.com/design/human-interface-guidelines/accessibility
-
-## Scope deliberately excluded
-
-No login, networking, server configuration, listing/job models or screens, persistence, push notifications, analytics, live fixtures, CI/release automation, archive or IPA. No existing repository, Fredy container or Cloudflare configuration was changed.
-
-## Project memory and public safety
-
-- `PROJECT_HISTORY.md`: sanitized completed stages, API findings, decisions and evidence limits.
-- `HANDOFF.md`: current status, verified gaps and explicitly deferred next steps.
-- `AGENTS.md`: future Codex completion rules, including history/handoff, safe incremental Graphify refresh, then commit/push to main.
-- `docs/GRAPHIFY.md`: external offline index and maintenance commands.
-- `tools/public-scope.json`: exact public-file and graph-input allowlists. Original reports, raw responses and deployment material are not included.
+No listings, images, jobs, searches, backend changes, Cloudflare changes, analytics, persistent credentials, release pipeline, archive or IPA. Existing Home/About code is not redesigned or presented in the new authentication flow.
 
 ## Verification
 
-Run the development-only checks with a Python environment that has `Tests/requirements.txt` installed:
+Using the already available Python validation environment:
 
 ```sh
 python3 Tests/validate_project.py
+python3 Tests/test_login_contract.py
+python3 tools/check_public_scope.py
 ```
 
-Checks parse the OpenStep Xcode project and all five Swift source files; verify source/resource membership, scheme identifiers, complete English/Arabic translations, and absence of network APIs, server URLs, signing secrets and IPA artifacts.
+The first command needs the parsers listed in `Tests/requirements.txt`. Oracle already has those development tools externally; no installation was performed in the login task. Checks cover nine Swift syntax trees, native source/resource membership, scheme XML, translations, scope and authentication source invariants. **Source-contract checks do not run Swift or HTTP authentication.**
 
-**Result on Oracle Linux: PASS.** These are structural and syntax checks, not Swift type-checking. Xcode and SwiftUI SDKs are unavailable on this host, so compilation, simulator launch, preview rendering, VoiceOver and visual verification remain untested. No IPA or archive was produced.
+Live read-only probe in the login task: unauthenticated `GET /api/login/user` returned HTTP 200 with `{}`. No credentials were used and no login POST was sent. Prior authenticated API evidence is historical, not proof of this native implementation.
+
+Swift, Xcode and Apple SDKs are unavailable here: type-checking, compilation, actual URLSession cookie handling, successful/failed native sign-in, cancellation, previews, device/simulator layout and VoiceOver remain untested. No IPA or archive.
+
+## Project memory and safety
+
+- `PROJECT_HISTORY.md`: sanitized stages, decisions and evidence limits.
+- `HANDOFF.md`: exact current scope, gaps and next authorized checks.
+- `AGENTS.md`: update history/handoff, safe incremental Graphify, then validated commit/push to main.
+- `docs/GRAPHIFY.md`: external offline index and maintenance commands.
+- `tools/public-scope.json`: exact public/index allowlists. Raw reports, private configuration, credentials and generated graphs remain excluded.

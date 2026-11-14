@@ -13,8 +13,8 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class NativeShellChecks(unittest.TestCase):
-    def test_native_shell_is_a_complete_offline_xcode_project(self):
+class NativeProjectChecks(unittest.TestCase):
+    def test_native_login_is_a_complete_xcode_project(self):
         project = ROOT / "FredyTest.xcodeproj/project.pbxproj"
         self.assertTrue(project.is_file(), "Native Xcode project is not created yet")
         from openstep_parser import OpenStepDecoder
@@ -33,7 +33,7 @@ class NativeShellChecks(unittest.TestCase):
         self.assertEqual(root["packageReferences"], [])
 
         files = list((ROOT / "Sources").rglob("*.swift"))
-        self.assertEqual(len(files), 5)
+        self.assertEqual(len(files), 9)
         parser = Parser(Language(tree_sitter_swift.language()))
         source = ""
         for path in files:
@@ -43,14 +43,14 @@ class NativeShellChecks(unittest.TestCase):
         self.assertEqual(source.count("@main"), 1)
         self.assertIn("NavigationStack", source)
         self.assertIn("NavigationLink", source)
-        for forbidden in ["URLSession", "AsyncImage", "WKWebView", "URLRequest", "UserDefaults", "Keychain", "https://", "http://"]:
+        for forbidden in ["AsyncImage", "WKWebView", "UserDefaults", "Keychain", "http://", "NSAllowsArbitraryLoads", "/api/listings", "/api/jobs"]:
             self.assertNotIn(forbidden, source)
         self.assertFalse(list(ROOT.rglob("*.ipa")))
         self.assertFalse(list(ROOT.rglob("*.entitlements")))
 
         catalog = json.loads((ROOT / "Resources/Localizable.xcstrings").read_text())
         translation_source = re.sub(r'\.accessibilityIdentifier\("[^"]+"\)', "", source)
-        keys = set(re.findall(r'"((?:home|about)\.[a-z_]+)"', translation_source))
+        keys = set(re.findall(r'"((?:home|about|login)\.[a-z_]+)"', translation_source))
         self.assertTrue(keys)
         self.assertTrue(keys <= set(catalog["strings"]))
         for key in keys:

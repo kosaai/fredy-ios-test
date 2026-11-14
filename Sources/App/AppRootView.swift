@@ -1,22 +1,29 @@
 import SwiftUI
 
+@MainActor
 struct AppRootView: View {
+    @State private var model = LoginModel()
+
     var body: some View {
         NavigationStack {
-            HomeView()
+            if case .authenticated(let user) = model.state {
+                AuthenticatedView(user: user)
+            } else {
+                LoginView(model: model)
+            }
         }
+        // Only the authentication flow is in scope for this step.
+        .environment(\.locale, Locale(identifier: "ar"))
+        .environment(\.layoutDirection, .rightToLeft)
     }
 }
 
-#Preview("English") {
+#Preview("Arabic login") {
     AppRootView()
-        .environment(\.locale, Locale(identifier: "en"))
 }
 
 #Preview("Arabic · Dark · Large text") {
     AppRootView()
-        .environment(\.locale, Locale(identifier: "ar"))
-        .environment(\.layoutDirection, .rightToLeft)
         .environment(\.dynamicTypeSize, .accessibility3)
         .preferredColorScheme(.dark)
 }

@@ -5,6 +5,68 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+		"16BA2702B88D9C271EA508EF" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LoginModel.swift";
+			"path" = "Sources/Features/Authentication/LoginModel.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"BB73ADE07733C80136FAFE06" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "16BA2702B88D9C271EA508EF";
+		};
+		"129B07E8842AFCE9638B57B8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "LoginView.swift";
+			"path" = "Sources/Features/Authentication/LoginView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"9D8D8DCDA1AD3A64E5D612DE" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "129B07E8842AFCE9638B57B8";
+		};
+		"F6D3E2481504B3B17276B4CA" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AuthenticatedView.swift";
+			"path" = "Sources/Features/Authentication/AuthenticatedView.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"2C8FFD4BEEEB78A81AFA0F51" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "F6D3E2481504B3B17276B4CA";
+		};
+		"7C8929CCC5293FEADC881573" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "FredyAuthService.swift";
+			"path" = "Sources/Shared/Authentication/FredyAuthService.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"22F459370C3A5C7601944C4B" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "7C8929CCC5293FEADC881573";
+		};
+		"35DC9BD48D15EB5AA9AEDA78" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"16BA2702B88D9C271EA508EF",
+				"129B07E8842AFCE9638B57B8",
+				"F6D3E2481504B3B17276B4CA",
+			);
+			"name" = "Authentication";
+			"sourceTree" = "<group>";
+		};
+		"5A37C955C4B3F4C7694031BB" = {
+			"isa" = "PBXGroup";
+			"children" = (
+				"7C8929CCC5293FEADC881573",
+			);
+			"name" = "Authentication";
+			"sourceTree" = "<group>";
+		};
 		"FC153E0A4A8A6E633E3CECE2" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -107,6 +169,7 @@
 			"children" = (
 				"A15EE0B95CCD73C972B337A9",
 				"9F82F807C95FD6421240D780",
+				"35DC9BD48D15EB5AA9AEDA78",
 			);
 			"name" = "Features";
 			"sourceTree" = "<group>";
@@ -115,6 +178,7 @@
 			"isa" = "PBXGroup";
 			"children" = (
 				"12FDBFCC8F4DFB30B3E34185",
+				"5A37C955C4B3F4C7694031BB",
 			);
 			"name" = "Shared";
 			"sourceTree" = "<group>";
@@ -163,6 +227,10 @@
 				"5D78D3E15517EC813CB6DCA2",
 				"D06FE69A94CF6600F3705844",
 				"C873147B6BDA042E143D98D7",
+				"BB73ADE07733C80136FAFE06",
+				"9D8D8DCDA1AD3A64E5D612DE",
+				"2C8FFD4BEEEB78A81AFA0F51",
+				"22F459370C3A5C7601944C4B",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
