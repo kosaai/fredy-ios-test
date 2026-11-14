@@ -138,12 +138,57 @@ final class FredyAuthService: FredyClientServing {
         guard response.statusCode == 202 else { throw ListingsFailure.invalidResponse }
     }
 
-    private func authenticatedWrite(path: String, body: Data? = nil) async throws -> HTTPURLResponse {
+    // IDs are nanoids. Validate before constructing paths; never escape/rewrite
+    // a value supplied by the UI or allow path traversal.
+    private func requireListingID(_ id: String) throws {
+        guard !id.isEmpty, id.utf8.allSatisfy({
+            (48...57).contains($0) || (65...90).contains($0) ||
+            (97...122).contains($0) || $0 == 45 || $0 == 95
+        }) else { throw ListingsFailure.invalidInput }
+    }
+
+    func toggleListingWatch(id: String) async throws {
+        try requireListingID(id)
+        let body = try JSONSerialization.data(withJSONObject: ["listingId": id])
+        _ = try await authenticatedWrite(path: "api/listings/watch", body: body)
+    }
+
+    func setListingStatus(id: String, status: String?) async throws {
+        try requireListingID(id)
+        guard status == nil || ["applied", "rejected", "accepted"].contains(status!) else {
+            throw ListingsFailure.invalidInput
+        }
+        let body = try JSONSerialization.data(
+            withJSONObject: ["status": status.map { $0 as Any } ?? NSNull()]
+        )
+        _ = try await authenticatedWrite(path: "api/listings/\(id)/status", body: body)
+    }
+
+    func fetchListingApplication(id: String) async throws -> ListingApplicationDraft {
+        try requireListingID(id)
+        let (data, response) = try await authenticatedRead(path: "api/listings/\(id)/application")
+        guard response.mimeType == "application/json", data.count < 100_000,
+              let letter = try? JSONDecoder().decode(ListingApplicationDraft.self, from: data)
+        else { throw ListingsFailure.invalidResponse }
+        return letter
+    }
+
+    func softRemoveListing(id: String) async throws {
+        try requireListingID(id)
+        // Fredy's DELETE /api/listings/ supports a recoverable removal.
+        // Never expose hardDelete from this compact iPhone action.
+        let body = try JSONSerialization.data(
+            withJSONObject: ["ids": [id], "hardDelete": false]
+        )
+        _ = try await authenticatedWrite(path: "api/listings/", body: body, method: "DELETE")
+    }
+
+    private func authenticatedWrite(path: String, body: Data? = nil, method: String = "POST") async throws -> HTTPURLResponse {
         try Task.checkCancellation()
         guard sessionVerified else { throw ListingsFailure.sessionExpired }
         let generation = sessionGeneration
         do {
-            let (_, response) = try await perform(path: path, method: "POST", body: body)
+            let (_, response) = try await perform(path: path, method: method, body: body)
             try Task.checkCancellation()
             guard generation == sessionGeneration else { throw CancellationError() }
             if response.statusCode == 401 {
