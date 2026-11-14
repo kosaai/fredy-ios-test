@@ -11,6 +11,10 @@
     "HANDOFF.md",
     "PROJECT_HISTORY.md",
     "README.md",
+    "Resources/FindHausAssets.xcassets/AppIcon.appiconset/Contents.json",
+    "Resources/FindHausAssets.xcassets/AppIcon.appiconset/FindHausIcon.png",
+    "Resources/FindHausAssets.xcassets/BrandLogo.imageset/Contents.json",
+    "Resources/FindHausAssets.xcassets/BrandLogo.imageset/FindHausIcon.png",
     "Resources/Localizable.xcstrings",
     "Sources/App/AppRootView.swift",
     "Sources/App/AuthenticatedTabs.swift",
@@ -71,6 +75,8 @@
     "HANDOFF.md",
     "PROJECT_HISTORY.md",
     "README.md",
+    "Resources/FindHausAssets.xcassets/AppIcon.appiconset/Contents.json",
+    "Resources/FindHausAssets.xcassets/BrandLogo.imageset/Contents.json",
     "Sources/App/AppRootView.swift",
     "Sources/App/AuthenticatedTabs.swift",
     "Sources/App/FredyTestApp.swift",
@@ -120,5 +126,9 @@
     "tools/check_public_scope.py",
     "tools/refresh_graph.py",
     "tools/verify_unsigned_ipa.py"
-  ]
+  ],
+  "binary_assets": {
+    "Resources/FindHausAssets.xcassets/AppIcon.appiconset/FindHausIcon.png": "498f0da9ca74fa240e8dcb53f790e38adac0dcc53c4134a4020c05b32a66c6ce",
+    "Resources/FindHausAssets.xcassets/BrandLogo.imageset/FindHausIcon.png": "498f0da9ca74fa240e8dcb53f790e38adac0dcc53c4134a4020c05b32a66c6ce"
+  }
 }
