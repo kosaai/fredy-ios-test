@@ -48,6 +48,10 @@ Changed shared ListingRow to use the supplied visual reference: square authentic
 
 Removed the circled row of job/count chips, region chips and explanatory paragraph from active Listings UI. Kept real listing job selection initiated from Jobs and made a reset action available via the existing filter menu when needed. Text search and price/room filters remain. `SearchFilterChips` is no longer rendered. Source contract test updated. No live build yet; user dispatches FindHaus manual IPA workflow.
 
+## 2026-11-15 — Authentic listing actions
+
+Studied official Fredy v31 card components, routes and app-letter workflow. Added the genuine watch star, listing status (none/applied/rejected/accepted), relative listing age, provider name, copyable server-generated application letter (copy then mark applied), original HTTPS listing link, and confirmed **soft** removal to existing horizontal rental cards. Kept original authenticated URLSession and images, login behavior, page controls, and FindHaus styling; no heart, mock or fabricated property values. Service uses existing authenticated client, explicit user actions only, recoverable deletion. Updated nullable DTO fields and two screen service injections; source checks updated. Await user-triggered Actions compilation/device testing. No automatic deployment or new notification integrations.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.
