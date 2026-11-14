@@ -1,4 +1,4 @@
-# رصد العقارات — native iPhone UI
+# FindHaus — native iPhone rental search
 
 An independently authored native SwiftUI iPhone client experiment: Arabic RTL sign-in, real rental listings/authenticated images, selectable saved jobs, and **Add Search by URL → Save & Search** using existing Fredy REST. No Fredy implementation/assets, account data, credentials or fabricated listings are included.
 
@@ -15,13 +15,19 @@ Xcode 15+, iOS 17+. Open `FredyTest.xcodeproj` and shared scheme `FredyTest`. On
 
 ## Native design (2026-11-14)
 
-The active tab bar presents Home, Listings, Jobs and Map. Budget and Settings open as top-bar sheets. The display name is «رصد العقارات» while the app target and IPA binary remain FredyTest. No sample ads, figures or property coordinates are embedded. Existing authorized Fredy login, listings, images and jobs reads remain intact; no new backend features or external notifications were connected. The map is a native real basemap without property pins because the current API DTO does not include latitude/longitude. New screens are independent Swift files registered in the Xcode target. See HANDOFF.md.
+The active tab bar presents Home, Listings, Jobs and Map. Budget and Settings open as top-bar sheets. The display name and launcher icon are **FindHaus**. The existing native build target and IPA binary remain FredyTest to preserve compatibility. No sample ads, figures or property coordinates are embedded. Existing authorized Fredy login, listings, images and jobs reads remain intact; no new backend features or external notifications were connected. The map is a native real basemap without property pins because the current API DTO does not include latitude/longitude. New screens are independent Swift files registered in the Xcode target. See HANDOFF.md.
 
 Build via the existing [manual GitHub Actions workflow](https://github.com/kosaai/fredy-ios-test/actions/workflows/unsigned-ipa.yml); the user triggers it. Swift compilation and appearance require the actual macOS build and iPhone check.
 
 ## User settings (native SwiftUI)
 
 The iOS settings sheet has all seven Fredy v31 user-settings categories: Preferences, Travel time, Listing details, Application, Notification channels, Connections and MCP server. Their complete UI structure was researched against the official source; MCP includes upstream read/write tool catalog. This iteration does **not** load or save real account settings, permissions, OAuth grants or MCP tool enablement. Sections requiring real server state explicitly state they are not loaded, and destructive controls are disabled. Notification integrations outside the iPhone app (including Telegram) are excluded. User-entered application/travel drafts remain temporary. The appearance is native adaptive iOS, not forced dark. The manual IPA build verifies Swift compilation only when the user dispatches it.
+
+## FindHaus brand identity
+
+The user-selected, cropped house-and-magnifying-glass icon is included as **1024 × 1024 PNG** in `Resources/FindHausAssets.xcassets/AppIcon.appiconset/` and as the `BrandLogo` image set for both Login and Sign up. The icon matches the original user-provided image, with no external image URL dependency. The app's display name is **FindHaus**; the blue/cyan/violet palette now drives the authentication banner, primary buttons, main tab accent and Home gradient. Existing login/sign-up transitions, real Fredy authentication and server URLs are unchanged.
+
+Do not rename `FredyTest` native target or `fredy-admin-session` cookie without a separately tested migration; these are implementation identifiers, not public app branding. IPA is still generated manually through GitHub Actions on `macos-26`.
 
 ## Authentication and privacy
 
