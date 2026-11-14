@@ -8,15 +8,17 @@ struct ListingsView: View {
     @State private var priceCeiling = 0
     @State private var minimumRooms = 0
     let jobsModel: JobsModel
+    let listingActions: any FredyListingActionServing
     @Binding var selectedJobID: String?
     let refreshToken: Int
     let onSessionExpired: () -> Void
 
-    init(service: any FredyListingsServing, jobsModel: JobsModel,
+    init(service: any FredyClientServing, jobsModel: JobsModel,
          selectedJobID: Binding<String?>, refreshToken: Int,
          onSessionExpired: @escaping () -> Void) {
         _model = State(initialValue: ListingsModel(service: service))
         self.jobsModel = jobsModel
+        self.listingActions = service
         _selectedJobID = selectedJobID
         self.refreshToken = refreshToken
         self.onSessionExpired = onSessionExpired
@@ -122,6 +124,10 @@ struct ListingsView: View {
                 } else {
                     ForEach(displayedItems) { listing in
                         ListingRow(listing: listing, images: model.images,
+                                   actions: listingActions,
+                                   onChanged: {
+                                       Task { await model.reload(); await jobsModel.reload() }
+                                   },
                                    onSessionExpired: model.expireSession)
                     }
 
