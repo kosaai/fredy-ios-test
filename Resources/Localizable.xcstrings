@@ -24,13 +24,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A native interface for the Fredy test app."
+            "value": "FindHaus rental listing overview."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "واجهة عربية أصلية لمتابعة إعلانات الإيجار."
+            "value": "واجهة FindHaus لمتابعة إعلانات الإيجار."
           }
         }
       }
@@ -159,13 +159,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in to Fredy"
+            "value": "Sign in to FindHaus"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تسجيل الدخول إلى Fredy"
+            "value": "تسجيل الدخول إلى FindHaus"
           }
         }
       }
@@ -175,13 +175,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in with your existing Fredy account."
+            "value": "Sign in to FindHaus using your existing account."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "سجّل الدخول باستخدام حسابك الحالي في Fredy."
+            "value": "سجّل الدخول إلى FindHaus باستخدام حسابك الموجود."
           }
         }
       }
@@ -287,13 +287,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fredy verified this session. No listings or jobs are fetched in this step."
+            "value": "the server verified this session. No listings or jobs are fetched in this step."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تحقّق Fredy من هذه الجلسة. لا يتم جلب الإعلانات أو المهام في هذه المرحلة."
+            "value": "تحقّق الخادم من هذه الجلسة. لا يتم جلب الإعلانات أو المهام في هذه المرحلة."
           }
         }
       }
@@ -383,13 +383,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fredy is temporarily unavailable. Try again later."
+            "value": "the server is temporarily unavailable. Try again later."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "خدمة Fredy غير متاحة مؤقتًا. حاول لاحقًا."
+            "value": "خدمة الخادم غير متاحة مؤقتًا. حاول لاحقًا."
           }
         }
       }
@@ -399,13 +399,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Could not connect securely to Fredy. Check your connection and try again."
+            "value": "Could not connect securely to the server. Check your connection and try again."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "تعذّر الاتصال الآمن بـ Fredy. تحقّق من اتصالك وحاول مجددًا."
+            "value": "تعذّر الاتصال الآمن بـ الخادم. تحقّق من اتصالك وحاول مجددًا."
           }
         }
       }
@@ -751,13 +751,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fredy is temporarily unavailable."
+            "value": "the server is temporarily unavailable."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "خدمة Fredy غير متاحة مؤقتًا."
+            "value": "خدمة الخادم غير متاحة مؤقتًا."
           }
         }
       }
@@ -1345,13 +1345,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fredy exposes running status and saved listings, not provider success or failure. No results does not prove a successful search."
+            "value": "the server exposes running status and saved listings, not provider success or failure. No results does not prove a successful search."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "يعرض Fredy حالة التشغيل والإعلانات المحفوظة، ولا يرسل نتيجة نجاح أو فشل المزوّد. غياب النتائج لا يثبت نجاح البحث."
+            "value": "يعرض الخادم حالة التشغيل والإعلانات المحفوظة، ولا يرسل نتيجة نجاح أو فشل المزوّد. غياب النتائج لا يثبت نجاح البحث."
           }
         }
       }
@@ -1430,13 +1430,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fredy rejected the request. Review the URL and job in the Jobs tab; no automatic retry."
+            "value": "the server rejected the request. Review the URL and job in the Jobs tab; no automatic retry."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رفض Fredy الطلب. راجع الرابط والبحث في تبويب المهام؛ لا إعادة تلقائية."
+            "value": "رفض الخادم الطلب. راجع الرابط والبحث في تبويب المهام؛ لا إعادة تلقائية."
           }
         }
       }
@@ -1447,13 +1447,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fredy refused the run because of a conflict or an existing run. No retry was sent."
+            "value": "the server refused the run because of a conflict or an existing run. No retry was sent."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رفض Fredy التشغيل لتعارض أو لوجود تشغيل قائم. لم نرسل محاولة أخرى."
+            "value": "رفض الخادم التشغيل لتعارض أو لوجود تشغيل قائم. لم نرسل محاولة أخرى."
           }
         }
       }
@@ -1498,13 +1498,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Counts are Fredy’s active, non-hidden listings per job, across deal types, not the loaded page size. The rental list can include inactive saved listings."
+            "value": "Counts are the server’s active, non-hidden listings per job, across deal types, not the loaded page size. The rental list can include inactive saved listings."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "الأعداد هي إعلانات Fredy النشطة وغير المخفية لكل بحث، من جميع الأنواع، وليست حجم الصفحة. قد تشمل قائمة الإيجارات إعلانات محفوظة غير نشطة."
+            "value": "الأعداد هي إعلانات الخادم النشطة وغير المخفية لكل بحث، من جميع الأنواع، وليست حجم الصفحة. قد تشمل قائمة الإيجارات إعلانات محفوظة غير نشطة."
           }
         }
       }
