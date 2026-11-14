@@ -1,16 +1,23 @@
-# Fredy Test
+# رصد العقارات — native iPhone UI
 
 An independently authored native SwiftUI iPhone client experiment: Arabic RTL sign-in, real rental listings/authenticated images, selectable saved jobs, and **Add Search by URL → Save & Search** using existing Fredy REST. No Fredy implementation/assets, account data, credentials or fabricated listings are included.
 
 ## Open and structure
 
-Xcode 15+, iOS 17+. Open `FredyTest.xcodeproj` and shared scheme `FredyTest`. One app target, **22 Swift files**, no third-party app dependencies/project generator/signing team. App/Features/Shared folders retain the original organization; the legacy Home/About shell remains inactive. Native Form/List/TabView/NavigationStack, system styling and Arabic/English localization; no redesign.
+Xcode 15+, iOS 17+. Open `FredyTest.xcodeproj` and shared scheme `FredyTest`. One app target, **25 Swift files**, no third-party app dependencies/project generator/signing team. App/Features/Shared folders retain the original organization; Home is active with real loaded listings and jobs; the legacy About screen remains inactive. Native SwiftUI four-tab Home/Listings/Jobs/Map navigation with top Budget/Settings sheets, MapKit and Arabic RTL. Appearance follows the system until changed locally in Settings.
 
 - `Features/Authentication`: existing login form and client owner.
 - `Features/Listings`: rental feed, raw pagination, rows, authenticated images and filter chips.
 - `Features/Jobs`: saved jobs, add form and explicit action coordinator.
 - `Shared/Authentication`: the original ephemeral URLSession and cookie authentication.
 - `Shared/Jobs`, `Shared/Listings`: verified-contract DTOs, input/payload validation and bounded failures.
+
+
+## Native design (2026-11-14)
+
+The active tab bar presents Home, Listings, Jobs and Map. Budget and Settings open as top-bar sheets. The display name is «رصد العقارات» while the app target and IPA binary remain FredyTest. No sample ads, figures or property coordinates are embedded. Existing authorized Fredy login, listings, images and jobs reads remain intact; no new backend features or external notifications were connected. The map is a native real basemap without property pins because the current API DTO does not include latitude/longitude. New screens are independent Swift files registered in the Xcode target. See HANDOFF.md.
+
+Build via the existing [manual GitHub Actions workflow](https://github.com/kosaai/fredy-ios-test/actions/workflows/unsigned-ipa.yml); the user triggers it. Swift compilation and appearance require the actual macOS build and iPhone check.
 
 ## Authentication and privacy
 
@@ -55,7 +62,7 @@ Oracle has no Swift/Xcode/Apple SDK. Native type checking/build, real authentica
 
 No listing detail/edit/backfill, general job edit/delete or repeat-run controls, backend/database/Cloudflare/provider_details changes, analytics, credential persistence, signing or release publication.
 
-The prior manual-only unsigned-IPA workflow remains historical preparation. First run 43596808016 failed before Swift compilation after macos-26 preflight; there is no verified IPA. Concurrent upstream CI changes were retained by a normal merge; earlier local CI edits are preserved separately in a verified local stash, not applied over upstream or dispatched by this feature. The full suite has one inherited workflow-policy error (JSON parser vs the upstream YAML file), reproduced on the upstream baseline; all 14 native source/project checks pass. Any later authorized build attempt must retain macos-26 and the independent 300-second queue watchdog, without fallback/automatic retry. See `docs/UNSIGNED_IPA.md` and `HANDOFF.md`.
+The manual-only unsigned-IPA workflow is available for building the current native UI (without code signing). First run 43596808016 failed before Swift compilation after macos-26 preflight; there is no verified IPA. Concurrent upstream CI changes were retained by a normal merge; earlier local CI edits are preserved separately in a verified local stash, not applied over upstream or dispatched by this feature. The full suite has one inherited workflow-policy error (JSON parser vs the upstream YAML file), reproduced on the upstream baseline; all 14 native source/project checks pass. Any later authorized build attempt must retain macos-26 and the independent 300-second queue watchdog, without fallback/automatic retry. See `docs/UNSIGNED_IPA.md` and `HANDOFF.md`.
 
 ## Project memory
 
