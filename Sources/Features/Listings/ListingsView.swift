@@ -4,7 +4,6 @@ import SwiftUI
 struct ListingsView: View {
     @State private var model: ListingsModel
     @State private var actionTask: Task<Void, Never>?
-    @State private var selectedRegion: String?
     @State private var searchText = ""
     @State private var priceCeiling = 0
     @State private var minimumRooms = 0
@@ -28,17 +27,9 @@ struct ListingsView: View {
         let refresh: Int
     }
 
-    private var visibleItems: [RentalListing] {
-        guard let selectedRegion else { return model.items }
-        let allowedJobIDs = Set(jobsModel.jobs.filter { $0.regionLabel == selectedRegion }.map(\.id))
-        return model.items.filter { listing in
-            listing.jobID.map { allowedJobIDs.contains($0) } == true
-        }
-    }
-
     /// Filters only the already fetched page(s), never silently claims server-wide coverage.
     private var displayedItems: [RentalListing] {
-        visibleItems.filter { listing in
+        model.items.filter { listing in
             let search = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
             let matchesText = search.isEmpty ||
                 [listing.title, listing.address, listing.jobName]
@@ -63,9 +54,6 @@ struct ListingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                SearchFilterChips(jobs: jobsModel.jobs, selectedJobID: $selectedJobID,
-                                  selectedRegion: $selectedRegion)
-
                 HStack(spacing: 10) {
                     HStack(spacing: 8) {
                         Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
@@ -77,6 +65,14 @@ struct ListingsView: View {
                                 in: RoundedRectangle(cornerRadius: 14))
 
                     Menu {
+                        if selectedJobID != nil {
+                            Button {
+                                selectedJobID = nil
+                            } label: {
+                                Label("عرض إعلانات كل الأبحاث", systemImage: "rectangle.stack")
+                            }
+                            Divider()
+                        }
                         Picker("أقصى سعر", selection: $priceCeiling) {
                             Text("كل الأسعار").tag(0)
                             Text("حتى 700 €").tag(700)
@@ -178,9 +174,6 @@ struct ListingsView: View {
         .refreshable {
             await jobsModel.reload()
             await model.reload()
-        }
-        .onChange(of: selectedJobID) { _, id in
-            if id != nil { selectedRegion = nil }
         }
         .onChange(of: model.state) { _, state in
             if state == .sessionExpired { onSessionExpired() }
