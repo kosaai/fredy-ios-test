@@ -29,6 +29,9 @@ The user-selected, cropped house-and-magnifying-glass icon is included as **1024
 
 Do not rename `FredyTest` native target or `fredy-admin-session` cookie without a separately tested migration; these are implementation identifiers, not public app branding. IPA is still generated manually through GitHub Actions on `macos-26`.
 
+
+The current unsigned IPA artifact is named **FindHaus-Unsigned.ipa**. The packaged iPhone executable remains `FredyTest` internally; do not rename the target without a migration.
+
 ## Authentication and privacy
 
 Authorized origin `https://fredy.salatiq.online`, `User-Agent: fredy-ios/1.0`. JSON login POST is followed by a same-session GET user probe; success requires a Secure session cookie and complete user, not HTTP 200 alone. Existing login/password clearing and generation guards remain. No logging/persistence of credentials, cookies, response bodies or search URLs; no shared cookie jar, persistent session restoration, biometric login or logout UI. Default TLS and rejected redirects remain. See `docs/AUTHENTICATION.md`.
