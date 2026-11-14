@@ -15,6 +15,7 @@ struct AppRootView: View {
         // Keep the existing Arabic/RTL flow; no shell redesign.
         .environment(\.locale, Locale(identifier: "ar"))
         .environment(\.layoutDirection, .rightToLeft)
+        .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
     }
 }
 
