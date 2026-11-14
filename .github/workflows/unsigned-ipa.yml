@@ -1,5 +1,5 @@
-name: Unsigned iPhone IPA
-run-name: Unsigned iPhone IPA | ${{ inputs.build_tag }}
+name: FindHaus Unsigned iPhone IPA
+run-name: FindHaus Unsigned iPhone IPA | ${{ inputs.build_tag }}
 
 on:
   workflow_dispatch:
@@ -71,6 +71,8 @@ jobs:
           APP="build/Products/Release-iphoneos/FredyTest.app"
           test -d "$APP"
           test -f "$APP/Info.plist"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' "$APP/Info.plist")" = "FindHaus"
+          test -f "$APP/Assets.car"
           test "$(xcrun lipo -archs "$APP/FredyTest")" = "arm64"
           if /usr/bin/codesign -d "$APP" >/dev/null 2>&1; then
             echo "Unexpected app code signature"
@@ -78,17 +80,17 @@ jobs:
           fi
           mkdir -p build/package/Payload build/output
           /usr/bin/ditto "$APP" build/package/Payload/FredyTest.app
-          (cd build/package && /usr/bin/zip -qry ../output/FredyTest-Unsigned.ipa Payload)
-          python3 tools/verify_unsigned_ipa.py build/output/FredyTest-Unsigned.ipa \
-            | tee build/output/FredyTest-Unsigned.verify.json
+          (cd build/package && /usr/bin/zip -qry ../output/FindHaus-Unsigned.ipa Payload)
+          python3 tools/verify_unsigned_ipa.py build/output/FindHaus-Unsigned.ipa \
+            | tee build/output/FindHaus-Unsigned.verify.json
 
       - name: Upload verified IPA
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: FredyTest-Unsigned-${{ github.run_id }}
+          name: FindHaus-Unsigned-${{ github.run_id }}
           path: |
-            build/output/FredyTest-Unsigned.ipa
-            build/output/FredyTest-Unsigned.verify.json
+            build/output/FindHaus-Unsigned.ipa
+            build/output/FindHaus-Unsigned.verify.json
           if-no-files-found: error
           retention-days: 14
 
@@ -96,7 +98,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: FredyTest-Build-Logs-${{ github.run_id }}
+          name: FindHaus-Build-Logs-${{ github.run_id }}
           path: build/xcodebuild.log
           if-no-files-found: warn
           retention-days: 14
