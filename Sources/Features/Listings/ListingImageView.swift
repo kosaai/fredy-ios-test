@@ -46,6 +46,8 @@ struct ListingImageView: View {
     let listingID: String
     let loader: ListingImageLoader
     let onSessionExpired: () -> Void
+    // The same authenticated thumbnail loader supports a compact square card.
+    var thumbnailSize: CGFloat = 116
     @State private var image: UIImage?
     @State private var failure: ListingsFailure?
     @State private var retry = 0
@@ -56,7 +58,7 @@ struct ListingImageView: View {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
-                    .frame(height: 202)
+                    .frame(width: thumbnailSize, height: thumbnailSize)
                     .clipped()
                     .accessibilityLabel(Text("listings.main_image"))
             } else if let failure {
@@ -73,8 +75,8 @@ struct ListingImageView: View {
                 ProgressView("listings.image_loading")
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(minHeight: 180)
+        .frame(width: thumbnailSize, height: thumbnailSize)
+        .clipped()
         .task(id: "\(listingID):\(retry)") {
             image = nil
             failure = nil
