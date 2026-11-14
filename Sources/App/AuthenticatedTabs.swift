@@ -86,7 +86,7 @@ struct AuthenticatedTabs: View {
                 .tabItem { Label("الخريطة", systemImage: "map.fill") }
                 .tag(SectionTab.map)
             }
-            .tint(Color(red: 0.74, green: 0.27, blue: 0.23))
+            .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
             .preferredColorScheme(darkAppearance ? .dark : nil)
             .task { await jobsModel.loadIfNeeded() }
             .onChange(of: jobsModel.state) { _, state in
