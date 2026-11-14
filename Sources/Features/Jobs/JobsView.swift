@@ -144,6 +144,11 @@ private struct JobCard: View {
                             .font(.system(size: 15))
                             .foregroundStyle(secondary)
                             .fixedSize(horizontal: false, vertical: true)
+                        if job.running == nil {
+                            Text("jobs.unknown")
+                                .font(.caption2)
+                                .foregroundStyle(secondary)
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
