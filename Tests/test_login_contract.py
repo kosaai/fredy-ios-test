@@ -63,6 +63,27 @@ class LoginSourceContract(unittest.TestCase):
         self.assertIn("withAnimation(reduceMotion ? nil : .spring(response: 0.52, dampingFraction: 0.83))", view)
         self.assertIn(".frame(minHeight: geometry.size.height, alignment: .top)", view)
 
+    def test_login_restores_only_a_server_verified_protected_session(self):
+        service = (ROOT / "Sources/Shared/Authentication/FredyAuthService.swift").read_text()
+        model = (ROOT / "Sources/Features/Authentication/LoginModel.swift").read_text()
+        root = (ROOT / "Sources/App/AppRootView.swift").read_text()
+        for required in [
+            "import Security", "SecItemAdd", "SecItemUpdate", "SecItemCopyMatching",
+            "SecItemDelete", "kSecAttrAccessibleWhenUnlockedThisDeviceOnly",
+            "kSecAttrSynchronizable", "SavedSession.save(", "SavedSession.load(",
+            "SavedSession.clear()", "fredy-admin-session.sig",
+            'perform(path: "api/login/user", method: "GET")',
+            "func restoreSession() async throws -> FredyUser?"
+        ]:
+            self.assertIn(required, service)
+        self.assertIn("case restoring", model)
+        self.assertIn("private(set) var state: LoginState = .restoring", model)
+        self.assertIn("if let user = try await service.restoreSession()", model)
+        self.assertIn("else if case .restoring = model.state", root)
+        self.assertIn(".task { await model.restoreSession() }", root)
+        self.assertNotIn("UserDefaults", service)
+        self.assertNotIn("HTTPCookieStorage.shared", service)
+
     def test_session_service_verifies_cookie_and_user_before_success(self):
         path = ROOT / "Sources/Shared/Authentication/FredyAuthService.swift"
         self.assertTrue(path.exists(), "Fredy session service has not been implemented")
