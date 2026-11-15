@@ -27,7 +27,7 @@ Audit baseline: `1da9fb3` on main; concurrent auth top-anchor fix through `fb3a8
 ## Short staged checklist
 
 - [x] **1 — Jobs controls (source implementation only in this task):** exact single-job Run; explicit Boolean Enable/Disable; permissions/unknown-state guards; confirmation, no repeated in-flight write; same session; real read-back, safe errors/expiry; 202 means accepted, never completed. Build/iPhone acceptance remains pending below.
-- [ ] **2 — Settings and remaining job editing:** inspect/persist supported user settings; connect job Edit/Duplicate only after full-field and permission audit. Separate recoverable bulk listing removal may be reviewed. Job deletion cascades to listings and is excluded by the no-hard-deletes rule, even though an upstream endpoint exists.
+- [x] **2 — Account settings + Job Edit/Duplicate (source implementation):** actual general/travel/details/application settings, scoped verified saves, name/existing-URL edit and full-configuration inactive duplicate with owner/sharing preservation and GET-only uncertainty recovery. Full contracts, exclusions and native acceptance: docs/STAGE2.md. Application preview is deliberately blocked because upstream uses sample data; OAuth/MCP remain Stage 4. No deletion or bulk removal was wired. Build/iPhone persistence acceptance is pending.
 - [ ] **3 — Real map and feed coherence:** authenticated coordinates, marker selection, Home/list refresh/retry/read-back, explicit loaded-vs-global filter scopes; no fake data or returning removed chip UI.
 - [ ] **4 — OAuth/MCP and native notification feasibility:** actual read/write authorization and tool state. Native push needs a supported backend contract/authorization; Telegram/email and unsupported public signup remain excluded.
 

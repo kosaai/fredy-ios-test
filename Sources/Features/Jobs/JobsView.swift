@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Existing job cards: Run and scheduling controls are live; other actions remain previews.
+/// Existing job cards: live run/scheduling/edit/duplicate; deletion stays a preview.
 @MainActor
 struct JobsView: View {
     @State private var model: JobsModel
@@ -24,6 +24,9 @@ struct JobsView: View {
                     Button("listings.sign_in", action: onSessionExpired)
                         .buttonStyle(.borderedProminent)
                 } else {
+                    if model.management?.phase == .uncertain {
+                        Button("متابعة التحقق من الحفظ غير المؤكد") { model.managementPresented = true }
+                    }
                     ForEach(model.jobs) { job in
                         JobCard(job: job, model: model, onSelect: { onSelect(job.id) })
                     }
@@ -64,6 +67,12 @@ struct JobsView: View {
             if state == .sessionExpired { onSessionExpired() }
         }
         .onDisappear { retryTask?.cancel() }
+        .sheet(item: Binding(
+            get: { model.managementPresented ? model.management : nil },
+            set: { if $0 == nil { model.managementPresented = false } }
+        )) { editor in
+            JobManagementView(model: editor)
+        }
     }
 
     private func retry() {
@@ -225,18 +234,20 @@ private struct JobCard: View {
                 .disabled(!model.canRun(job))
                 .accessibilityLabel("تشغيل مهمة البحث")
 
-                Button(action: showDesignNotice) {
+                Button { model.openManagement(id: job.id, duplicate: false) } label: {
                     Image(systemName: "pencil")
                         .font(.system(size: 19))
                         .frame(width: 35, height: 42)
                 }
+                .disabled(!model.canManage(job))
                 .accessibilityLabel("تعديل المهمة")
 
-                Button(action: showDesignNotice) {
+                Button { model.openManagement(id: job.id, duplicate: true) } label: {
                     Image(systemName: "square.on.square")
                         .font(.system(size: 19))
                         .frame(width: 35, height: 42)
                 }
+                .disabled(!model.canManage(job))
                 .accessibilityLabel("نسخ المهمة")
 
                 Menu {

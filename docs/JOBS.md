@@ -1,6 +1,10 @@
 # Search jobs: current controls and historical read-only evidence
 
-## Current FindHaus functional stage
+## Current Stage 2
+
+The existing pencil/copy actions are now wired: real name/existing-URL Edit and inactive full-configuration Duplicate through the verified v31 upsert, using full documents and preserving source identity, owner, shares, provider options and filters. Pending operations use GET-only recovery. No run/delete is added by these actions; Stage 1 Run/Enable controls are retained. See docs/STAGE2.md for exact contracts, guard conditions, unsupported/deferred features and available-vs-native verification.
+
+## Stage 1 functional stage (historical)
 
 Run and Enable/Disable on the existing job card are now user-authorized and connected. Contract, complete UI audit, staged checklist, channel restrictions, source-test results and pending iPhone acceptance: **docs/FUNCTIONAL_STAGES.md**. POST `/api/jobs/{id}/run` expects 202 accepted; PUT `/api/jobs/{id}/status` sends `{status: Bool}` and expects an empty 200, then exact GET read-back. Shared/unknown permissions and unknown flags fail closed. Run/Enable additionally require a verified empty notification array; Disable does not remove channels. The same authenticated client is reused; no live development-tool mutation or native runtime proof is claimed.
 

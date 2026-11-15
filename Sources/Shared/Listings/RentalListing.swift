@@ -123,7 +123,7 @@ protocol FredyListingsServing {
 }
 
 @MainActor
-protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing, FredyDashboardServing {}
+protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing, FredyDashboardServing, FredyAccountSettingsServing {}
 
 private struct ListingDecisionRecord: Decodable {
     let status: String?

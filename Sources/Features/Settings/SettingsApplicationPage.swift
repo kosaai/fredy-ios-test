@@ -1,14 +1,15 @@
 import SwiftUI
 
-/// Application-letter editor structure as defined by Fredy v31.
-/// Edits are temporary view state; templates and personal data are neither
-/// sent to Fredy nor stored locally before a settings API is authorized.
+/// Real account profile and template overrides; explicit scoped save with read-back.
+/// Preview is not called because upstream renders against a fabricated listing.
+@MainActor
 struct SettingsApplicationPage: View {
-    @State private var profile: [String: String] = [:]
-    @State private var flags: [String: String] = [:]
-    @State private var employment = ""
+    let model: AccountSettingsModel
     @State private var language = "de"
-    @State private var template = ""
+    private var template: Binding<String> {
+        Binding(get: { model.draft["application_templates"][language]["rent"].stringValue ?? "" },
+                set: { model.draft["application_templates"][language]["rent"] = .string($0) })
+    }
 
     private struct Field: Identifiable {
         let id: String
@@ -70,7 +71,7 @@ struct SettingsApplicationPage: View {
 
     var body: some View {
         VStack(spacing: 16) {
-            SettingsReadOnlyNote("هذه الحقول فارغة عمدًا لأنها لا تعرض ملفك الشخصي المحفوظ. ما تكتبه داخل الصفحة مؤقت ولا يُرسل إلى الخادم.")
+            SettingsReadOnlyNote("الحقول من ملف الحساب المحفوظ. تحفظ كل بطاقة القسم المطلوب فقط؛ تبقى مسودات الأقسام الأخرى دون إرسال، ولا يُرسل بريد أو طلب سكن.")
 
             SettingsCard("معلومات التواصل", detail: "بيانات نموذج طلب السكن ورسالة التواصل مع المالك.") {
                 ForEach(Self.contacts) { field in profileInput(field) }
@@ -82,7 +83,7 @@ struct SettingsApplicationPage: View {
 
             SettingsCard("العمل والدخل") {
                 ForEach(Self.occupation) { field in profileInput(field) }
-                Picker("نوع العمل", selection: $employment) {
+                Picker("نوع العمل", selection: model.profileText("employmentType")) {
                     Text("غير محدد").tag("")
                     Text("عقد دائم").tag("permanent")
                     Text("عقد مؤقت").tag("temporary")
@@ -96,11 +97,9 @@ struct SettingsApplicationPage: View {
             SettingsCard("تفاصيل طلب السكن") {
                 profileInput(.init(id: "moveInDate", title: "تاريخ الانتقال (YYYY-MM-DD)"))
                 ForEach(Self.extraFlags) { flag in
-                    Picker(flag.title, selection: Binding(
-                        get: { flags[flag.id] ?? "unset" },
-                        set: { flags[flag.id] = $0 }
-                    )) {
+                    Picker(flag.title, selection: model.profileFlag(flag.id)) {
                         Text("لم أجب").tag("unset")
+                        Text("قيمة محفوظة غير معروفة").tag("unknown").disabled(true)
                         Text("نعم").tag("yes")
                         Text("لا").tag("no")
                     }
@@ -117,6 +116,9 @@ struct SettingsApplicationPage: View {
                 }
             }
 
+            SettingsSaveControl(model: model, key: .applicant_profile)
+                .disabled(!model.canEdit(.applicant_profile))
+
             SettingsCard("قالب رسالة طلب السكن",
                          detail: "يعرض الخادم رسالة الطلب ويتيح تحرير قالب حسب اللغة، وإدراج الحقول المتغيرة ومعاينة النص الناتج عبر الخادم.") {
                 Picker("لغة الرسالة", selection: $language) {
@@ -128,7 +130,7 @@ struct SettingsApplicationPage: View {
                 LabeledContent("نوع العقار", value: "إيجار")
 
                 Text("محرر القالب").font(.subheadline.weight(.medium))
-                TextEditor(text: $template)
+                TextEditor(text: template)
                     .frame(height: 210)
                     .scrollContentBackground(.hidden)
                     .background(Color(uiColor: .tertiarySystemGroupedBackground),
@@ -140,7 +142,7 @@ struct SettingsApplicationPage: View {
                             Text(group.title).font(.footnote.weight(.semibold))
                             ForEach(group.names, id: \.self) { name in
                                 Button {
-                                    template += "{{" + name + "}}"
+                                    template.wrappedValue += "{{" + name + "}}"
                                 } label: {
                                     Text(name)
                                         .font(.caption.monospaced())
@@ -155,26 +157,26 @@ struct SettingsApplicationPage: View {
                 Divider()
                 Text("معاينة الرسالة")
                     .font(.subheadline.weight(.semibold))
-                Text("تحتاج معاينة القالب الحقيقي إلى خدمة الخادم؛ لن نعرض رسالة مُنشأة من بيانات غير محفوظة.")
+                Text("معاينة الخادم تعتمد إعلانًا تجريبيًا، لذلك لا تُستخدم هنا. بعد الحفظ اعرض رسالة إعلان فعلي من بطاقة الإعلان؛ لا نولّد معاينة وهمية.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
 
-            if !profile.isEmpty || !flags.isEmpty || !template.isEmpty {
-                Button("تجاهل الإدخالات المحلية", role: .destructive) {
-                    profile.removeAll()
-                    flags.removeAll()
-                    employment = ""
-                    language = "de"
-                    template = ""
-                }
+            SettingsReadOnlyNote("إذا لم يوجد تخصيص محفوظ لهذه اللغة فالمحرر فارغ، ويظل الخادم يستخدم قالبه الافتراضي. حفظ المحرر يكتب تخصيص الإيجار فقط ويحافظ على لغات وقوالب الشراء الأخرى.")
+            Button("إزالة تخصيص الإيجار من المسودة لهذه اللغة") {
+                var values = model.draft["application_templates"][language].objectValue ?? [:]
+                values.removeValue(forKey: "rent")
+                model.draft["application_templates"][language] = .object(values)
             }
+            .disabled(!model.canEdit(.application_templates))
+            SettingsSaveControl(model: model, key: .application_templates)
+                .disabled(!model.canEdit(.application_templates))
         }
         .accessibilityIdentifier("settings.application")
     }
 
     private func binding(for key: String) -> Binding<String> {
-        Binding(get: { profile[key] ?? "" }, set: { profile[key] = $0 })
+        model.profileText(key)
     }
 
     private func profileInput(_ field: Field) -> some View {

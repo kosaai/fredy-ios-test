@@ -56,7 +56,7 @@ struct SearchJob: Decodable, Identifiable, Sendable {
 }
 
 @MainActor
-protocol FredyJobsServing {
+protocol FredyJobsServing: FredyJobManagementServing {
     func fetchJobs() async throws -> [SearchJob]
     func runSearch(id: String) async throws
     func setJobEnabled(id: String, enabled: Bool) async throws

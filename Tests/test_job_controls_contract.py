@@ -41,7 +41,9 @@ class JobControlsContract(unittest.TestCase):
                       '.environment(\\.layoutDirection, .rightToLeft)']:
             self.assertTrue(token in source,token)
         self.assertNotIn('Button { showDesignNotice = true } label: {\n                    Image(systemName: "play.fill")',source)
-        self.assertEqual(source.count('Button(action: showDesignNotice)'),2)  # Existing edit/copy icons.
+        self.assertEqual(source.count('Button(action: showDesignNotice)'),0)  # Stage 2 wires edit/copy; delete previews stay below.
+        self.assertIn('model.openManagement(id: job.id, duplicate: false)',source)
+        self.assertIn('model.openManagement(id: job.id, duplicate: true)',source)
         self.assertEqual(source.count('Button(role: .destructive, action: showDesignNotice)'),2)
 
     def test_no_notification_side_effects_from_new_controls(self):
@@ -61,7 +63,7 @@ class JobControlsContract(unittest.TestCase):
         from openstep_parser import OpenStepDecoder
         parser=Parser(Language(tree_sitter_swift.language()))
         files=sorted((ROOT/'Sources').rglob('*.swift'))
-        self.assertEqual(len(files),32)
+        self.assertEqual(len(files),36)
         for p in files:
             self.assertFalse(parser.parse(p.read_bytes()).root_node.has_error,str(p.relative_to(ROOT)))
         with (ROOT/'FredyTest.xcodeproj/project.pbxproj').open() as f:

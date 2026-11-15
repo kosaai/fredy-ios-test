@@ -16,6 +16,7 @@ struct AuthenticatedTabs: View {
     @State private var refreshToken = 0
     @State private var jobsModel: JobsModel
     @State private var workflow: AddSearchModel
+    @State private var settingsModel: AccountSettingsModel
 
     private enum SectionTab: Hashable { case home, listings, jobs, map }
 
@@ -25,6 +26,7 @@ struct AuthenticatedTabs: View {
         let jobs = JobsModel(service: service)
         _jobsModel = State(initialValue: jobs)
         _workflow = State(initialValue: AddSearchModel(service: service, jobsModel: jobs))
+        _settingsModel = State(initialValue: AccountSettingsModel(service: service))
     }
 
     var body: some View {
@@ -87,25 +89,44 @@ struct AuthenticatedTabs: View {
                 .tag(SectionTab.map)
             }
             .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
-            .preferredColorScheme(darkAppearance ? .dark : nil)
-            .task { await jobsModel.loadIfNeeded() }
+            .preferredColorScheme(accountColorScheme)
+            .task {
+                await jobsModel.loadIfNeeded()
+                await settingsModel.loadIfNeeded()
+            }
             .onChange(of: jobsModel.state) { _, state in
                 if state == .sessionExpired { expire() }
             }
             .onChange(of: workflow.phase) { _, phase in
                 if phase == .sessionExpired { expire() }
             }
+            .onChange(of: settingsModel.sessionExpired) { _, value in
+                if value { expire() }
+            }
+            .onChange(of: settingsModel.saved["theme"]) { _, value in
+                if let theme = value.stringValue, ["light", "dark"].contains(theme) {
+                    darkAppearance = theme == "dark"
+                }
+            }
             .onChange(of: workflow.resultsRevision) { _, _ in refreshToken += 1 }
             .sheet(isPresented: $showingBudget) {
                 RentalBudgetView()
             }
             .sheet(isPresented: $showingSettings) {
-                RentalSettingsView(darkAppearance: $darkAppearance)
+                RentalSettingsView(darkAppearance: $darkAppearance, model: settingsModel)
             }
             .sheet(isPresented: $addingSearch, onDismiss: { refreshToken += 1 }) {
                 AddSearchView(model: workflow, onSave: saveSearch, onSelect: selectJob)
             }
             .onDisappear { saveTask?.cancel() }
+        }
+    }
+
+    private var accountColorScheme: ColorScheme? {
+        switch settingsModel.saved["theme"].stringValue ?? "" {
+        case "light": return .light
+        case "dark": return .dark
+        default: return darkAppearance ? .dark : nil
         }
     }
 

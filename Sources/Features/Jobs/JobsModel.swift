@@ -14,6 +14,8 @@ final class JobsModel {
     private(set) var state: JobsState = .idle
     private var generation = 0
     private(set) var pendingAction: JobControlIntent?
+    private(set) var management: JobManagementModel?
+    var managementPresented = false
     private(set) var actionNotices: [String: String] = [:]
     private var requiresRefresh: Set<String> = []
     @ObservationIgnored private var actionTask: Task<Void, Never>?
@@ -31,7 +33,7 @@ final class JobsModel {
     }
 
     func reload() async {
-        guard !isLoading, pendingAction == nil, state != .sessionExpired else { return }
+        guard !isLoading, pendingAction == nil, management?.busy != true, state != .sessionExpired else { return }
         let previousState = state
         let requestGeneration = generation
         state = .loading
@@ -80,8 +82,26 @@ final class JobsModel {
     }
 
     private func canControl(_ job: SearchJob) -> Bool {
-        state == .loaded && pendingAction == nil && job.isOnlyShared == false &&
+        state == .loaded && pendingAction == nil && management?.blocksWrites != true && job.isOnlyShared == false &&
             !requiresRefresh.contains(job.id)
+    }
+
+    func canManage(_ job: SearchJob) -> Bool {
+        state == .loaded && pendingAction == nil && management?.blocksWrites != true && job.isOnlyShared == false
+    }
+
+    func openManagement(id: String, duplicate: Bool) {
+        if management?.blocksWrites == true { managementPresented = true; return }
+        guard let job = jobs.first(where: { $0.id == id }), canManage(job) else { return }
+        management = JobManagementModel(sourceID: id, duplicate: duplicate, service: service,
+            onSaved: { [weak self] in Task { await self?.reload() } },
+            onExpired: { [weak self] in self?.expireManagementSession() })
+        managementPresented = true
+    }
+
+    private func expireManagementSession() {
+        generation += 1; jobs = []; actionNotices = [:]; requiresRefresh.removeAll()
+        managementPresented = false; management = nil; state = .sessionExpired
     }
 
     func requestRun(id: String) {

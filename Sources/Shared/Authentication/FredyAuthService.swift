@@ -124,6 +124,42 @@ final class FredyAuthService: FredyClientServing {
         return providers
     }
 
+    func fetchAccountSettings() async throws -> JSONValue {
+        let value = try await readEditableValue(path: "api/user/settings/")
+        guard let object = value.objectValue else { throw ListingsFailure.invalidResponse }
+        // Do not retain unrelated account secrets/configuration from the response.
+        let allowed = Set(AccountSettingKey.allCases.map(\.rawValue) + ["language"])
+        return .object(object.filter { allowed.contains($0.key) })
+    }
+
+    func saveAccountSetting(_ key: AccountSettingKey, value: JSONValue) async throws {
+        let body = try JSONEncoder().encode(JSONValue.object([key.rawValue: value]))
+        let response = try await authenticatedWrite(path: "api/user/settings/\(key.endpoint)", body: body)
+        guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
+    }
+
+    func fetchManagedJobs() async throws -> [JSONValue] {
+        let value = try await readEditableValue(path: "api/jobs/")
+        guard let jobs = value.arrayValue, jobs.allSatisfy({ $0.objectValue != nil && $0["id"].stringValue?.isEmpty == false })
+        else { throw ListingsFailure.invalidResponse }
+        return jobs
+    }
+
+    func saveManagedJob(_ payload: JSONValue) async throws {
+        guard let id = payload["jobId"].stringValue else { throw ListingsFailure.invalidInput }
+        try requireListingID(id)
+        let body = try JSONEncoder().encode(payload)
+        let response = try await authenticatedWrite(path: "api/jobs/", body: body)
+        guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
+    }
+
+    private func readEditableValue(path: String) async throws -> JSONValue {
+        let (data, response) = try await authenticatedRead(path: path)
+        guard response.mimeType == "application/json",
+              let value = try? JSONDecoder().decode(JSONValue.self, from: data) else { throw ListingsFailure.invalidResponse }
+        return value
+    }
+
     func createSearch(_ draft: SearchCreation) async throws {
         let body = try JSONEncoder().encode(draft)
         let response = try await authenticatedWrite(path: "api/jobs/", body: body)

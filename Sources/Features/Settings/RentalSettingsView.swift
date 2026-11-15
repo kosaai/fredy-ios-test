@@ -1,9 +1,11 @@
 import SwiftUI
 
 /// FindHaus settings, organized as a native iPhone-style vertical menu.
-/// All seven settings screens remain presentation-only unless explicitly integrated.
+/// Account drafts are owned by the authenticated shell, including uncertain writes.
+@MainActor
 struct RentalSettingsView: View {
     @Binding var darkAppearance: Bool
+    let model: AccountSettingsModel
     @Environment(\.dismiss) private var dismiss
     @State private var navigationPath: [FindHausSettingsSection] = []
 
@@ -65,9 +67,7 @@ struct RentalSettingsView: View {
                     )
                     .accessibilityIdentifier("settings.sections")
 
-                    Text("القيم المرتبطة بالخادم غير محمّلة حاليًا. تغييرها يحتاج ربط الإعدادات الفعلية أولًا.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                    SettingsStatusBanner(model: model)
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 26)
@@ -85,6 +85,8 @@ struct RentalSettingsView: View {
             }
             .accessibilityIdentifier("settings.screen")
         }
+        .task { await model.loadIfNeeded() }
+        .interactiveDismissDisabled(model.busy)
     }
 
     private func settingsDetail(for section: FindHausSettingsSection) -> some View {
@@ -93,13 +95,13 @@ struct RentalSettingsView: View {
                 Group {
                     switch section {
                     case .general:
-                        SettingsPreferencesPage(darkAppearance: $darkAppearance)
+                        SettingsPreferencesPage(darkAppearance: $darkAppearance, model: model)
                     case .travelTime:
-                        SettingsTravelTimePage()
+                        SettingsTravelTimePage(model: model)
                     case .listingDetails:
-                        SettingsListingDetailsPage()
+                        SettingsListingDetailsPage(model: model)
                     case .application:
-                        SettingsApplicationPage()
+                        SettingsApplicationPage(model: model)
                     case .notifications:
                         SettingsNotificationsPage()
                     case .connections:
@@ -111,9 +113,9 @@ struct RentalSettingsView: View {
                     }
                 }
 
-                Text("إعدادات الخادم للعرض حاليًا؛ لم تُجلب القيم المحفوظة، ولا تُرسل تعديلات إلى الخادم.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                .disabled(!model.editable)
+
+                SettingsStatusBanner(model: model)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 18)
@@ -199,5 +201,56 @@ struct SettingsReadOnlyNote: View {
             .font(.footnote)
             .foregroundStyle(.secondary)
             .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+@MainActor
+struct SettingsSaveControl: View {
+    let model: AccountSettingsModel
+    let key: AccountSettingKey
+    @State private var confirming = false
+
+    var body: some View {
+        Button("حفظ هذا القسم") { confirming = true }
+            .buttonStyle(.borderedProminent)
+            .frame(minHeight: 44)
+            .disabled(!model.canSave(key))
+            .confirmationDialog("حفظ إعدادات الحساب؟", isPresented: $confirming, titleVisibility: .visible) {
+                Button("حفظ والتحقق من الخادم") { model.save(key) }
+                Button("إلغاء", role: .cancel) {}
+            } message: {
+                Text(key == .home_addresses
+                     ? "تُرسل قائمة العناوين الحالية كاملة. قد يحدد الخادم مواقعها ويعيد حساب المسافات وأوقات التنقل للإعلانات المحفوظة في الخلفية."
+                     : "سيُحفظ هذا القسم فقط، ثم تُقرأ قيمته مجددًا. لا يُرسل بريد أو Telegram ولا تُشغّل مهمة بحث بهذا الزر.")
+            }
+    }
+}
+
+@MainActor
+private struct SettingsStatusBanner: View {
+    let model: AccountSettingsModel
+    @State private var confirmingReload = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if model.busy { ProgressView("جارٍ الاتصال بالخادم…") }
+            if let notice = model.notice { Text(notice).font(.footnote) }
+            if model.uncertain {
+                Button("التحقق من الحفظ دون تكراره") { Task { await model.reconcile() } }
+                    .disabled(model.busy)
+            } else if !model.loaded {
+                Text("لم تُحمّل إعدادات الحساب؛ الحقول ليست قيمًا محفوظة مؤكدة.").font(.footnote)
+                Button("تحميل الإعدادات") { Task { await model.loadIfNeeded() } }
+                    .disabled(model.busy)
+            } else {
+                Text("القيم من آخر قراءة للحساب. لا يُرسل أي تعديل حتى تأكيد حفظ القسم.").font(.footnote)
+                Button("إعادة تحميل المحفوظ وتجاهل المسودات") { confirmingReload = true }
+                    .disabled(model.busy)
+            }
+        }
+        .foregroundStyle(.secondary)
+        .confirmationDialog("تجاهل المسودات غير المحفوظة؟", isPresented: $confirmingReload, titleVisibility: .visible) {
+            Button("إعادة التحميل", role: .destructive) { Task { await model.reloadDiscardingDraft() } }
+            Button("إلغاء", role: .cancel) {}
+        }
     }
 }
