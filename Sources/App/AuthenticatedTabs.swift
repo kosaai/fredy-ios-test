@@ -133,7 +133,8 @@ struct AuthenticatedTabs: View {
                 data.observationPaused = phase != .active || workflow.isBusy
                 if phase != .active { data.stopSearchObservation() }
                 else {
-                    data.scheduleRefresh(jobs: jobsModel)
+                    // Returning from Safari must not clear map markers, camera, or an open listing sheet.
+                    // Server mutations and explicit refresh actions still invalidate data as before.
                     if !workflow.isBusy, jobsModel.jobs.contains(where: { $0.running == true }) {
                         data.observeSearch(jobs: jobsModel)
                     }
