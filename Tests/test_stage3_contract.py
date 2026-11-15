@@ -135,4 +135,19 @@ class StageThreeContracts(unittest.TestCase):
             self.assertIn('defer { if generation == requestGeneration { '+slot+' = nil } }',text)
             self.assertNotIn('await task.value\n        if generation == requestGeneration',text)
 
+    def test_returning_from_external_listing_does_not_reset_map_or_open_detail(self):
+        shell = source('Sources/App/AuthenticatedTabs.swift')
+        foreground = shell.split('.onChange(of: scenePhase) { _, phase in', 1)[1].split('.onChange(of: jobsModel.pendingAction)', 1)[0]
+        self.assertIn('data.observationPaused = phase != .active || workflow.isBusy', foreground)
+        self.assertIn('data.stopSearchObservation()', foreground)
+        self.assertIn('data.observeSearch(jobs: jobsModel)', foreground)
+        self.assertNotIn('data.scheduleRefresh(', foreground)
+        self.assertNotIn('data.invalidate(', foreground)
+        map_view = source('Sources/Features/Map/RentalMapView.swift')
+        self.assertIn('@State private var camera: MapCameraPosition = .automatic', map_view)
+        self.assertIn('.task { await data.loadMap() }', map_view)
+        self.assertIn('data.refresh(jobs: jobsModel, force: true)', map_view)
+        map_model = source('Sources/Features/Map/RentalMapModel.swift')
+        self.assertIn('guard state != .ready else { return }', map_model)
+
 if __name__ == '__main__': unittest.main(verbosity=2)
