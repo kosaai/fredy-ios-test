@@ -1,5 +1,12 @@
 # Handoff
 
+## 2026-11-15 — Login/sign-up transition overlap correction
+
+User supplied an iPhone screenshot with ghosted sign-up fields moving over FindHaus's logo and the outgoing sign-in form during the spring mode switch. The existing symmetric moving SwiftUI insertion/removal was the cause: while both views were in transition they slid across the header and each other. In `LoginView.swift`, retained the original `withAnimation(.spring(response: 0.52, dampingFraction: 0.83))`, the selector's `matchedGeometryEffect`, header title content transition, fixed-top ScrollView layout, RTL, all controls and authentication. Changed only the form transition to asymmetric **fade-in / immediate removal** to avoid simultaneous moving forms. Clipped the card content to its existing 37-point rounded shape so it cannot draw over the header. Added a source regression in `Tests/test_login_contract.py` for removal/motion, clipping and the retained animations.
+
+No server/authentication changes, dependency installs, Codex, Xcode/device compile, IPA, workflow dispatch or external Graphify refresh. Source-contract verification only; iPhone visual behavior should be confirmed with a user-triggered manual build. Existing Graphify index remains unchanged and can be refreshed incrementally from Oracle by the next authorized maintenance run.
+
+
 ## 2026-11-15 — Preserve map state when returning from an external rental listing
 
 User reproduced an iPhone issue: opening an original rental listing in Safari and returning to FindHaus immediately reset the MapKit view and dismissed its selected listing sheet. Root cause was the unconditional `data.scheduleRefresh(jobs: jobsModel)` in `AuthenticatedTabs` on every `scenePhase == .active` transition; the refresh invalidated map/listing models and cleared selection. Removed **only** this foreground-triggered refresh. The map's existing `@State` camera, `RentalMapModel` loaded markers/selected detail, and shared authenticated images now remain in memory during ordinary app switching. Explicit map refresh, server mutation invalidation, session-expiry clearing, and bounded search observation remain unchanged. Added a source regression test in `Tests/test_stage3_contract.py` for this lifecycle contract.
