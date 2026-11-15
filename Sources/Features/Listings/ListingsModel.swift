@@ -5,6 +5,8 @@ enum ListingsState: Equatable {
     case idle, loading, ready
     case failed(ListingsFailure)
     case sessionExpired
+
+    var isFailure: Bool { if case .failed = self { return true }; return false }
 }
 
 @Observable
@@ -17,42 +19,59 @@ final class ListingsModel {
     private let pageSize = 20
     private var requestGeneration = 0
     private var selectedJobID: String?
+    @ObservationIgnored private var pageTask: Task<Void, Never>?
     @ObservationIgnored private let service: any FredyListingsServing
     @ObservationIgnored let images: ListingImageLoader
 
-    init(service: any FredyListingsServing) {
+    init(service: any FredyListingsServing, images: ListingImageLoader? = nil) {
         self.service = service
-        images = ListingImageLoader(service: service)
+        self.images = images ?? ListingImageLoader(service: service)
     }
 
     var isLoading: Bool { state == .loading }
 
     func changeJob(_ id: String?) async {
         guard state != .sessionExpired else { return }
-        requestGeneration += 1
+        invalidate()
         selectedJobID = id
-        lastPage = 0
-        items = []
-        hasMore = true
-        state = .idle
         await loadNextPage()
     }
 
     func loadInitialIfNeeded() async {
-        guard lastPage == 0, state == .idle else { return }
+        guard lastPage == 0, state == .idle || state.isFailure || isLoading else { return }
         await loadNextPage()
     }
 
-    func reload() async {
-        guard !isLoading, state != .sessionExpired else { return }
+    func invalidate() {
+        guard state != .sessionExpired else { return }
         requestGeneration += 1
+        pageTask?.cancel()
+        pageTask = nil
         lastPage = 0
         items = []
         hasMore = true
+        state = .idle
+    }
+
+    func reload() async {
+        guard state != .sessionExpired else { return }
+        invalidate()
         await loadNextPage()
     }
 
     func loadNextPage() async {
+        if let task = pageTask { await task.value; return }
+        guard state != .sessionExpired, hasMore else { return }
+        let generation = requestGeneration
+        let task = Task {
+            defer { if generation == requestGeneration { pageTask = nil } }
+            await performLoadNextPage()
+        }
+        pageTask = task
+        await task.value
+    }
+
+    private func performLoadNextPage() async {
         guard !isLoading, hasMore, state != .sessionExpired else { return }
         let previousState = state
         let generation = requestGeneration
@@ -89,6 +108,8 @@ final class ListingsModel {
 
     func expireSession() {
         requestGeneration += 1
+        pageTask?.cancel()
+        pageTask = nil
         items = []
         hasMore = false
         images.clear()

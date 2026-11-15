@@ -37,6 +37,7 @@ protocol FredyAuthServing {
 /// Neither requests, response bodies, credentials nor cookie values are logged.
 @MainActor
 final class FredyAuthService: FredyClientServing {
+    let synchronization = DataSynchronization()
     private static let origin = URL(string: "https://fredy.salatiq.online")
     private let session: URLSession
     private let cookieStorage: HTTPCookieStorage?
@@ -101,6 +102,7 @@ final class FredyAuthService: FredyClientServing {
             try Task.checkCancellation()
             guard generation == sessionGeneration else { throw CancellationError() }
             sessionVerified = true
+            synchronization.reset()
             verified = true
             return user
         } catch is CancellationError {
@@ -233,6 +235,8 @@ final class FredyAuthService: FredyClientServing {
         try Task.checkCancellation()
         guard sessionVerified else { throw ListingsFailure.sessionExpired }
         let generation = sessionGeneration
+        // Even an unacknowledged write may have committed. Reconcile by reads, never replay.
+        defer { synchronization.invalidate() }
         do {
             let (_, response) = try await perform(path: path, method: method, body: body)
             try Task.checkCancellation()
@@ -241,6 +245,7 @@ final class FredyAuthService: FredyClientServing {
                 sessionVerified = false
                 sessionGeneration += 1
                 clearCookies()
+                synchronization.expire()
                 throw ListingsFailure.sessionExpired
             }
             switch response.statusCode {
@@ -304,6 +309,30 @@ final class FredyAuthService: FredyClientServing {
         return decoded
     }
 
+    func fetchMapListings(jobID: String?) async throws -> [RentalListing] {
+        var query: [URLQueryItem] = []
+        if let jobID {
+            try requireListingID(jobID)
+            query.append(URLQueryItem(name: "jobId", value: jobID))
+        }
+        let (data, response) = try await authenticatedRead(path: "api/listings/map", queryItems: query)
+        guard response.mimeType == "application/json",
+              let decoded = try? JSONDecoder().decode(MapListingEnvelope.self, from: data),
+              jobID == nil || decoded.listings.allSatisfy({ $0.jobID == jobID }) else {
+            throw ListingsFailure.invalidResponse
+        }
+        return decoded.listings
+    }
+
+    func fetchListingDetail(id: String) async throws -> RentalListing {
+        try requireListingID(id)
+        let (data, response) = try await authenticatedRead(path: "api/listings/\(id)")
+        guard response.mimeType == "application/json",
+              let decoded = try? JSONDecoder().decode(RentalListing.self, from: data),
+              decoded.id == id else { throw ListingsFailure.invalidResponse }
+        return decoded
+    }
+
     func fetchListingImage(id: String) async throws -> Data {
         // Fredy IDs are nanoids. Reject path separators/escaping, never repair an ID.
         guard !id.isEmpty, id.utf8.allSatisfy({
@@ -331,6 +360,7 @@ final class FredyAuthService: FredyClientServing {
                 sessionVerified = false
                 sessionGeneration += 1
                 clearCookies()
+                synchronization.expire()
                 throw ListingsFailure.sessionExpired
             }
             switch response.statusCode {

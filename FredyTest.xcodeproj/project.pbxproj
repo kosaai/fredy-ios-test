@@ -5,6 +5,28 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+		"C2777A0DD87E22EAE4D2DDD5" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "AppDataModel.swift";
+			"path" = "Sources/App/AppDataModel.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"3948644D1643E09155E7540A" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C2777A0DD87E22EAE4D2DDD5";
+		};
+		"463DEFA90A69B395A46866D0" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "RentalMapModel.swift";
+			"path" = "Sources/Features/Map/RentalMapModel.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"0FCB751DFE78482916EE6DC0" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "463DEFA90A69B395A46866D0";
+		};
 		"838EC593CD7992E2FD5512DA" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -489,6 +511,7 @@
 		"A3100D000000000000000900" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"463DEFA90A69B395A46866D0",
 				"F78EEA89AF6EF2A3CDDB045A",
 
 				"A3100D000000000000000101",
@@ -508,6 +531,7 @@
 		"085ED06E573690BA3A56BC1E" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"C2777A0DD87E22EAE4D2DDD5",
 				"FC153E0A4A8A6E633E3CECE2",
 				"C258930B9552C14E5A5E61CB",
 				"25D8BD09F80C244E9415DE08",
@@ -606,6 +630,8 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"3948644D1643E09155E7540A",
+				"0FCB751DFE78482916EE6DC0",
 				"F306C2214D87023EF5DC9453",
 				"A72DC990B17B1557D3EF07CB",
 				"2A6C2F61074A72110A073F44",

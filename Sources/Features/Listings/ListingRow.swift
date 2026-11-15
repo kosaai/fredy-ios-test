@@ -233,6 +233,7 @@ struct ListingRow: View {
                 onApplied: {
                     decision = "applied"
                     watched = true
+                    onChanged()
                 },
                 onSessionExpired: onSessionExpired
             )
@@ -262,6 +263,7 @@ struct ListingRow: View {
             do {
                 try await actions.toggleListingWatch(id: listing.id)
                 self.watched = !watched
+                onChanged()
             } catch { handle(error) }
         }
     }
@@ -275,6 +277,7 @@ struct ListingRow: View {
                 try await actions.setListingStatus(id: listing.id, status: next)
                 decision = next
                 if next != nil { watched = true }
+                onChanged()
             } catch { handle(error) }
         }
     }

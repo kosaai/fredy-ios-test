@@ -3,10 +3,14 @@ import SwiftUI
 /// Overview presents only listings and search jobs returned by the authenticated Fredy API.
 @MainActor
 struct HomeView: View {
-    @State private var model: ListingsModel
-    @State private var dashboard: FindHausDashboardSnapshot?
-    @State private var dashboardLoading = false
-    @State private var dashboardError: String?
+    let data: AppDataModel
+    private var model: ListingsModel { data.home }
+    private var dashboard: FindHausDashboardSnapshot? { data.dashboard }
+    private var dashboardLoading: Bool { data.dashboardState == .loading }
+    private var dashboardError: String? {
+        if case .failed = data.dashboardState { return "تعذر تحميل أحدث إحصاءات الخادم." }
+        return nil
+    }
     @State private var confirmingSearch = false
     @State private var startingSearch = false
     @State private var searchNotice: String?
@@ -19,11 +23,11 @@ struct HomeView: View {
     let onShowJobs: () -> Void
     let onSessionExpired: () -> Void
 
-    init(service: any FredyClientServing, jobsModel: JobsModel,
+    init(service: any FredyClientServing, jobsModel: JobsModel, data: AppDataModel,
          onShowListings: @escaping () -> Void,
          onShowJobs: @escaping () -> Void,
          onSessionExpired: @escaping () -> Void) {
-        _model = State(initialValue: ListingsModel(service: service))
+        self.data = data
         self.jobsModel = jobsModel
         self.dashboardService = service
         self.listingActions = service
@@ -159,7 +163,7 @@ struct HomeView: View {
                           systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.secondary)
                     Button("listings.retry") {
-                        Task { await model.loadInitialIfNeeded() }
+                        Task { await data.refresh(jobs: jobsModel, force: true) }
                     }
                 } else if model.items.isEmpty {
                     ContentUnavailableView("لا توجد إعلانات لعرضها",
@@ -170,7 +174,7 @@ struct HomeView: View {
                         ListingRow(listing: listing, images: model.images,
                                    actions: listingActions,
                                    onChanged: {
-                                       Task { await model.reload(); await jobsModel.reload() }
+                                       data.scheduleRefresh(jobs: jobsModel)
                                    },
                                    onSessionExpired: model.expireSession)
                     }
@@ -227,14 +231,10 @@ struct HomeView: View {
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("home.screen")
         .task {
-            await jobsModel.loadIfNeeded()
-            await reloadDashboard()
-            await model.loadInitialIfNeeded()
+            await data.refresh(jobs: jobsModel)
         }
         .refreshable {
-            await jobsModel.reload()
-            await reloadDashboard()
-            await model.reload()
+            await data.refresh(jobs: jobsModel, force: true)
         }
         .confirmationDialog(
             "تشغيل البحث الآن لكل المهام؟",
@@ -257,26 +257,7 @@ struct HomeView: View {
     }
 
     private func reloadDashboard() async {
-        guard !dashboardLoading else { return }
-        dashboardLoading = true
-        dashboardError = nil
-        defer { dashboardLoading = false }
-
-        do {
-            let fresh = try await dashboardService.fetchDashboardSnapshot()
-            try Task.checkCancellation()
-            dashboard = fresh
-        } catch is CancellationError {
-            return
-        } catch let failure as ListingsFailure {
-            if failure == .sessionExpired {
-                onSessionExpired()
-            } else {
-                dashboardError = "تعذر تحميل أحدث إحصاءات الخادم."
-            }
-        } catch {
-            dashboardError = "تعذر تحميل أحدث إحصاءات الخادم."
-        }
+        await data.refresh(jobs: jobsModel, force: true)
     }
 
     private func startSearchNow() {
@@ -288,6 +269,7 @@ struct HomeView: View {
             defer { startingSearch = false }
             do {
                 try await dashboardService.startAllSearches()
+                data.observeSearch(jobs: jobsModel)
                 searchNotice = "قبل الخادم طلب تشغيل البحث. النتائج ليست جاهزة بعد؛ اسحب لتحديث الصفحة لاحقًا."
             } catch let failure as ListingsFailure {
                 if failure == .sessionExpired {

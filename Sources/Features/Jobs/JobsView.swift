@@ -5,13 +5,16 @@ import SwiftUI
 struct JobsView: View {
     @State private var model: JobsModel
     @State private var retryTask: Task<Void, Never>?
+    let onRefresh: (() async -> Void)?
     let onSessionExpired: () -> Void
     let onSelect: (String) -> Void
 
     init(service: any FredyJobsServing, model: JobsModel? = nil,
+         onRefresh: (() async -> Void)? = nil,
          onSelect: @escaping (String) -> Void = { _ in },
          onSessionExpired: @escaping () -> Void) {
         _model = State(initialValue: model ?? JobsModel(service: service))
+        self.onRefresh = onRefresh
         self.onSessionExpired = onSessionExpired
         self.onSelect = onSelect
     }
@@ -62,7 +65,9 @@ struct JobsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .accessibilityIdentifier("jobs.screen")
         .task { await model.loadIfNeeded() }
-        .refreshable { await model.reload() }
+        .refreshable {
+            if let onRefresh { await onRefresh() } else { await model.reload() }
+        }
         .onChange(of: model.state) { _, state in
             if state == .sessionExpired { onSessionExpired() }
         }
@@ -78,7 +83,7 @@ struct JobsView: View {
     private func retry() {
         guard retryTask == nil else { return }
         retryTask = Task {
-            await model.reload()
+            if let onRefresh { await onRefresh() } else { await model.reload() }
             retryTask = nil
         }
     }

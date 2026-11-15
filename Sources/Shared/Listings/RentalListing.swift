@@ -34,6 +34,18 @@ struct RentalListing: Decodable, Identifiable, Sendable {
     let isWatched: Bool?
     let decision: String?
     let publishedDate: Date?
+    let latitude: Double?
+    let longitude: Double?
+    let description: String?
+
+    /// Stored coordinates only. v31 reserves either -1 component for failed geocoding.
+    var hasVerifiedCoordinates: Bool {
+        guard let latitude, let longitude,
+              latitude.isFinite, longitude.isFinite,
+              (-90...90).contains(latitude), (-180...180).contains(longitude),
+              latitude != -1, longitude != -1 else { return false }
+        return true
+    }
 
     var isRental: Bool { dealType == "rent" }
     var euroPrice: Double? { currency == "EUR" ? price : nil }
@@ -42,7 +54,7 @@ struct RentalListing: Decodable, Identifiable, Sendable {
         case id, title, address, price, size, rooms, currency, dealType
         case jobID = "job_id"
         case jobName = "job_name"
-        case provider, link, isWatched, status
+        case provider, link, isWatched, status, latitude, longitude, description
         case publishedAt = "published_at"
         case createdAt = "created_at"
     }
@@ -53,6 +65,9 @@ struct RentalListing: Decodable, Identifiable, Sendable {
         guard !id.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw DecodingError.dataCorruptedError(forKey: .id, in: values, debugDescription: "Missing listing identity")
         }
+        latitude = try? values.decodeIfPresent(Double.self, forKey: .latitude)
+        longitude = try? values.decodeIfPresent(Double.self, forKey: .longitude)
+        description = values.optionalText(.description)
         title = values.optionalText(.title)
         address = values.optionalText(.address)
         price = values.optionalNumber(.price)
@@ -123,7 +138,9 @@ protocol FredyListingsServing {
 }
 
 @MainActor
-protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing, FredyDashboardServing, FredyAccountSettingsServing {}
+protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing, FredyDashboardServing, FredyAccountSettingsServing, FredyMapServing {
+    var synchronization: DataSynchronization { get }
+}
 
 private struct ListingDecisionRecord: Decodable {
     let status: String?

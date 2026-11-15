@@ -71,7 +71,7 @@ class NativeProjectChecks(unittest.TestCase):
         self.assertEqual(root["packageReferences"], [])
 
         files = list((ROOT / "Sources").rglob("*.swift"))
-        self.assertEqual(len(files), 36)  # 32 existing + 4 Stage 2 source files
+        self.assertEqual(len(files), 38)  # 36 existing + shared synchronization and map state
         parser = Parser(Language(tree_sitter_swift.language()))
         source = ""
         for path in files:

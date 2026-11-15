@@ -7,6 +7,7 @@ final class ListingImageLoader {
     private let service: any FredyListingsServing
     private let cache = NSCache<NSString, UIImage>()
     private var cacheGeneration = 0
+    private var requests: [String: Task<Data, Error>] = [:]
 
     init(service: any FredyListingsServing) {
         self.service = service
@@ -18,9 +19,17 @@ final class ListingImageLoader {
         try Task.checkCancellation()
         if let image = cache.object(forKey: id as NSString) { return image }
         let generation = cacheGeneration
-        let data = try await service.fetchListingImage(id: id)
+        let request: Task<Data, Error>
+        if let pending = requests[id] { request = pending }
+        else {
+            request = Task { try await service.fetchListingImage(id: id) }
+            requests[id] = request
+        }
+        defer { if cacheGeneration == generation { requests[id] = nil } }
+        let data = try await request.value
         try Task.checkCancellation()
         guard cacheGeneration == generation else { throw CancellationError() }
+        if let image = cache.object(forKey: id as NSString) { return image }
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
@@ -37,6 +46,8 @@ final class ListingImageLoader {
 
     func clear() {
         cacheGeneration += 1
+        requests.values.forEach { $0.cancel() }
+        requests.removeAll()
         cache.removeAllObjects()
     }
 }

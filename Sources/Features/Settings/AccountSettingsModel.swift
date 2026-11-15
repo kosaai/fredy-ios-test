@@ -52,9 +52,13 @@ final class AccountSettingsModel {
         do {
             let value = try await service.fetchAccountSettings()
             try Task.checkCancellation()
+            guard !sessionExpired else { return }
             saved = value; draft = value; loaded = true; needsReload = false; notice = nil
             do {
-                providers = try await service.fetchSearchProviders()
+                let freshProviders = try await service.fetchSearchProviders()
+                try Task.checkCancellation()
+                guard !sessionExpired else { return }
+                providers = freshProviders
                 providerNotice = nil
             } catch {
                 if (error as? ListingsFailure) == .sessionExpired { throw error }
@@ -124,6 +128,7 @@ final class AccountSettingsModel {
     }
 
     private func handle(_ error: Error, wrote: Bool, mayHaveCommitted: Bool = false) {
+        guard !sessionExpired else { return }
         if (error as? ListingsFailure) == .sessionExpired { expire(); return }
         let rejected = [ListingsFailure.accessDenied, .invalidInput, .conflict, .rateLimited].contains(error as? ListingsFailure ?? .network)
         if wrote && (!rejected || mayHaveCommitted || uncertain) { uncertain = true }
@@ -138,6 +143,8 @@ final class AccountSettingsModel {
             notice = "تعذر إتمام الطلب أو رفضه الخادم. راجع الصلاحيات والاتصال، ثم أعد تحميل القيم. لم نعرض نجاحًا أو نعد إرسال كتابة."
         }
     }
+
+    func expireSession() { task?.cancel(); expire() }
 
     private func expire() {
         sessionExpired = true; loaded = false; saved = .object([:]); draft = .object([:])

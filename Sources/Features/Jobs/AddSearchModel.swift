@@ -72,12 +72,12 @@ final class AddSearchModel {
             let search = try SearchCreation(name: name, urlText: urlText)
             draft = search
             let providers = try await service.fetchSearchProviders()
-            try Task.checkCancellation()
+            try checkSession()
             guard providers.contains(where: { $0.id == "immoscout" && $0.isGermanImmoScout }) else {
                 throw SearchInputFailure.providerUnavailable
             }
             let existing = try await service.fetchJobs()
-            try Task.checkCancellation()
+            try checkSession()
             jobsModel.acceptSnapshot(existing)
             guard !existing.contains(where: { $0.id == search.jobId }) else { throw ListingsFailure.invalidResponse }
             // Missing/malformed provider arrays cannot prove the URL is unique.
@@ -91,7 +91,7 @@ final class AddSearchModel {
             phase = .saving
             hasAttemptedCreate = true
             try await service.createSearch(search)
-            try Task.checkCancellation()
+            try checkSession()
             phase = .verifying
             let created = try await verifyCreatedJob(search)
             savedJobID = created.id
@@ -101,10 +101,11 @@ final class AddSearchModel {
             // Set BEFORE awaiting, including lost-response/cancellation cases.
             hasAttemptedRun = true
             try await service.runSearch(id: created.id)
-            try Task.checkCancellation()
+            try checkSession()
             phase = .waiting
             await observeRun(id: created.id, previousRun: previousRun)
         } catch is CancellationError {
+            guard phase != .sessionExpired else { return }
             phase = hasAttemptedCreate ? .uncertain : .idle
         } catch let failure as SearchInputFailure {
             phase = .failed(failure.localizationKey)
@@ -118,7 +119,7 @@ final class AddSearchModel {
     /// Acknowledgement is not identity: re-read the exact client-selected new id.
     private func verifyCreatedJob(_ search: SearchCreation) async throws -> SearchJob {
         let snapshot = try await service.fetchJobs()
-        try Task.checkCancellation()
+        try checkSession()
         jobsModel.acceptSnapshot(snapshot)
         guard let created = snapshot.first(where: { $0.id == search.jobId }),
               created.name == search.name, created.enabled == false,
@@ -133,9 +134,9 @@ final class AddSearchModel {
         var sawRunning = false
         do {
             while ContinuousClock.now < deadline {
-                try Task.checkCancellation()
+                try checkSession()
                 let snapshot = try await service.fetchJobs()
-                try Task.checkCancellation()
+                try checkSession()
                 jobsModel.acceptSnapshot(snapshot)
                 guard let job = snapshot.first(where: { $0.id == id }) else { throw ListingsFailure.invalidResponse }
                 if job.running == true {
@@ -153,6 +154,7 @@ final class AddSearchModel {
             phase = .uncertain
             resultsRevision += 1
         } catch is CancellationError {
+            guard phase != .sessionExpired else { return }
             phase = .uncertain
         } catch let failure as ListingsFailure {
             handle(failure)
@@ -171,6 +173,7 @@ final class AddSearchModel {
             phase = .failed("jobs.saved_no_replay")
             resultsRevision += 1
         } catch is CancellationError {
+            guard phase != .sessionExpired else { return }
             phase = .uncertain
         } catch let failure as ListingsFailure {
             handle(failure)
@@ -179,7 +182,15 @@ final class AddSearchModel {
         }
     }
 
+    private func checkSession() throws {
+        guard phase != .sessionExpired else { throw ListingsFailure.sessionExpired }
+        try Task.checkCancellation()
+    }
+
+    func expireSession() { handle(.sessionExpired) }
+
     private func handle(_ failure: ListingsFailure) {
+        guard phase != .sessionExpired else { return }
         if failure == .sessionExpired {
             name = ""
             urlText = ""

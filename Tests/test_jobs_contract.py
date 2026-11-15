@@ -49,7 +49,7 @@ class JobsSourceContract(unittest.TestCase):
         self.assertIn('authenticatedRead(path: "api/dashboard")', service)
         self.assertIn('authenticatedWrite(path: "api/jobs/startAll")', service)
         self.assertIn('response.statusCode == 202', service)
-        self.assertIn('dashboardService.fetchDashboardSnapshot()', home)
+        self.assertIn('service.fetchDashboardSnapshot()', (ROOT / 'Sources/App/AppDataModel.swift').read_text())
         self.assertIn('dashboardService.startAllSearches()', home)
         for label in ['إعلان جديد اليوم', 'البحث الدوري كل', 'آخر تشغيل:',
                       'التشغيل القادم:', 'ابحث الآن', 'home.search_summary']:

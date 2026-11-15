@@ -1,5 +1,11 @@
 # Graphify maintenance
 
+## Stage 3 corpus — 2026-11-15
+
+Queried the existing graph before coding (initial truncated map traversal followed by the complete 45-node traversal). Reviewed scope: **78 public paths / 68 graph inputs**, adding two registered Swift sources, source guards and docs/STAGE3.md. Incremental maintenance uses only installed offline AST/Markdown tooling, with prior graph/manifest/history retention, unchanged unrelated historical graph and zero LLM tokens. First Stage 3 update: 28 changed inputs, none deleted, **1007 nodes / 1865 directed edges**; no missing/dangling endpoints, exact duplicates or directed collapsed edges. Graph shape is not compilation/runtime evidence. No coordinates, listing IDs, property/account fixtures, sessions or private reports enter this corpus.
+
+Stage 3 diagnostics retain **six raw AST-resolution self-loops**: the three documented historical loops below plus AppDataModel.invalidate → its distinct home/filtered/map invalidate methods, AppDataModel.expireSession → the child-model expiry methods, and JobsModel.expireSession → management.expireSession. Inspected Swift confirms these are distinct receiver calls, not direct self-recursion. The raw graph is not edited to hide them. Final observed Stage 3 extraction: **1020 nodes / 1857 directed edges**, same six documented loops and no missing/dangling/exact-duplicate/directed-collapsed edges. Earlier update totals above are chronological, not current counts. Read the external last-refresh.json for the current extraction.
+
 ## Stage 2 corpus — 2026-11-15
 
 The existing graph was queried before coding. The reviewed corpus now contains **74 public paths / 64 graph inputs**, including four new registered Swift sources, source-contract tests and docs/STAGE2.md. Maintenance continues through the existing offline incremental script: retained prior graph/manifest snapshots, no re-extraction of unrelated projects, no credentials/personal settings/real job responses, no tool install or semantic agents. LLM indexing token cost is **0 input / 0 output**. Current source compilation/runtime limitations are recorded in HANDOFF.md rather than inferred from graph shape.

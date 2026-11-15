@@ -42,6 +42,7 @@ final class JobManagementModel: Identifiable {
         do {
             let jobs = try await service.fetchManagedJobs()
             try Task.checkCancellation()
+            guard phase != .sessionExpired else { return }
             guard let source = jobs.first(where: { $0["id"] == .string(sourceID) }),
                   source["isOnlyShared"] == .bool(false), source["userId"].stringValue?.isEmpty == false else {
                 throw ListingsFailure.accessDenied
@@ -122,6 +123,13 @@ final class JobManagementModel: Identifiable {
         } catch { handle(error) }
     }
 
+    func expireSession() {
+        task?.cancel()
+        phase = .sessionExpired
+        sourceBaseline = nil; sourceOwner = .null; expected = nil
+        providers = []; name = ""; notice = nil
+    }
+
     private func verify(_ jobs: [JSONValue]) throws {
         guard let expected, let targetID = expected["jobId"].stringValue,
               let actual = jobs.first(where: { $0["id"] == .string(targetID) }),
@@ -137,6 +145,7 @@ final class JobManagementModel: Identifiable {
     }
 
     private func handle(_ error: Error) {
+        guard phase != .sessionExpired else { return }
         if let failure = error as? ListingsFailure {
             switch failure {
             case .sessionExpired:

@@ -1,6 +1,6 @@
 import Foundation
 
-struct SearchJob: Decodable, Identifiable, Sendable {
+struct SearchJob: Decodable, Identifiable, Sendable, Equatable {
     let id: String
     let name: String?
     let enabled: Bool?

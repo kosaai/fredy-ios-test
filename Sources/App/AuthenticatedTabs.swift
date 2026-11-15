@@ -5,6 +5,7 @@ struct AuthenticatedTabs: View {
     let service: any FredyClientServing
     let onSessionExpired: () -> Void
 
+    @Environment(\.scenePhase) private var scenePhase
     @State private var expired = false
     @State private var selection: SectionTab = .home
     @State private var selectedJobID: String?
@@ -14,6 +15,7 @@ struct AuthenticatedTabs: View {
     @State private var darkAppearance = false
     @State private var saveTask: Task<Void, Never>?
     @State private var refreshToken = 0
+    @State private var data: AppDataModel
     @State private var jobsModel: JobsModel
     @State private var workflow: AddSearchModel
     @State private var settingsModel: AccountSettingsModel
@@ -23,6 +25,7 @@ struct AuthenticatedTabs: View {
     init(service: any FredyClientServing, onSessionExpired: @escaping () -> Void) {
         self.service = service
         self.onSessionExpired = onSessionExpired
+        _data = State(initialValue: AppDataModel(service: service))
         let jobs = JobsModel(service: service)
         _jobsModel = State(initialValue: jobs)
         _workflow = State(initialValue: AddSearchModel(service: service, jobsModel: jobs))
@@ -44,7 +47,7 @@ struct AuthenticatedTabs: View {
             // Native TabView adopts the system's Liquid Glass appearance on supported iOS versions.
             TabView(selection: $selection) {
                 NavigationStack {
-                    HomeView(service: service, jobsModel: jobsModel,
+                    HomeView(service: service, jobsModel: jobsModel, data: data,
                              onShowListings: { selection = .listings },
                              onShowJobs: { selection = .jobs },
                              onSessionExpired: expire)
@@ -54,7 +57,7 @@ struct AuthenticatedTabs: View {
                 .tag(SectionTab.home)
 
                 NavigationStack {
-                    ListingsView(service: service, jobsModel: jobsModel,
+                    ListingsView(service: service, jobsModel: jobsModel, data: data,
                                  selectedJobID: $selectedJobID, refreshToken: refreshToken,
                                  onSessionExpired: expire)
                         .toolbar { topActions }
@@ -63,7 +66,8 @@ struct AuthenticatedTabs: View {
                 .tag(SectionTab.listings)
 
                 NavigationStack {
-                    JobsView(service: service, model: jobsModel, onSelect: selectJob,
+                    JobsView(service: service, model: jobsModel,
+                             onRefresh: { await data.refresh(jobs: jobsModel, force: true) }, onSelect: selectJob,
                              onSessionExpired: expire)
                         .safeAreaInset(edge: .bottom) {
                             if workflow.phase != .idle {
@@ -82,7 +86,7 @@ struct AuthenticatedTabs: View {
                 .tag(SectionTab.jobs)
 
                 NavigationStack {
-                    RentalMapView()
+                    RentalMapView(data: data, jobsModel: jobsModel, actions: service, onSessionExpired: expire)
                         .toolbar { topActions }
                 }
                 .tabItem { Label("الخريطة", systemImage: "map.fill") }
@@ -91,8 +95,10 @@ struct AuthenticatedTabs: View {
             .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
             .preferredColorScheme(accountColorScheme)
             .task {
+                data.observationPaused = scenePhase != .active || workflow.isBusy
                 await jobsModel.loadIfNeeded()
                 await settingsModel.loadIfNeeded()
+                await data.refresh(jobs: jobsModel)
             }
             .onChange(of: jobsModel.state) { _, state in
                 if state == .sessionExpired { expire() }
@@ -108,14 +114,42 @@ struct AuthenticatedTabs: View {
                     darkAppearance = theme == "dark"
                 }
             }
-            .onChange(of: workflow.resultsRevision) { _, _ in refreshToken += 1 }
+            .onChange(of: service.synchronization.revision) { _, _ in
+                if service.synchronization.expired { expire() }
+                else { data.scheduleRefresh(jobs: jobsModel) }
+            }
+            .onChange(of: data.sessionExpired) { _, value in if value { expire() } }
+            .onChange(of: jobsModel.jobs) { old, fresh in
+                if !old.isEmpty, old != fresh { data.scheduleRefresh(jobs: jobsModel, includeJobs: false) }
+            }
+            .onChange(of: jobsModel.runRevision) { _, _ in
+                if !workflow.isBusy, scenePhase == .active { data.observeSearch(jobs: jobsModel) }
+            }
+            .onChange(of: workflow.isBusy) { _, busy in
+                data.observationPaused = busy || scenePhase != .active
+                if busy { data.stopSearchObservation() }
+            }
+            .onChange(of: scenePhase) { _, phase in
+                data.observationPaused = phase != .active || workflow.isBusy
+                if phase != .active { data.stopSearchObservation() }
+                else {
+                    data.scheduleRefresh(jobs: jobsModel)
+                    if !workflow.isBusy, jobsModel.jobs.contains(where: { $0.running == true }) {
+                        data.observeSearch(jobs: jobsModel)
+                    }
+                }
+            }
+            .onChange(of: jobsModel.pendingAction) { old, fresh in
+                if old != nil, fresh == nil { data.scheduleRefresh(jobs: jobsModel, includeJobs: false) }
+            }
+            .onChange(of: workflow.resultsRevision) { _, _ in data.scheduleRefresh(jobs: jobsModel) }
             .sheet(isPresented: $showingBudget) {
                 RentalBudgetView()
             }
             .sheet(isPresented: $showingSettings) {
                 RentalSettingsView(darkAppearance: $darkAppearance, model: settingsModel)
             }
-            .sheet(isPresented: $addingSearch, onDismiss: { refreshToken += 1 }) {
+            .sheet(isPresented: $addingSearch) {
                 AddSearchView(model: workflow, onSave: saveSearch, onSelect: selectJob)
             }
             .onDisappear { saveTask?.cancel() }
@@ -177,6 +211,11 @@ struct AuthenticatedTabs: View {
     }
 
     private func expire() {
+        guard !expired else { return }
+        data.expireSession()
+        jobsModel.expireSession()
+        settingsModel.expireSession()
+        workflow.expireSession()
         expired = true
         addingSearch = false
         showingBudget = false

@@ -75,7 +75,7 @@ class ListingsSourceContract(unittest.TestCase):
         for source in [home, listings]:
             self.assertIn('actions: listingActions', source)
             self.assertIn('onChanged:', source)
-            self.assertIn('await model.reload()', source)
+            self.assertIn('data.refresh(jobs: jobsModel, force: true)', source)
 
     def test_real_nullable_listing_contract(self):
         path = ROOT / 'Sources/Shared/Listings/RentalListing.swift'

@@ -52,8 +52,8 @@ class AddSearchContract(unittest.TestCase):
         listing = (ROOT / 'Sources/Shared/Listings/RentalListing.swift').read_text()
         self.assertIn('case jobID = "job_id"', listing)
         view = (ROOT / 'Sources/Features/Listings/ListingsView.swift').read_text()
-        for token in ['@Binding var selectedJobID: String?', 'model.changeJob(selectedJobID)',
-                      '.task(id:', 'jobsModel.reload()', 'selectedJobID = nil',
+        for token in ['@Binding var selectedJobID: String?', 'data.selectJob(selectedJobID)',
+                      '.task(id:', 'data.refresh(jobs: jobsModel, force: true)', 'selectedJobID = nil',
                       'عرض إعلانات كل الأبحاث', 'TextField("بحث ضمن الإعلانات المحمّلة"']:
             self.assertIn(token, view)
         for unwanted in ['SearchFilterChips(', 'selectedRegion', 'jobs.active_count_note',

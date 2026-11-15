@@ -11,6 +11,7 @@ enum JobsState: Equatable {
 @MainActor
 final class JobsModel {
     private(set) var jobs: [SearchJob] = []
+    private(set) var runRevision = 0
     private(set) var state: JobsState = .idle
     private var generation = 0
     private(set) var pendingAction: JobControlIntent?
@@ -99,6 +100,13 @@ final class JobsModel {
         managementPresented = true
     }
 
+    func expireSession() {
+        actionTask?.cancel()
+        management?.expireSession()
+        pendingAction = nil
+        expireManagementSession()
+    }
+
     private func expireManagementSession() {
         generation += 1; jobs = []; actionNotices = [:]; requiresRefresh.removeAll()
         managementPresented = false; management = nil; state = .sessionExpired
@@ -143,6 +151,7 @@ final class JobsModel {
                 writeAttempted = true
                 try await service.runSearch(id: id)
                 runAccepted = true
+                runRevision += 1
             case .enabled(_, let enabled):
                 guard !enabled || current.hasNoNotificationChannels == true else { throw JobControlFailure.notificationChannelsNotAllowed }
                 guard current.enabled != nil else { throw ListingsFailure.invalidResponse }
@@ -193,6 +202,7 @@ final class JobsModel {
                 ? "قُبل طلب التشغيل، لكن تعذر تحديث المهمة. حدّث القائمة؛ لم نكرر التشغيل. " + controlError(failure)
                 : controlError(failure) + (writeAttempted ? " حدّث القائمة لتأكيد الحالة؛ لم نكرر الكتابة." : " لم نرسل كتابة إلى الخادم.")
         } catch {
+            guard state != .sessionExpired else { return }
             if writeAttempted { requiresRefresh.insert(id) }
             actionNotices[id] = "تعذر تأكيد الطلب. حدّث القائمة؛ لم نعد إرسال أي كتابة."
         }

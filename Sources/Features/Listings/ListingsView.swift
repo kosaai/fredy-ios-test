@@ -2,7 +2,8 @@ import SwiftUI
 
 @MainActor
 struct ListingsView: View {
-    @State private var model: ListingsModel
+    let data: AppDataModel
+    private var model: ListingsModel { data.listings(for: selectedJobID) }
     @State private var actionTask: Task<Void, Never>?
     @State private var searchText = ""
     @State private var priceCeiling = 0
@@ -13,10 +14,10 @@ struct ListingsView: View {
     let refreshToken: Int
     let onSessionExpired: () -> Void
 
-    init(service: any FredyClientServing, jobsModel: JobsModel,
+    init(service: any FredyClientServing, jobsModel: JobsModel, data: AppDataModel,
          selectedJobID: Binding<String?>, refreshToken: Int,
          onSessionExpired: @escaping () -> Void) {
-        _model = State(initialValue: ListingsModel(service: service))
+        self.data = data
         self.jobsModel = jobsModel
         self.listingActions = service
         _selectedJobID = selectedJobID
@@ -33,6 +34,7 @@ struct ListingsView: View {
     private var displayedItems: [RentalListing] {
         model.items.filter { listing in
             let search = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let matchesJob = selectedJobID == nil || listing.jobID == selectedJobID
             let matchesText = search.isEmpty ||
                 [listing.title, listing.address, listing.jobName]
                     .compactMap { $0 }.contains { $0.localizedCaseInsensitiveContains(search) }
@@ -40,7 +42,7 @@ struct ListingsView: View {
                 (listing.euroPrice.map { $0 <= Double(priceCeiling) } == true)
             let matchesRooms = minimumRooms == 0 ||
                 (listing.rooms.map { $0 >= Double(minimumRooms) } == true)
-            return matchesText && matchesPrice && matchesRooms
+            return matchesJob && matchesText && matchesPrice && matchesRooms
         }
     }
 
@@ -126,7 +128,7 @@ struct ListingsView: View {
                         ListingRow(listing: listing, images: model.images,
                                    actions: listingActions,
                                    onChanged: {
-                                       Task { await model.reload(); await jobsModel.reload() }
+                                       data.scheduleRefresh(jobs: jobsModel)
                                    },
                                    onSessionExpired: model.expireSession)
                     }
@@ -175,11 +177,10 @@ struct ListingsView: View {
         .task(id: RequestKey(jobID: selectedJobID, refresh: refreshToken)) {
             actionTask?.cancel()
             actionTask = nil
-            await model.changeJob(selectedJobID)
+            await data.selectJob(selectedJobID)
         }
         .refreshable {
-            await jobsModel.reload()
-            await model.reload()
+            await data.refresh(jobs: jobsModel, force: true)
         }
         .onChange(of: model.state) { _, state in
             if state == .sessionExpired { onSessionExpired() }
