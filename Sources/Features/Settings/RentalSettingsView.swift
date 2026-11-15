@@ -6,6 +6,7 @@ import SwiftUI
 struct RentalSettingsView: View {
     @Binding var darkAppearance: Bool
     let model: AccountSettingsModel
+    let mcpModel: MCPSettingsModel
     @Environment(\.dismiss) private var dismiss
     @State private var navigationPath: [FindHausSettingsSection] = []
 
@@ -107,15 +108,15 @@ struct RentalSettingsView: View {
                     case .connections:
                         SettingsConnectionsPage()
                     case .mcp:
-                        SettingsMCPPage(onOpenConnections: {
+                        SettingsMCPPage(model: mcpModel, onOpenConnections: {
                             navigationPath.append(.connections)
                         })
                     }
                 }
 
-                .disabled(!model.editable)
+                .disabled(section != .mcp && !model.editable)
 
-                SettingsStatusBanner(model: model)
+                if section != .mcp { SettingsStatusBanner(model: model) }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 18)

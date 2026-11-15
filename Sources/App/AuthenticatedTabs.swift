@@ -19,6 +19,7 @@ struct AuthenticatedTabs: View {
     @State private var jobsModel: JobsModel
     @State private var workflow: AddSearchModel
     @State private var settingsModel: AccountSettingsModel
+    @State private var mcpModel: MCPSettingsModel
 
     private enum SectionTab: Hashable { case home, listings, jobs, map }
 
@@ -30,6 +31,7 @@ struct AuthenticatedTabs: View {
         _jobsModel = State(initialValue: jobs)
         _workflow = State(initialValue: AddSearchModel(service: service, jobsModel: jobs))
         _settingsModel = State(initialValue: AccountSettingsModel(service: service))
+        _mcpModel = State(initialValue: MCPSettingsModel(service: service))
     }
 
     var body: some View {
@@ -109,6 +111,9 @@ struct AuthenticatedTabs: View {
             .onChange(of: settingsModel.sessionExpired) { _, value in
                 if value { expire() }
             }
+            .onChange(of: mcpModel.sessionExpired) { _, value in
+                if value { expire() }
+            }
             .onChange(of: settingsModel.saved["theme"]) { _, value in
                 if let theme = value.stringValue, ["light", "dark"].contains(theme) {
                     darkAppearance = theme == "dark"
@@ -148,7 +153,7 @@ struct AuthenticatedTabs: View {
                 RentalBudgetView()
             }
             .sheet(isPresented: $showingSettings) {
-                RentalSettingsView(darkAppearance: $darkAppearance, model: settingsModel)
+                RentalSettingsView(darkAppearance: $darkAppearance, model: settingsModel, mcpModel: mcpModel)
             }
             .sheet(isPresented: $addingSearch) {
                 AddSearchView(model: workflow, onSave: saveSearch, onSelect: selectJob)
@@ -216,6 +221,7 @@ struct AuthenticatedTabs: View {
         data.expireSession()
         jobsModel.expireSession()
         settingsModel.expireSession()
+        mcpModel.expireSession()
         workflow.expireSession()
         expired = true
         addingSearch = false

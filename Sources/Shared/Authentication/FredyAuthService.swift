@@ -126,6 +126,21 @@ final class FredyAuthService: FredyClientServing {
         return providers
     }
 
+    func fetchMCPSettings() async throws -> MCPSettingsSnapshot {
+        let (data, response) = try await authenticatedRead(path: "api/user/mcp-server")
+        guard response.mimeType == "application/json",
+              let snapshot = try? JSONDecoder().decode(MCPSettingsSnapshot.self, from: data)
+        else { throw ListingsFailure.invalidResponse }
+        return snapshot
+    }
+
+    func saveMCPSettings(_ configuration: MCPConfiguration) async throws {
+        let body = try JSONEncoder().encode(configuration)
+        let response = try await authenticatedWrite(path: "api/user/mcp-server", body: body)
+        guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
+        // POST's settings body is not persistence proof; the model performs an independent GET.
+    }
+
     func fetchAccountSettings() async throws -> JSONValue {
         let value = try await readEditableValue(path: "api/user/settings/")
         guard let object = value.objectValue else { throw ListingsFailure.invalidResponse }

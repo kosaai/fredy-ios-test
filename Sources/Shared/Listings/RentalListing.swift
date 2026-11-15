@@ -138,7 +138,7 @@ protocol FredyListingsServing {
 }
 
 @MainActor
-protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing, FredyDashboardServing, FredyAccountSettingsServing, FredyMapServing {
+protocol FredyClientServing: FredyAuthServing, FredyListingsServing, FredyJobsServing, FredySearchCreating, FredyListingActionServing, FredyDashboardServing, FredyAccountSettingsServing, FredyMapServing, FredyMCPSettingsServing {
     var synchronization: DataSynchronization { get }
 }
 

@@ -1,5 +1,9 @@
 # Graphify maintenance
 
+## Stage 4.1 MCP settings corpus
+
+Reviewed corpus: **81 public paths / 71 graph inputs**. Incremental local AST/Markdown refresh includes the recovered MCP draft completion and previously unindexed upstream logo/Safari-return/login-overlap documentation/source checks, never raw MCP/account responses or binary assets. Prior graph/manifest/history and unrelated Fredy graph hashes are preserved, token cost **0 input / 0 output LLM tokens**. Diagnostics retain the same **six documented receiver-resolution self-loops**, with no missing/dangling endpoints, exact duplicates or directed collapsed edges. The current external last-refresh.json records node/edge counts; neither graph structure nor source guards prove native MCP persistence or an Apple build. docs/STAGE4_1.md records the exact cookie-authenticated GET/POST contract, security boundaries and device matrix.
+
 ## Stage 3 corpus — 2026-11-15
 
 Queried the existing graph before coding (initial truncated map traversal followed by the complete 45-node traversal). Reviewed scope: **78 public paths / 68 graph inputs**, adding two registered Swift sources, source guards and docs/STAGE3.md. Incremental maintenance uses only installed offline AST/Markdown tooling, with prior graph/manifest/history retention, unchanged unrelated historical graph and zero LLM tokens. First Stage 3 update: 28 changed inputs, none deleted, **1007 nodes / 1865 directed edges**; no missing/dangling endpoints, exact duplicates or directed collapsed edges. Graph shape is not compilation/runtime evidence. No coordinates, listing IDs, property/account fixtures, sessions or private reports enter this corpus.
