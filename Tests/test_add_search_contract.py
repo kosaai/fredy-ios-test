@@ -80,6 +80,25 @@ class AddSearchContract(unittest.TestCase):
         self.assertEqual(model.count('service.createSearch('), 1)
         self.assertEqual(model.count('service.runSearch('), 1)
 
+    def test_selected_rental_provider_has_explicit_external_website_link(self):
+        source = (ROOT / 'Sources/Shared/Jobs/SearchCreation.swift').read_text()
+        view = (ROOT / 'Sources/Features/Jobs/AddSearchView.swift').read_text()
+        model = (ROOT / 'Sources/Features/Jobs/AddSearchModel.swift').read_text()
+        self.assertIn('var websiteURL: URL?', source)
+        self.assertIn('URL(string: "https://" + site)', source)
+        self.assertIn('if model.providerCatalogState == .ready,', view)
+        self.assertIn('model.availableProviders.contains(model.selectedProvider)', view)
+        self.assertIn('let websiteURL = model.selectedProvider.websiteURL', view)
+        self.assertIn('Link(destination: websiteURL)', view)
+        self.assertIn('jobs.open_provider_website', view)
+        self.assertIn('systemImage: "arrow.up.right.square"', view)
+        self.assertIn('model.chooseProvider(source)', view)
+        self.assertIn('model.urlText = pasted', view)
+        self.assertIn('service.createSearch(search)', model)
+        self.assertNotIn('URLSession(', view)
+        self.assertEqual(model.count('service.createSearch('), 1)
+        self.assertEqual(model.count('service.runSearch('), 1)
+
     def test_job_selection_is_preserved_without_cluttered_filter_chips(self):
         source = (ROOT / 'Sources/Shared/Authentication/FredyAuthService.swift').read_text()
         self.assertIn('URLQueryItem(name: "jobNameFilter"', source)

@@ -34,6 +34,10 @@ enum GermanRentalProvider: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// Canonical external HTTPS page of a reviewed German rental portal.
+    /// Opening it never creates a Fredy job or submits a saved search.
+    var websiteURL: URL? { URL(string: "https://" + site) }
+
     var site: String {
         switch self {
         case .immoscout: return "immobilienscout24.de"

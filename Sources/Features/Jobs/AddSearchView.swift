@@ -75,6 +75,18 @@ struct AddSearchView: View {
             .disabled(model.providerCatalogState != .ready ||
                       model.hasAttemptedCreate || model.isBusy)
 
+            if model.providerCatalogState == .ready,
+               model.availableProviders.contains(model.selectedProvider),
+               let websiteURL = model.selectedProvider.websiteURL {
+                Link(destination: websiteURL) {
+                    Label("افتح \(model.selectedProvider.title) وابحث عن إيجار",
+                          systemImage: "arrow.up.right.square")
+                        .font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                }
+                .accessibilityIdentifier("jobs.open_provider_website")
+            }
+
             switch model.providerCatalogState {
             case .idle, .loading:
                 HStack(spacing: 8) {
@@ -102,7 +114,7 @@ struct AddSearchView: View {
         } header: {
             Text("اختر الموقع")
         } footer: {
-            Text("تظهر فقط مواقع الإيجار الألمانية المسجّلة في Fredy. ظهور الموقع لا يضمن نجاح جلب الإعلانات.")
+            Text("افتح الموقع واختر فلاتر الإيجار، ثم انسخ رابط نتائج البحث والصقه هنا. ظهور الموقع لا يضمن نجاح جلب الإعلانات.")
         }
     }
 

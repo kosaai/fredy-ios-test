@@ -1,5 +1,12 @@
 # Add Search by URL — inspected v31 contract and native workflow
 
+## 2026-11-15 — Direct provider website link in Add Search
+
+Added an explicit native SwiftUI external `Link` directly below the selected rental provider in the existing German-source picker. The destination is the reviewed provider's canonical `https://` website from the closed `GermanRentalProvider` enum, not server-supplied redirect data, a listing URL or a fabricated search-results route. The link appears only after successful server catalog confirmation of that selected provider. Tapping it opens the website through iOS URL handling so users can configure a rental search, copy the search results URL and return to FindHaus to paste it. Selecting or opening a provider does **not** create, save or run any job, auto-fill the search URL, change Fredy settings or affect the existing one-create/one-run safety flow. A source-contract regression checks the conditional link, destination, and separation from job writes.
+
+Scope: AddSearchView, the provider enum, a focused source test, and sanitized documentation. Existing Arabic RTL, provider filtering, URL validation, OAuth/MCP, sessions, other screens and the deliberately deferred three inherited test failures are unchanged. No Xcode/Swift runtime, on-device URL-handler test, live provider search, workflow dispatch, IPA build or Oracle Graphify refresh was performed from the GitHub-connected environment. The Graphify index can be refreshed incrementally later via the existing Oracle tool; no rebuild is needed.
+
+
 ## 2026-11-15 — German rental provider picker and Add Search redesign
 
 The existing Add Search sheet is now a compact native Arabic RTL Form with three focused sections: selectable German rental source, search name/URL (with an explicit clipboard paste button and LTR URL entry), and the existing Save & Search/reconciliation controls. The dropdown uses only the intersection of the app's reviewed 15 German rental provider IDs with Fredy's authenticated, live `GET /api/jobs/provider/` metadata, and offers a manual catalog reload/error state rather than fabricated providers. The selected provider ID is submitted alongside the original HTTPS results URL. Switching providers clears the old URL to avoid cross-provider mistakes. `jobs.search_url` localization is generic instead of hardcoded ImmoScout24. InBerlinWohnen, purchase-only providers and other countries are excluded.
