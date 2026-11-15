@@ -2,7 +2,7 @@
 
 This is the history of the **Fredy Test native SwiftUI client experiment**, not a claim that a full property app has been delivered. Entries summarize retained Oracle reports and observed tests. Original reports, raw responses, credentials and deployment configuration stay outside this repository and outside its graph corpus. Evidence fingerprints are listed in `docs/provenance.json`; they establish document identity, not independent reproduction of every historical claim.
 
-## 2026-11-14 — FindHaus control audit and Jobs functional Stage 1
+## 2026-11-15 — FindHaus control audit and Jobs functional Stage 1
 
 After required history/Graphify reads, fast-forwarded main to the pre-existing FindHaus UI/dashboard head `1da9fb3b1acc686f09c80ad296c1c097af70b254`. Audited every current screen, native/local actions and disabled/unsupported controls; created docs/FUNCTIONAL_STAGES.md with a short four-stage checklist. Only Stage 1 is implemented; older read-only/UI-only sections remain historical, not the current authorization for Run/Enable/Disable.
 
@@ -11,6 +11,8 @@ Read installed Fredy 31.0.0 routes/access/storage without modifying them: single
 Run has no no-notify argument. New Run/Enable fail closed unless a fresh read confirms no configured notification channels; disabling is still allowed without deleting/editing channels. Only emptiness/permission metadata is decoded, not channel secrets. Cross-client races and backend provider outcomes remain limitations. No native push/Telegram/email implementation, Fredy/Cloudflare/database/config change, mock/listing fixture, credential lookup, live development-tool write, branch, extra agent/install, build dispatch or IPA. Login animation, FindHaus art, Arabic RTL, rental data and dashboard source are preserved.
 
 Five new source/structure checks pass; four feature gates were observed red then green. Independent validation covers syntax for 32 Swift files, PBX membership, translations and original icon/logo PNG hashes/dimensions. Full exact baseline archive: 30 checks / 27 pass / two failures + one error. Stage: 35 / 32 / identical three failing test names and source locations (existing service-wide startAll prohibition vs Home, PNG escaped-byte typo, YAML parsed as JSON). Not a green full suite, native compilation or runtime test. Unauthenticated HTTPS GET jobs returned 401; successful mutation contracts are source-inspected, not live-write-tested. Required Apple/iPhone matrix and remaining settings/map/OAuth/MCP stages are explicit in the audit and handoff. External incremental Graphify maintenance preserves prior snapshots and the unrelated historical graph; no public raw evidence or credentials are indexed.
+
+Final concurrent-main reconciliation retained four already-published auth-card top-anchor commits through `fb3a896b4cf25294403f13408a2721a0ec27eeec` with a normal no-force merge after feature checkpoint `80ccd8e`. Exact imported LoginView/test and unchanged stage source were verified. The extra upstream login regression changes final totals to **36 tests / 33 passing / same two failures and one error**, versus the exact concurrent baseline **31 / 28 / same three test names and failure locations**. The 35/32 and 30/27 comparison above is pre-merge evidence, not final totals. No new failed case or build dispatch; no prior history or CI stash discarded.
 
 ## 2026-11-14 — Native rental UI layout, direct main
 

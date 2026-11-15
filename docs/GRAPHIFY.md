@@ -1,6 +1,6 @@
 # Graphify maintenance
 
-## FindHaus Stage 1 incremental reconciliation — 2026-11-14
+## FindHaus Stage 1 incremental reconciliation — 2026-11-15
 
 The existing external graph was queried first. Refresh now reconciles previously published FindHaus screen/dashboard changes as well as Jobs controls and docs/FUNCTIONAL_STAGES.md, using the existing allowlist/offline incremental tool, not a fresh/global extraction. Reviewed scope: **68 public paths / 58 graph inputs**. First update changed 39 inputs, deleted none and preserved older graph/manifest snapshots; source replacement also removed six old source-less orphan nodes. Token cost: **0 input / 0 output LLM tokens**.
 
