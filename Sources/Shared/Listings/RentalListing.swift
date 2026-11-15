@@ -115,6 +115,7 @@ private extension KeyedDecodingContainer {
 enum ListingsFailure: Error, Equatable {
     case sessionExpired, accessDenied, rateLimited, server, invalidResponse, network, imageUnavailable
     case invalidInput, conflict
+    case dashboardDecoding
 
     var localizationKey: String {
         switch self {
@@ -123,6 +124,7 @@ enum ListingsFailure: Error, Equatable {
         case .rateLimited: return "listings.error_rate_limit"
         case .server: return "listings.error_server"
         case .invalidResponse: return "listings.error_response"
+        case .dashboardDecoding: return "listings.error_response"
         case .network: return "listings.error_network"
         case .imageUnavailable: return "listings.image_unavailable"
         case .invalidInput: return "jobs.error_rejected"
@@ -172,6 +174,35 @@ struct FindHausDashboardSnapshot: Decodable, Sendable {
         let interval: Double?
         let lastRun: Double?
         let nextRun: Double?
+        private enum CodingKeys: String, CodingKey { case interval, lastRun, nextRun }
+
+        init(from decoder: Decoder) throws {
+            let values = try decoder.container(keyedBy: CodingKeys.self)
+            lastRun = try values.decodeIfPresent(Double.self, forKey: .lastRun)
+            nextRun = try values.decodeIfPresent(Double.self, forKey: .nextRun)
+            if !values.contains(.interval) { interval = nil; return }
+            if try values.decodeNil(forKey: .interval) { interval = nil; return }
+
+            let value: Double
+            if let number = try? values.decode(Double.self, forKey: .interval) {
+                value = number
+            } else {
+                let text = try values.decode(String.self, forKey: .interval)
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                guard text.range(of: #"^[+-]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)(?:[eE][+-]?[0-9]+)?$"#,
+                                 options: .regularExpression) != nil,
+                      let number = Double(text) else {
+                    throw DecodingError.dataCorruptedError(forKey: .interval, in: values,
+                                                          debugDescription: "Expected a numeric scheduler interval")
+                }
+                value = number
+            }
+            guard value.isFinite, value > 0, value < Double(Int.max) else {
+                throw DecodingError.dataCorruptedError(forKey: .interval, in: values,
+                                                      debugDescription: "Scheduler interval is outside the supported range")
+            }
+            interval = value
+        }
     }
 
     struct Trend: Decodable, Sendable {
@@ -191,7 +222,7 @@ struct FindHausDashboardSnapshot: Decodable, Sendable {
 
     var intervalMinutes: Int? {
         guard let interval = general?.interval, interval.isFinite,
-              interval > 0, interval <= Double(Int.max) else { return nil }
+              interval >= 1, interval < Double(Int.max) else { return nil }
         return Int(interval)
     }
 

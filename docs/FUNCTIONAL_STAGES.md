@@ -33,6 +33,10 @@ Audit baseline: `1da9fb3` on main; concurrent auth top-anchor fix through `fb3a8
 - [x] **4.2 — Real OAuth Connections (source implementation):** live session-authenticated grant list/scopes/server-reported times, confirmed per-client DELETE with preflight/independent GET verification and GET-only uncertainty recovery/shared expiry. No scope upgrade, token exchange or new-client authorization. Contracts and pending native tests: docs/STAGE4_2.md. Stop after 4.2 in the current task.
 - [ ] **Later — New OAuth client authorization and native notification feasibility:** management of existing grants is not a new-client authorization flow. APNs needs a supported backend contract/authorization; Telegram/email and unsupported public signup remain excluded. No unrelated feature is authorized here.
 
+## Dashboard decoding compatibility follow-up
+
+GET `/api/dashboard` may serialize general.interval as the stored numeric string. Only that field now accepts JSON numbers or validated decimal/scientific strings, finite/positive/bounded; missing/null stays unknown and invalid values throw rather than becoming zero. Home separates typed decoding failures from HTTP/access/rate-limit/network/MIME failures. Existing listing refresh and search/notification safety are unchanged. Three source guards pass; the actual Foundation DTO regression matrix is included but skipped without Swift. Full checks: 83 total/79 pass/1 skip plus the same three inherited issues; native type-check/device acceptance pending. No server/configuration change or IPA/Actions dispatch.
+
 ## Stage 1 verified upstream contract (read-only installed Fredy 31.0.0)
 
 - `lib/api/routes/jobRouter.js:187–209`: POST `/api/jobs/{jobId}/run`; no JSON body required. 202 `{message: "Job run accepted"}`; 403 not allowed, 404 missing, 409 tour/already running, 500 failure. Manual runs can search a disabled job; changing enabled is not a run or a cancellation.

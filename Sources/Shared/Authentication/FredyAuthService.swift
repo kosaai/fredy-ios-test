@@ -351,10 +351,14 @@ final class FredyAuthService: FredyClientServing {
 
     func fetchDashboardSnapshot() async throws -> FindHausDashboardSnapshot {
         let (data, response) = try await authenticatedRead(path: "api/dashboard")
-        guard response.mimeType == "application/json",
-              let snapshot = try? JSONDecoder().decode(FindHausDashboardSnapshot.self, from: data)
-        else { throw ListingsFailure.invalidResponse }
-        return snapshot
+        guard response.mimeType == "application/json" else { throw ListingsFailure.invalidResponse }
+        do {
+            return try JSONDecoder().decode(FindHausDashboardSnapshot.self, from: data)
+        } catch is DecodingError {
+            // Classify the payload failure without retaining/logging its body or decoder details.
+            // HTTP/session/network failures from authenticatedRead remain unchanged.
+            throw ListingsFailure.dashboardDecoding
+        }
     }
 
     func startAllSearches() async throws {

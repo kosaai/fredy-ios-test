@@ -8,8 +8,24 @@ struct HomeView: View {
     private var dashboard: FindHausDashboardSnapshot? { data.dashboard }
     private var dashboardLoading: Bool { data.dashboardState == .loading }
     private var dashboardError: String? {
-        if case .failed = data.dashboardState { return "تعذر تحميل أحدث إحصاءات الخادم." }
-        return nil
+        guard case .failed(let failure) = data.dashboardState else { return nil }
+        switch failure {
+        case .dashboardDecoding:
+            return "تعذّر تحليل بيانات الإحصاءات؛ صيغة البيانات غير متوافقة مع التطبيق."
+        case .server:
+            return "فشل طلب إحصاءات الخادم (HTTP). أعد المحاولة لاحقًا."
+        case .accessDenied:
+            return "رفض الخادم صلاحية الوصول إلى الإحصاءات."
+        case .rateLimited:
+            return "رفض الخادم طلب الإحصاءات لكثرة الطلبات؛ انتظر ثم أعد التحميل."
+        case .network:
+            return "تعذّر الاتصال لتحميل الإحصاءات. تحقق من الشبكة."
+        case .invalidResponse:
+            return "استجابة الإحصاءات ليست بصيغة JSON المتوقعة."
+        case .sessionExpired: return nil
+        case .invalidInput, .conflict, .imageUnavailable:
+            return "تعذّر إتمام طلب إحصاءات الخادم."
+        }
     }
     @State private var confirmingSearch = false
     @State private var startingSearch = false

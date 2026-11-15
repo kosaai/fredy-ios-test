@@ -215,7 +215,7 @@ final class JobsModel {
         case .conflict: return "رفض التشغيل لتعارض أو لأن المهمة قيد التشغيل."
         case .rateLimited: return "طلبات كثيرة؛ انتظر ثم حدّث الحالة."
         case .invalidInput: return "تعذر قبول بيانات المهمة."
-        case .invalidResponse: return "لم يؤكد رد الخادم الحالة المطلوبة."
+        case .invalidResponse, .dashboardDecoding: return "لم يؤكد رد الخادم الحالة المطلوبة."
         case .network: return "تعذر الاتصال بالخادم."
         case .server, .imageUnavailable: return "تعذر إتمام الطلب لدى الخادم."
         }
