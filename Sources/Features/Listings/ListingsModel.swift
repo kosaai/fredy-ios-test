@@ -13,6 +13,8 @@ enum ListingsState: Equatable {
 @MainActor
 final class ListingsModel {
     private(set) var items: [RentalListing] = []
+    // Unfiltered server table total, not the number of pages already loaded or rent-only rows.
+    private(set) var serverTotalCount: Int?
     private(set) var state: ListingsState = .idle
     private(set) var hasMore = true
     private var lastPage = 0
@@ -49,6 +51,7 @@ final class ListingsModel {
         pageTask = nil
         lastPage = 0
         items = []
+        serverTotalCount = nil
         hasMore = true
         state = .idle
     }
@@ -83,6 +86,7 @@ final class ListingsModel {
             guard generation == requestGeneration else { return }
             guard state != .sessionExpired else { return }
             guard response.page == requestedPage else { throw ListingsFailure.invalidResponse }
+            serverTotalCount = response.totalNumber
             var seen = Set(items.map(\.id))
             let rentals = response.result.filter(\.isRental)
             items.append(contentsOf: rentals.filter { seen.insert($0.id).inserted })
@@ -111,6 +115,7 @@ final class ListingsModel {
         pageTask?.cancel()
         pageTask = nil
         items = []
+        serverTotalCount = nil
         hasMore = false
         images.clear()
         state = .sessionExpired

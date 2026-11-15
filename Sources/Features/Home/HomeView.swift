@@ -168,7 +168,7 @@ struct HomeView: View {
                 .accessibilityIdentifier("home.search_summary")
 
                 HStack(spacing: 10) {
-                    metric(value: model.items.count, title: "إعلانات محمّلة",
+                    metric(value: model.serverTotalCount, title: "إجمالي النتائج",
                            symbol: "building.2")
                     metric(value: jobsModel.jobs.count, title: "عمليات البحث",
                            symbol: "magnifyingglass")
@@ -327,13 +327,19 @@ struct HomeView: View {
         }
     }
 
-    private func metric(value: Int, title: String, symbol: String) -> some View {
+    private func metric(value: Int?, title: String, symbol: String) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             Image(systemName: symbol)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text(value, format: .number)
-                .font(.system(.title2, design: .rounded, weight: .bold))
+            Group {
+                if let value {
+                    Text(value, format: .number)
+                } else {
+                    Text("—")
+                }
+            }
+            .font(.system(.title2, design: .rounded, weight: .bold))
             Text(title)
                 .font(.caption2)
                 .foregroundStyle(.secondary)

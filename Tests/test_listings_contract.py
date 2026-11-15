@@ -77,6 +77,21 @@ class ListingsSourceContract(unittest.TestCase):
             self.assertIn('onChanged:', source)
             self.assertIn('data.refresh(jobs: jobsModel, force: true)', source)
 
+    def test_home_total_uses_server_table_count_not_loaded_page_count(self):
+        model = (ROOT / 'Sources/Features/Listings/ListingsModel.swift').read_text()
+        home = (ROOT / 'Sources/Features/Home/HomeView.swift').read_text()
+        dto = (ROOT / 'Sources/Shared/Listings/RentalListing.swift').read_text()
+        self.assertIn('let totalNumber: Int', dto)
+        self.assertIn('private(set) var serverTotalCount: Int?', model)
+        self.assertIn('serverTotalCount = response.totalNumber', model)
+        self.assertEqual(model.count('serverTotalCount = nil'), 2)
+        self.assertIn('metric(value: model.serverTotalCount, title: "إجمالي النتائج"', home)
+        self.assertIn('private func metric(value: Int?', home)
+        self.assertIn('Text("—")', home)
+        self.assertNotIn('metric(value: model.items.count, title: "إعلانات محمّلة"', home)
+        self.assertIn('items.append(contentsOf: rentals.filter', model)
+        self.assertIn('hasMore = !response.result.isEmpty', model)
+
     def test_real_nullable_listing_contract(self):
         path = ROOT / 'Sources/Shared/Listings/RentalListing.swift'
         self.assertTrue(path.exists(), 'Actual Fredy listing DTO is missing')

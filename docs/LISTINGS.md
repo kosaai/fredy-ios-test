@@ -1,5 +1,11 @@
 # Rental listing screen
 
+## Home overview total count — 2026-11-15
+
+The Home stat formerly used `model.items.count`, so it rose by 20 whenever a user loaded another page. Home now displays `ListingsModel.serverTotalCount`, populated from the real `ListingPage.totalNumber` envelope on each successful authenticated table page. It appears on page one without loading every page and is cleared on invalidation, job change and session expiry. Before a successful response it shows “—” rather than inventing zero; the other two Home metrics and all pagination continue unchanged.
+
+**Scope:** The installed Fredy v31 `totalNumber` counts all rows returned by the table endpoint, including non-rental deal types. The app displays only `dealType == "rent"` rows; this total must therefore be labelled **"إجمالي النتائج"** rather than claimed to be a verified rent-only total. The per-screen count of actually displayed/filtered rentals remains a separate measure. No server API, hidden extra paging or aggregation of job counters was invented. New offline source-contract coverage was added; native iPhone rendering and authenticated page-total agreement still require testing.
+
 The original listing-stage evidence below is retained. Current additions are documented in `docs/ADD_SEARCH.md`: optional `job_id`/`job_name`, exact job-id table filter, conservative URL-area chips, shared server active counts and page/filter generation guards. The latest readonly audit found 52 visible/active rows, not the historical 51 below. No hardcoded count or listing fixtures are used.
 
 ## Current Fredy contract, inspected read-only
