@@ -5,6 +5,8 @@ struct SearchJob: Decodable, Identifiable, Sendable {
     let name: String?
     let enabled: Bool?
     let running: Bool?
+    let isOnlyShared: Bool?
+    let hasNoNotificationChannels: Bool?
     let numberOfFoundListings: Int?
     let provider: [JobProvider]?
     let dealType: String?
@@ -19,7 +21,7 @@ struct SearchJob: Decodable, Identifiable, Sendable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, name, enabled, running, numberOfFoundListings, provider, dealType, lastRunAt
+        case id, name, enabled, running, isOnlyShared, notificationAdapter, numberOfFoundListings, provider, dealType, lastRunAt
     }
 
     init(from decoder: Decoder) throws {
@@ -34,6 +36,10 @@ struct SearchJob: Decodable, Identifiable, Sendable {
         // Missing/null/wrong types remain unknown, never silently false.
         enabled = try? values.decodeIfPresent(Bool.self, forKey: .enabled)
         running = try? values.decodeIfPresent(Bool.self, forKey: .running)
+        isOnlyShared = try? values.decodeIfPresent(Bool.self, forKey: .isOnlyShared)
+        // Retain only emptiness, never channel fields/credentials. Malformed/missing stays unknown.
+        let channels = try? values.nestedUnkeyedContainer(forKey: .notificationAdapter)
+        hasNoNotificationChannels = channels.map { $0.isAtEnd }
         provider = try? values.decodeIfPresent([JobProvider].self, forKey: .provider)
         dealType = try? values.decodeIfPresent(String.self, forKey: .dealType)
         if let timestamp = try? values.decodeIfPresent(Double.self, forKey: .lastRunAt), timestamp.isFinite, timestamp >= 0 {
@@ -52,6 +58,8 @@ struct SearchJob: Decodable, Identifiable, Sendable {
 @MainActor
 protocol FredyJobsServing {
     func fetchJobs() async throws -> [SearchJob]
+    func runSearch(id: String) async throws
+    func setJobEnabled(id: String, enabled: Bool) async throws
 }
 
 @MainActor

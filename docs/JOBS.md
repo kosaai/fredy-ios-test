@@ -1,4 +1,12 @@
-# Read-only search jobs
+# Search jobs: current controls and historical read-only evidence
+
+## Current FindHaus functional stage
+
+Run and Enable/Disable on the existing job card are now user-authorized and connected. Contract, complete UI audit, staged checklist, channel restrictions, source-test results and pending iPhone acceptance: **docs/FUNCTIONAL_STAGES.md**. POST `/api/jobs/{id}/run` expects 202 accepted; PUT `/api/jobs/{id}/status` sends `{status: Bool}` and expects an empty 200, then exact GET read-back. Shared/unknown permissions and unknown flags fail closed. Run/Enable additionally require a verified empty notification array; Disable does not remove channels. The same authenticated client is reused; no live development-tool mutation or native runtime proof is claimed.
+
+Only these two controls changed. Edit/Copy/overflow remain previews; destructive job deletion is excluded because upstream cascades to listings. The original read-only stage below is retained as historical evidence, not a description of today's UI/protocol.
+
+## Historical GET-only stage
 
 Historical GET-only stage evidence follows. The current user-authorized extension adds selectable rows and explicit Save & Search through `docs/ADD_SEARCH.md`; provider/dealType/lastRunAt decoding and shared-snapshot guards are now included. Earlier no-create/run statements below describe that original stage, not a prohibition on the new explicit action. No general edit/delete controls were added.
 

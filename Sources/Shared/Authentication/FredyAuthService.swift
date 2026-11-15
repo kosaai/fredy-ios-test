@@ -130,6 +130,16 @@ final class FredyAuthService: FredyClientServing {
         guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
     }
 
+    func setJobEnabled(id: String, enabled: Bool) async throws {
+        guard !id.isEmpty, id.utf8.allSatisfy({
+            (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 || $0 == 95
+        }) else { throw ListingsFailure.invalidInput }
+        let body = try JSONSerialization.data(withJSONObject: ["status": enabled])
+        let response = try await authenticatedWrite(path: "api/jobs/\(id)/status", body: body, method: "PUT")
+        // v31 returns an empty 200 acknowledgement, not a job object.
+        guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
+    }
+
     func runSearch(id: String) async throws {
         guard !id.isEmpty, id.utf8.allSatisfy({
             (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 || $0 == 95

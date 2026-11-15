@@ -1,5 +1,11 @@
 # Graphify maintenance
 
+## FindHaus Stage 1 incremental reconciliation — 2026-11-14
+
+The existing external graph was queried first. Refresh now reconciles previously published FindHaus screen/dashboard changes as well as Jobs controls and docs/FUNCTIONAL_STAGES.md, using the existing allowlist/offline incremental tool, not a fresh/global extraction. Reviewed scope: **68 public paths / 58 graph inputs**. First update changed 39 inputs, deleted none and preserved older graph/manifest snapshots; source replacement also removed six old source-less orphan nodes. Token cost: **0 input / 0 output LLM tokens**.
+
+Read-only diagnostics after that update: no missing/dangling endpoints, exact duplicate edges or directed collapsed edges; the same two documented AST symbol-resolution self-loops remain below. Hash verification preserves all prior history files and the unrelated historical Fredy graph. A final no-change refresh must leave graph bytes and history count unchanged. These structural checks do not prove Swift compilation or native API behavior.
+
 ## Corpus and privacy
 
 `tools/public-scope.json` is the exact publication allowlist and defines its smaller graph corpus. Only reviewed Swift/Python source and public Markdown summaries enter the graph. Original Oracle reports, raw responses, account data, private runtime configuration, Git metadata and other project graphs never enter the source snapshot. Graphs/caches/history stay outside Git.

@@ -1,7 +1,6 @@
 import SwiftUI
 
-/// Fredy-inspired job cards. Read-only visual controls until the corresponding
-/// existing Fredy REST operations are explicitly authorized for this screen.
+/// Existing job cards: Run and scheduling controls are live; other actions remain previews.
 @MainActor
 struct JobsView: View {
     @State private var model: JobsModel
@@ -26,7 +25,7 @@ struct JobsView: View {
                         .buttonStyle(.borderedProminent)
                 } else {
                     ForEach(model.jobs) { job in
-                        JobCard(job: job, onSelect: { onSelect(job.id) })
+                        JobCard(job: job, model: model, onSelect: { onSelect(job.id) })
                     }
 
                     if model.isLoading || model.state == .idle {
@@ -79,8 +78,10 @@ struct JobsView: View {
 @MainActor
 private struct JobCard: View {
     let job: SearchJob
+    let model: JobsModel
     let onSelect: () -> Void
     @State private var presentingDesignNotice = false
+    @State private var confirmation: JobControlIntent?
 
     // Use semantic system colors; the original card layout works in both appearances.
     private let cardBackground = Color(uiColor: .secondarySystemGroupedBackground)
@@ -145,7 +146,11 @@ private struct JobCard: View {
                             .font(.system(size: 15))
                             .foregroundStyle(secondary)
                             .fixedSize(horizontal: false, vertical: true)
-                        if job.running == nil {
+                        if job.running == true {
+                            Text("قيد التشغيل وفق آخر تحديث")
+                                .font(.caption2)
+                                .foregroundStyle(secondary)
+                        } else if job.running == nil {
                             Text("jobs.unknown")
                                 .font(.caption2)
                                 .foregroundStyle(secondary)
@@ -181,7 +186,9 @@ private struct JobCard: View {
                 .frame(height: 1)
 
             HStack(spacing: 10) {
-                Button(action: showDesignNotice) {
+                Button {
+                    if let enabled = job.enabled { confirmation = .enabled(job.id, !enabled) }
+                } label: {
                     ZStack(alignment: job.enabled == true ? .trailing : .leading) {
                         Capsule()
                             .fill(job.enabled == true
@@ -193,14 +200,17 @@ private struct JobCard: View {
                             .frame(width: 21, height: 21)
                             .padding(.horizontal, 3)
                     }
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .disabled(!model.canChangeEnabled(job))
                 .accessibilityLabel("تفعيل أو إيقاف البحث الدوري")
                 .accessibilityValue(job.enabled == true ? "مفعّل" : job.enabled == false ? "متوقف" : "غير معروف")
 
                 Spacer(minLength: 0)
 
-                Button(action: showDesignNotice) {
+                Button { confirmation = .run(job.id) } label: {
                     Label("تشغيل", systemImage: "play.fill")
                         .font(.system(size: 16, weight: .medium))
                         .foregroundStyle(foreground)
@@ -208,8 +218,11 @@ private struct JobCard: View {
                         .frame(height: 39)
                         .overlay(RoundedRectangle(cornerRadius: 10)
                             .stroke(border.opacity(1.0), lineWidth: 1.5))
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
+                .disabled(!model.canRun(job))
                 .accessibilityLabel("تشغيل مهمة البحث")
 
                 Button(action: showDesignNotice) {
@@ -245,11 +258,57 @@ private struct JobCard: View {
             .foregroundStyle(secondary)
             .environment(\.layoutDirection, .leftToRight)
             .padding(.top, 16)
+
+            VStack(alignment: .leading, spacing: 8) {
+                if model.pendingAction?.id == job.id {
+                    ProgressView("جارٍ التحقق…")
+                        .accessibilityIdentifier("jobs.control.progress")
+                }
+                if job.isOnlyShared != false {
+                    Text(job.isOnlyShared == true ? "مهمة مشتركة للقراءة فقط" : "صلاحية التحكم غير معروفة؛ حدّث القائمة")
+                }
+                if job.isOnlyShared == false, job.hasNoNotificationChannels != true {
+                    Text("التشغيل والتفعيل محجوبان حتى تتأكد قائمة تنبيه فارغة. إيقاف الجدولة يبقى متاحًا دون تغيير القنوات.")
+                }
+                if let notice = model.actionNotices[job.id] {
+                    Text(notice).accessibilityIdentifier("jobs.control.notice")
+                    Button("تحديث الحالة") { Task { await model.reload() } }
+                        .frame(minHeight: 44)
+                        .disabled(model.pendingAction != nil || model.isLoading)
+                }
+            }
+            .font(.caption)
+            .foregroundStyle(secondary)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .environment(\.layoutDirection, .rightToLeft)
         }
         .padding(20)
         .background(cardBackground, in: RoundedRectangle(cornerRadius: 18))
         .overlay(RoundedRectangle(cornerRadius: 18)
             .stroke(border, lineWidth: 1))
+        .confirmationDialog("تأكيد إجراء المهمة", isPresented: Binding(
+            get: { confirmation != nil },
+            set: { if !$0 { confirmation = nil } }
+        ), titleVisibility: .visible) {
+            if let intent = confirmation {
+                switch intent {
+                case .run:
+                    Button("تشغيل مرة واحدة") { model.requestRun(id: job.id); confirmation = nil }
+                case .enabled(_, let enabled):
+                    Button(enabled ? "تفعيل البحث الدوري" : "إيقاف البحث الدوري") {
+                        model.requestEnabledChange(id: job.id, enabled: enabled)
+                        confirmation = nil
+                    }
+                }
+            }
+            Button("إلغاء", role: .cancel) { confirmation = nil }
+        } message: {
+            if case .run? = confirmation {
+                Text("سيُرسل طلب تشغيل واحد لهذه المهمة، حتى لو كانت الجدولة متوقفة. قبول الطلب لا يعني نجاح البحث. يلزم تأكيد خلو المهمة من قنوات التنبيه قبل الإرسال.")
+            } else {
+                Text("هذا يغيّر البحث الدوري فقط، ولا يشغّل بحثًا يدويًا أو يلغي بحثًا جاريًا. لم نضف أو نغيّر أي قناة تنبيه.")
+            }
+        }
         .alert("واجهة التحكم", isPresented: $presentingDesignNotice) {
             Button("حسنًا", role: .cancel) {}
         } message: {

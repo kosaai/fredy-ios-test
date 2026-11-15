@@ -13,6 +13,10 @@ final class JobsModel {
     private(set) var jobs: [SearchJob] = []
     private(set) var state: JobsState = .idle
     private var generation = 0
+    private(set) var pendingAction: JobControlIntent?
+    private(set) var actionNotices: [String: String] = [:]
+    private var requiresRefresh: Set<String> = []
+    @ObservationIgnored private var actionTask: Task<Void, Never>?
     @ObservationIgnored private let service: any FredyJobsServing
 
     init(service: any FredyJobsServing) {
@@ -27,7 +31,7 @@ final class JobsModel {
     }
 
     func reload() async {
-        guard !isLoading, state != .sessionExpired else { return }
+        guard !isLoading, pendingAction == nil, state != .sessionExpired else { return }
         let previousState = state
         let requestGeneration = generation
         state = .loading
@@ -38,6 +42,7 @@ final class JobsModel {
             guard state != .sessionExpired else { return }
             var seen = Set<String>()
             jobs = result.filter { seen.insert($0.id).inserted }
+            requiresRefresh.removeAll()
             state = .loaded
         } catch is CancellationError {
             guard requestGeneration == generation else { return }
@@ -58,10 +63,146 @@ final class JobsModel {
     }
 
     func acceptSnapshot(_ snapshot: [SearchJob]) {
-        guard state != .sessionExpired else { return }
+        guard state != .sessionExpired, pendingAction == nil else { return }
         generation += 1
         var seen = Set<String>()
         jobs = snapshot.filter { seen.insert($0.id).inserted }
         state = .loaded
     }
+
+    func canRun(_ job: SearchJob) -> Bool {
+        canControl(job) && job.running == false && job.hasNoNotificationChannels == true
+    }
+
+    func canChangeEnabled(_ job: SearchJob) -> Bool {
+        canControl(job) && job.enabled != nil &&
+            (job.enabled == true || job.hasNoNotificationChannels == true)
+    }
+
+    private func canControl(_ job: SearchJob) -> Bool {
+        state == .loaded && pendingAction == nil && job.isOnlyShared == false &&
+            !requiresRefresh.contains(job.id)
+    }
+
+    func requestRun(id: String) {
+        guard let job = jobs.first(where: { $0.id == id }), canRun(job) else { return }
+        beginControl(.run(id))
+    }
+
+    func requestEnabledChange(id: String, enabled: Bool) {
+        guard let job = jobs.first(where: { $0.id == id }), canChangeEnabled(job) else { return }
+        guard !enabled || job.hasNoNotificationChannels == true else { return }
+        beginControl(.enabled(id, enabled))
+    }
+
+    private func beginControl(_ intent: JobControlIntent) {
+        guard pendingAction == nil, actionTask == nil else { return }
+        pendingAction = intent
+        generation += 1
+        actionNotices[intent.id] = "جارٍ التحقق من المهمة وإرسال الطلب…"
+        // Shared-model ownership survives navigation/scroll recycling; never replay.
+        actionTask = Task { await performControl(intent) }
+    }
+
+    private func performControl(_ intent: JobControlIntent) async {
+        let id = intent.id
+        var writeAttempted = false
+        var runAccepted = false
+        defer { pendingAction = nil; actionTask = nil }
+        do {
+            let before = try await service.fetchJobs()
+            try Task.checkCancellation()
+            guard state != .sessionExpired,
+                  let current = before.first(where: { $0.id == id }) else { throw ListingsFailure.invalidResponse }
+            guard current.isOnlyShared == false else { throw ListingsFailure.accessDenied }
+            switch intent {
+            case .run:
+                guard current.hasNoNotificationChannels == true else { throw JobControlFailure.notificationChannelsNotAllowed }
+                guard current.running != nil else { throw ListingsFailure.invalidResponse }
+                guard current.running == false else { throw ListingsFailure.conflict }
+                writeAttempted = true
+                try await service.runSearch(id: id)
+                runAccepted = true
+            case .enabled(_, let enabled):
+                guard !enabled || current.hasNoNotificationChannels == true else { throw JobControlFailure.notificationChannelsNotAllowed }
+                guard current.enabled != nil else { throw ListingsFailure.invalidResponse }
+                writeAttempted = true
+                try await service.setJobEnabled(id: id, enabled: enabled)
+            }
+            try Task.checkCancellation()
+            let snapshot = try await service.fetchJobs()
+            try Task.checkCancellation()
+            guard state != .sessionExpired,
+                  let confirmed = snapshot.first(where: { $0.id == id }) else { throw ListingsFailure.invalidResponse }
+            if case .enabled(_, let enabled) = intent {
+                guard confirmed.enabled == enabled else { throw ListingsFailure.invalidResponse }
+            }
+            // Only a real read-back can move the displayed switch or running state.
+            generation += 1
+            var seen = Set<String>()
+            jobs = snapshot.filter { seen.insert($0.id).inserted }
+            state = .loaded
+            requiresRefresh.remove(id)
+            switch intent {
+            case .run:
+                actionNotices[id] = "قُبل طلب التشغيل مرة واحدة. الحالة من آخر قراءة؛ القبول لا يعني اكتمال البحث أو نجاح المزوّد."
+            case .enabled(_, let enabled):
+                actionNotices[id] = enabled
+                    ? "أكد الخادم تفعيل البحث الدوري. لم نرسل تشغيلًا يدويًا أو نغيّر قنوات التنبيه."
+                    : "أكد الخادم إيقاف البحث الدوري. هذا لا يلغي بحثًا قيد التشغيل."
+            }
+        } catch JobControlFailure.notificationChannelsNotAllowed {
+            requiresRefresh.insert(id)
+            actionNotices[id] = "لم نرسل الطلب: قنوات التنبيه غير فارغة أو غير مؤكدة. لا يدعم هذا المسار كتم التنبيهات، والإيقاف فقط يبقى متاحًا بعد التحديث."
+        } catch is CancellationError {
+            if state != .sessionExpired {
+                if writeAttempted { requiresRefresh.insert(id) }
+                actionNotices[id] = "تعذر تأكيد الطلب. حدّث القائمة للتحقق؛ لم نكرر أي كتابة."
+            }
+        } catch let failure as ListingsFailure {
+            if failure == .sessionExpired {
+                generation += 1
+                jobs = []
+                actionNotices = [:]
+                requiresRefresh.removeAll()
+                state = .sessionExpired
+                return
+            }
+            requiresRefresh.insert(id)
+            actionNotices[id] = runAccepted
+                ? "قُبل طلب التشغيل، لكن تعذر تحديث المهمة. حدّث القائمة؛ لم نكرر التشغيل. " + controlError(failure)
+                : controlError(failure) + (writeAttempted ? " حدّث القائمة لتأكيد الحالة؛ لم نكرر الكتابة." : " لم نرسل كتابة إلى الخادم.")
+        } catch {
+            if writeAttempted { requiresRefresh.insert(id) }
+            actionNotices[id] = "تعذر تأكيد الطلب. حدّث القائمة؛ لم نعد إرسال أي كتابة."
+        }
+    }
+
+    private func controlError(_ failure: ListingsFailure) -> String {
+        switch failure {
+        case .sessionExpired: return "انتهت الجلسة. أعد تسجيل الدخول."
+        case .accessDenied: return "لا تسمح صلاحياتك بهذا الإجراء، أو رفض الخادم الوصول."
+        case .conflict: return "رفض التشغيل لتعارض أو لأن المهمة قيد التشغيل."
+        case .rateLimited: return "طلبات كثيرة؛ انتظر ثم حدّث الحالة."
+        case .invalidInput: return "تعذر قبول بيانات المهمة."
+        case .invalidResponse: return "لم يؤكد رد الخادم الحالة المطلوبة."
+        case .network: return "تعذر الاتصال بالخادم."
+        case .server, .imageUnavailable: return "تعذر إتمام الطلب لدى الخادم."
+        }
+    }
+}
+
+enum JobControlIntent: Equatable {
+    case run(String)
+    case enabled(String, Bool)
+
+    var id: String {
+        switch self {
+        case .run(let id), .enabled(let id, _): return id
+        }
+    }
+}
+
+private enum JobControlFailure: Error {
+    case notificationChannelsNotAllowed
 }
