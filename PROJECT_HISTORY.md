@@ -66,6 +66,10 @@ Studied official Fredy v31 card components, routes and app-letter workflow. Adde
 
 Studied official Fredy v31 Dashboard.jsx, todayHeadline.js, dashboardRouter.js and jobRouter.js. Replaced FindHaus Home's prior gradient hero with the requested date/new-today/schedule/search-now presentation using the **actual** authenticated dashboard metrics (`GET /api/dashboard`) rather than loaded-page counts. Unknown metrics are displayed as unavailable. Verified the route `POST /api/jobs/startAll`; added confirmation and one-time dispatch via the existing authenticated session, with truthful HTTP 202 queued status and no polling or fictitious completion. No Telegram notification warning/capability. Added source check. No iPhone build triggered; remaining unfinished settings/Map/Jobs actions should be wired and tested incrementally by Codex, never invented.
 
+## 2026-11-15 — Auth switch jump fixed
+
+Reviewed uploaded iPhone screen recording: login/signup card height change caused vertical re-centering because of flexible top/bottom spacers. Pinned form layout to a fixed top inset with explicit top alignment. Existing animations, branding and real login flow unchanged; regression source contract added. Xcode device test pending manual user GitHub Actions run.
+
 ## Two distinct workstreams
 
 - **This repository:** independently authored SwiftUI experiment, now twenty-two Swift files and one app target. Arabic/RTL login, rental list/images, selectable jobs and an explicitly authorized Add Search by URL save/one-manual-run workflow share the original temporary cookie session. No listing-detail/edit or general job edit/delete feature. Native execution remains unverified.

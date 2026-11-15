@@ -91,6 +91,10 @@ The action `POST /api/jobs/startAll` was checked against `lib/api/routes/jobRout
 
 Source-contract check added to `Tests/test_jobs_contract.py`. No new Swift files or Xcode project changes; 32 source files unchanged. The existing manual `macos-26` unsigned `FindHaus-Unsigned.ipa` workflow remains user-triggered and has NOT been dispatched. Real Apple compilation and successful Fredy server behavior cannot be claimed until the user's Actions/device test. Oracle Graphify was not refreshed from GitHub; new progress is documented here for the next authorized indexing.
 
+## 2026-11-15 — Login/registration card no longer jumps vertically
+
+User uploaded a 3.83-second iPhone screen recording showing that toggling between Sign in and Sign up made the entire logo/header/card slide up and down. Inspected frames and traced the cause to `LoginView.swift` vertically centering variable-height content with `Spacer(minLength: 18)`, `Spacer(minLength: 10)` and an unaligned `.frame(minHeight: geometry.size.height)`. Replaced the flexible vertical spacers with a constant 18pt top padding and explicit `.top` frame alignment so the colorful FindHaus header stays fixed while the card expands/collapses downward. The existing spring, matched-geometry tab indicator, transition effects, Arabic RTL and authenticated Fredy login remain untouched. Added `test_auth_mode_switch_keeps_card_top_anchored` in `Tests/test_login_contract.py`. No new IPA build was triggered; user must manually run `macos-26` FindHaus workflow and confirm on iPhone. Graphify Oracle index not refreshed.
+
 ## Current deliverable
 
 Repository: https://github.com/kosaai/fredy-ios-test — `main`; iOS 17+/Xcode 15+, one native app target, **25 Swift sources**, no third-party app dependencies.

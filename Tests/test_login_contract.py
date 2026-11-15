@@ -40,6 +40,17 @@ class LoginSourceContract(unittest.TestCase):
         ]:
             self.assertNotIn(forbidden, view)
 
+    def test_auth_mode_switch_keeps_card_top_anchored(self):
+        view = (ROOT / "Sources/Features/Authentication/LoginView.swift").read_text()
+        self.assertIn(".frame(minHeight: geometry.size.height, alignment: .top)", view)
+        self.assertIn(".frame(maxWidth: .infinity, alignment: .top)", view)
+        self.assertIn(".padding(.top, 18)", view)
+        self.assertNotIn("Spacer(minLength: 18)", view)
+        self.assertNotIn("Spacer(minLength: 10)", view)
+        self.assertIn('matchedGeometryEffect(id: "activeMode"', view)
+        self.assertIn("withAnimation(reduceMotion ? nil : .spring", view)
+        self.assertIn("await model.signIn()", view)
+
     def test_session_service_verifies_cookie_and_user_before_success(self):
         path = ROOT / "Sources/Shared/Authentication/FredyAuthService.swift"
         self.assertTrue(path.exists(), "Fredy session service has not been implemented")
