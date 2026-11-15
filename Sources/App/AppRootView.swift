@@ -8,10 +8,16 @@ struct AppRootView: View {
         Group {
             if case .authenticated = model.state {
                 AuthenticatedTabs(service: model.service, onSessionExpired: { model.returnToLogin() })
+            } else if case .restoring = model.state {
+                ZStack {
+                    Color(red: 0.88, green: 0.93, blue: 1.0).ignoresSafeArea()
+                    ProgressView("جارٍ التحقق من جلسة الدخول المحفوظة…")
+                }
             } else {
                 NavigationStack { LoginView(model: model) }
             }
         }
+        .task { await model.restoreSession() }
         // Keep the existing Arabic/RTL flow; no shell redesign.
         .environment(\.locale, Locale(identifier: "ar"))
         .environment(\.layoutDirection, .rightToLeft)
