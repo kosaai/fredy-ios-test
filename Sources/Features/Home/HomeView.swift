@@ -62,34 +62,35 @@ struct HomeView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 22) {
                 // Fredy dashboard metrics, never fabricated from a single loaded page.
-                VStack(alignment: .leading, spacing: 18) {
+                // Keep this overview compact; detailed listings and jobs follow below.
+                VStack(alignment: .leading, spacing: 10) {
                     Text(Date.now, format: .dateTime.weekday(.wide).month(.wide).day()
                         .locale(Locale(identifier: "ar")))
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
 
                     if let count = dashboard?.newToday {
                         Text(count == 0 ? "لا توجد إعلانات جديدة اليوم" :
                              "\(count) إعلان جديد اليوم")
-                            .font(.system(size: 32, weight: .bold, design: .rounded))
+                            .font(.system(.title2, design: .rounded, weight: .bold))
                             .foregroundStyle(.primary)
                             .fixedSize(horizontal: false, vertical: true)
                             .accessibilityIdentifier("home.today_count")
                     } else {
                         Text(dashboardLoading ? "جار تحميل إعلانات اليوم..." :
                              "عدد الإعلانات الجديدة اليوم غير متاح")
-                            .font(.title3.bold())
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }
 
-                    HStack(alignment: .top, spacing: 9) {
+                    HStack(alignment: .top, spacing: 7) {
                         Circle()
                             .fill(enabledJobsCount > 0 && jobsModel.state == .loaded ?
                                   Color.green : Color.secondary)
-                            .frame(width: 9, height: 9)
-                            .padding(.top, 7)
+                            .frame(width: 7, height: 7)
+                            .padding(.top, 4)
 
-                        VStack(alignment: .leading, spacing: 5) {
+                        VStack(alignment: .leading, spacing: 3) {
                             if jobsModel.state == .loaded && enabledJobsCount == 0 {
                                 Text("لا توجد مهام بحث دوري مفعّلة")
                             } else if enabledJobsCount > 0,
@@ -113,46 +114,56 @@ struct HomeView: View {
                                 }
                             }
                         }
-                        .font(.subheadline)
+                        .font(.caption)
                         .foregroundStyle(.secondary)
                     }
 
-                    Button {
-                        confirmingSearch = true
-                    } label: {
-                        HStack(spacing: 10) {
-                            if startingSearch {
-                                ProgressView().tint(.white)
-                            } else {
-                                Image(systemName: "play.fill")
+                    HStack(alignment: .center, spacing: 10) {
+                        Button {
+                            confirmingSearch = true
+                        } label: {
+                            HStack(spacing: 8) {
+                                if startingSearch {
+                                    ProgressView().tint(.white)
+                                } else {
+                                    Image(systemName: "play.fill")
+                                }
+                                Text(startingSearch ? "جار إرسال طلب البحث" : "ابحث الآن")
+                                    .font(.subheadline.weight(.semibold))
                             }
-                            Text(startingSearch ? "جار إرسال طلب البحث" : "ابحث الآن")
-                                .fontWeight(.semibold)
+                            .padding(.vertical, 4)
+                            .padding(.horizontal, 8)
                         }
-                        .padding(.vertical, 7)
-                        .padding(.horizontal, 12)
+                        .buttonStyle(.borderedProminent)
+                        .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
+                        .frame(minHeight: 44)
+                        .disabled(startingSearch || jobsModel.state != .loaded ||
+                                  jobsModel.jobs.isEmpty)
+                        .accessibilityIdentifier("home.search_now")
+
+                        if dashboardError != nil {
+                            Button("إعادة تحميل الإحصاءات") {
+                                Task { await reloadDashboard() }
+                            }
+                            .font(.caption.weight(.semibold))
+                            .frame(minHeight: 44)
+                        }
+                        Spacer(minLength: 0)
                     }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
-                    .disabled(startingSearch || jobsModel.state != .loaded ||
-                              jobsModel.jobs.isEmpty)
-                    .accessibilityIdentifier("home.search_now")
 
                     if let dashboardError {
                         Label(dashboardError, systemImage: "exclamationmark.triangle")
-                            .font(.footnote)
+                            .font(.caption)
                             .foregroundStyle(.secondary)
-                        Button("إعادة تحميل الإحصاءات") {
-                            Task { await reloadDashboard() }
-                        }
-                        .font(.footnote.weight(.medium))
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
-                .padding(23)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(
                     Color(uiColor: .secondarySystemGroupedBackground),
-                    in: RoundedRectangle(cornerRadius: 25)
+                    in: RoundedRectangle(cornerRadius: 22)
                 )
                 .accessibilityIdentifier("home.search_summary")
 
