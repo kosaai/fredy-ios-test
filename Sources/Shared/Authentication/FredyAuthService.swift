@@ -1,4 +1,5 @@
 import Foundation
+import Security
 
 struct FredyUser: Decodable, Equatable, Sendable {
     let userId: String
@@ -31,9 +32,10 @@ enum LoginFailure: Error, Equatable {
 @MainActor
 protocol FredyAuthServing {
     func signIn(username: String, password: String) async throws -> FredyUser
+    func restoreSession() async throws -> FredyUser?
 }
 
-/// One isolated, memory-only cookie jar for this test client's lifetime.
+/// Ephemeral network session; only its verified cookie pair is persisted on this device.
 /// Neither requests, response bodies, credentials nor cookie values are logged.
 @MainActor
 final class FredyAuthService: FredyClientServing {
@@ -70,6 +72,7 @@ final class FredyAuthService: FredyClientServing {
         let generation = sessionGeneration
         sessionVerified = false
         clearCookies()
+        SavedSession.clear()
         var verified = false
         defer {
             if !verified && generation == sessionGeneration {
@@ -101,6 +104,9 @@ final class FredyAuthService: FredyClientServing {
             }
             try Task.checkCancellation()
             guard generation == sessionGeneration else { throw CancellationError() }
+            guard let origin = Self.origin, SavedSession.save(cookieStorage, origin: origin) else {
+                throw LoginFailure.sessionNotVerified
+            }
             sessionVerified = true
             synchronization.reset()
             verified = true
@@ -113,6 +119,51 @@ final class FredyAuthService: FredyClientServing {
             throw CancellationError()
         } catch {
             // Never surface raw response bodies, URL errors or request details.
+            throw LoginFailure.network
+        }
+    }
+
+    /// Verify a restored on-device session with Fredy before entering any authenticated UI.
+    func restoreSession() async throws -> FredyUser? {
+        sessionGeneration += 1
+        let generation = sessionGeneration
+        sessionVerified = false
+        clearCookies()
+        guard let origin = Self.origin else { throw LoginFailure.serverUnavailable }
+        let restored = try SavedSession.load(into: cookieStorage, origin: origin)
+        guard restored else { return nil }
+        var verified = false
+        defer { if !verified && generation == sessionGeneration { clearCookies() } }
+        do {
+            try Task.checkCancellation()
+            let (data, response) = try await perform(path: "api/login/user", method: "GET")
+            try Task.checkCancellation()
+            guard generation == sessionGeneration else { throw CancellationError() }
+            if response.statusCode == 401 || response.statusCode == 403 {
+                SavedSession.clear()
+                return nil
+            }
+            if response.statusCode == 429 { throw LoginFailure.rateLimited }
+            guard response.statusCode == 200 else { throw LoginFailure.serverUnavailable }
+            guard response.mimeType == "application/json",
+                  let user = try? JSONDecoder().decode(FredyUser.self, from: data),
+                  !user.userId.isEmpty, !user.username.isEmpty else {
+                // Fredy may return HTTP 200 with an empty object for an unverified session.
+                SavedSession.clear()
+                return nil
+            }
+            sessionVerified = true
+            synchronization.reset()
+            verified = true
+            return user
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let failure as LoginFailure {
+            throw failure
+        } catch let error as URLError where error.code == .cancelled {
+            throw CancellationError()
+        } catch {
+            // A network outage must not delete a potentially valid stored session.
             throw LoginFailure.network
         }
     }
@@ -260,6 +311,7 @@ final class FredyAuthService: FredyClientServing {
                 sessionVerified = false
                 sessionGeneration += 1
                 clearCookies()
+                SavedSession.clear()
                 synchronization.expire()
                 throw ListingsFailure.sessionExpired
             }
@@ -375,6 +427,7 @@ final class FredyAuthService: FredyClientServing {
                 sessionVerified = false
                 sessionGeneration += 1
                 clearCookies()
+                SavedSession.clear()
                 synchronization.expire()
                 throw ListingsFailure.sessionExpired
             }
@@ -460,5 +513,119 @@ private final class RejectRedirects: NSObject, URLSessionTaskDelegate {
         completionHandler: @escaping (URLRequest?) -> Void
     ) {
         completionHandler(nil)
+    }
+}
+
+private enum SavedSession {
+    // Only Fredy's Secure session cookie and optional signature; never the password.
+    private static let service = "online.salatiq.findhaus"
+    private static let account = "fredy-session-v1"
+    private static let names: Set<String> = ["fredy-admin-session", "fredy-admin-session.sig"]
+
+    private struct CookieRecord: Codable {
+        let name: String
+        let value: String
+        let domain: String
+        let path: String
+        let httpOnly: Bool
+        let expires: Date?
+
+        init?(_ cookie: HTTPCookie, host: String) {
+            guard SavedSession.names.contains(cookie.name), cookie.isSecure,
+                  !cookie.value.isEmpty, cookie.value.utf8.count <= 8192,
+                  cookie.domain.lowercased().trimmingCharacters(in: CharacterSet(charactersIn: ".")) == host,
+                  cookie.path.hasPrefix("/") else { return nil }
+            if let date = cookie.expiresDate, date <= Date() { return nil }
+            name = cookie.name
+            value = cookie.value
+            domain = cookie.domain
+            path = cookie.path
+            httpOnly = cookie.isHTTPOnly
+            expires = cookie.expiresDate
+        }
+
+        func cookie() -> HTTPCookie? {
+            var props: [HTTPCookiePropertyKey: Any] = [
+                .name: name, .value: value, .domain: domain,
+                .path: path, .secure: "TRUE"
+            ]
+            if httpOnly { props[HTTPCookiePropertyKey("HttpOnly")] = "TRUE" }
+            if let expires { props[.expires] = expires }
+            return HTTPCookie(properties: props)
+        }
+    }
+
+    private static var query: [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecAttrSynchronizable as String: false
+        ]
+    }
+
+    static func clear() {
+        _ = SecItemDelete(query as CFDictionary)
+    }
+
+    private static func read() throws -> Data? {
+        var q = query
+        q[kSecReturnData as String] = true
+        q[kSecMatchLimit as String] = kSecMatchLimitOne
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(q as CFDictionary, &result)
+        if status == errSecItemNotFound { return nil }
+        guard status == errSecSuccess, let data = result as? Data else {
+            throw LoginFailure.network
+        }
+        return data
+    }
+
+    private static func write(_ data: Data) -> Bool {
+        guard data.count <= 16384 else { return false }
+        let attrs = [kSecValueData as String: data]
+        let status = SecItemUpdate(query as CFDictionary, attrs as CFDictionary)
+        if status == errSecSuccess { return true }
+        guard status == errSecItemNotFound else { return false }
+        var add = query
+        add[kSecValueData as String] = data
+        add[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        return SecItemAdd(add as CFDictionary, nil) == errSecSuccess
+    }
+
+    static func save(_ jar: HTTPCookieStorage?, origin: URL) -> Bool {
+        guard origin.scheme == "https", let host = origin.host?.lowercased(),
+              let candidates = jar?.cookies(for: origin)?.filter({ names.contains($0.name) })
+        else { return false }
+        let records = candidates.compactMap { CookieRecord($0, host: host) }
+        guard !records.isEmpty, records.count <= 2, records.count == candidates.count,
+              Set(records.map(\.name)).count == records.count,
+              records.contains(where: { $0.name == "fredy-admin-session" }),
+              let data = try? JSONEncoder().encode(records) else { return false }
+        return write(data)
+    }
+
+    static func load(into jar: HTTPCookieStorage?, origin: URL) throws -> Bool {
+        guard let data = try read() else { return false }
+        guard origin.scheme == "https", let host = origin.host?.lowercased(), data.count <= 16384,
+              let records = try? JSONDecoder().decode([CookieRecord].self, from: data),
+              !records.isEmpty, records.count <= 2,
+              Set(records.map(\.name)).count == records.count,
+              records.contains(where: { $0.name == "fredy-admin-session" }),
+              records.allSatisfy({ names.contains($0.name) &&
+                  $0.domain.lowercased().trimmingCharacters(in: CharacterSet(charactersIn: ".")) == host &&
+                  $0.path.hasPrefix("/") && !$0.value.isEmpty && $0.value.utf8.count <= 8192 &&
+                  ($0.expires.map { $0 > Date() } ?? true) }),
+              let jar else {
+            clear()
+            return false
+        }
+        let cookies = records.compactMap { $0.cookie() }
+        guard cookies.count == records.count, cookies.allSatisfy({ $0.isSecure }) else {
+            clear()
+            return false
+        }
+        cookies.forEach { jar.setCookie($0) }
+        return true
     }
 }
