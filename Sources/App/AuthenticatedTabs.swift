@@ -38,66 +38,92 @@ struct AuthenticatedTabs: View {
 
     var body: some View {
         if expired {
-            NavigationStack {
-                List {
-                    Label("listings.session_expired", systemImage: "lock")
-                    Button("listings.sign_in", action: onSessionExpired)
-                        .frame(minHeight: 44)
-                        .buttonStyle(.borderedProminent)
-                }
-                .navigationTitle("login.title")
-            }
+            expiredContent
         } else {
-            // Native TabView adopts the system's Liquid Glass appearance on supported iOS versions.
-            TabView(selection: $selection) {
-                NavigationStack {
-                    HomeView(service: service, jobsModel: jobsModel, data: data,
-                             onShowListings: { selection = .listings },
-                             onShowJobs: { selection = .jobs },
-                             onSessionExpired: expire)
-                        .toolbar { topActions }
-                }
-                .tabItem { Label("الرئيسية", systemImage: "house.fill") }
-                .tag(SectionTab.home)
+            authenticatedContent
+        }
+    }
 
-                NavigationStack {
-                    ListingsView(service: service, jobsModel: jobsModel, data: data,
-                                 selectedJobID: $selectedJobID, refreshToken: refreshToken,
-                                 onSessionExpired: expire)
-                        .toolbar { topActions }
-                }
-                .tabItem { Label("tabs.listings", systemImage: "building.2.fill") }
-                .tag(SectionTab.listings)
-
-                NavigationStack {
-                    JobsView(service: service, model: jobsModel,
-                             onRefresh: { await data.refresh(jobs: jobsModel, force: true) }, onSelect: selectJob,
-                             onSessionExpired: expire)
-                        .safeAreaInset(edge: .bottom) {
-                            if workflow.phase != .idle {
-                                SearchProgressView(model: workflow)
-                                    .padding()
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(.regularMaterial)
-                            }
-                        }
-                        .toolbar {
-                            topActions
-                            addSearchButton
-                        }
-                }
-                .tabItem { Label("tabs.jobs", systemImage: "magnifyingglass") }
-                .tag(SectionTab.jobs)
-
-                NavigationStack {
-                    RentalMapView(data: data, jobsModel: jobsModel, actions: service, onSessionExpired: expire)
-                        .toolbar { topActions }
-                }
-                .tabItem { Label("الخريطة", systemImage: "map.fill") }
-                .tag(SectionTab.map)
+    private var expiredContent: some View {
+        NavigationStack {
+            List {
+                Label("listings.session_expired", systemImage: "lock")
+                Button("listings.sign_in", action: onSessionExpired)
+                    .frame(minHeight: 44)
+                    .buttonStyle(.borderedProminent)
             }
-            .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
-            .preferredColorScheme(accountColorScheme)
+            .navigationTitle("login.title")
+        }
+    }
+
+    private var homeTab: some View {
+        NavigationStack {
+            HomeView(service: service, jobsModel: jobsModel, data: data,
+                     onShowListings: { selection = .listings },
+                     onShowJobs: { selection = .jobs },
+                     onSessionExpired: expire)
+                .toolbar { topActions }
+        }
+        .tabItem { Label("الرئيسية", systemImage: "house.fill") }
+        .tag(SectionTab.home)
+    }
+
+    private var listingsTab: some View {
+        NavigationStack {
+            ListingsView(service: service, jobsModel: jobsModel, data: data,
+                         selectedJobID: $selectedJobID, refreshToken: refreshToken,
+                         onSessionExpired: expire)
+                .toolbar { topActions }
+        }
+        .tabItem { Label("tabs.listings", systemImage: "building.2.fill") }
+        .tag(SectionTab.listings)
+    }
+
+    private var jobsTab: some View {
+        NavigationStack {
+            JobsView(service: service, model: jobsModel,
+                     onRefresh: { await data.refresh(jobs: jobsModel, force: true) }, onSelect: selectJob,
+                     onSessionExpired: expire)
+                .safeAreaInset(edge: .bottom) {
+                    if workflow.phase != .idle {
+                        SearchProgressView(model: workflow)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(.regularMaterial)
+                    }
+                }
+                .toolbar {
+                    topActions
+                    addSearchButton
+                }
+        }
+        .tabItem { Label("tabs.jobs", systemImage: "magnifyingglass") }
+        .tag(SectionTab.jobs)
+    }
+
+    private var mapTab: some View {
+        NavigationStack {
+            RentalMapView(data: data, jobsModel: jobsModel, actions: service, onSessionExpired: expire)
+                .toolbar { topActions }
+        }
+        .tabItem { Label("الخريطة", systemImage: "map.fill") }
+        .tag(SectionTab.map)
+    }
+
+    private var navigationTabs: some View {
+        // Native TabView adopts system Liquid Glass on supported iOS versions.
+        TabView(selection: $selection) {
+            homeTab
+            listingsTab
+            jobsTab
+            mapTab
+        }
+        .tint(Color(red: 0.31, green: 0.38, blue: 0.99))
+        .preferredColorScheme(accountColorScheme)
+    }
+
+    private var sessionObservedTabs: some View {
+        navigationTabs
             .task {
                 data.observationPaused = scenePhase != .active || workflow.isBusy
                 await jobsModel.loadIfNeeded()
@@ -119,6 +145,10 @@ struct AuthenticatedTabs: View {
             .onChange(of: mcpModel.sessionExpired) { _, value in
                 if value { expire() }
             }
+    }
+
+    private var dataObservedTabs: some View {
+        sessionObservedTabs
             .onChange(of: settingsModel.saved["theme"]) { _, value in
                 if let theme = value.stringValue, ["light", "dark"].contains(theme) {
                     darkAppearance = theme == "dark"
@@ -135,6 +165,10 @@ struct AuthenticatedTabs: View {
             .onChange(of: jobsModel.runRevision) { _, _ in
                 if !workflow.isBusy, scenePhase == .active { data.observeSearch(jobs: jobsModel) }
             }
+    }
+
+    private var activityObservedTabs: some View {
+        dataObservedTabs
             .onChange(of: workflow.isBusy) { _, busy in
                 data.observationPaused = busy || scenePhase != .active
                 if busy { data.stopSearchObservation() }
@@ -154,6 +188,10 @@ struct AuthenticatedTabs: View {
                 if old != nil, fresh == nil { data.scheduleRefresh(jobs: jobsModel, includeJobs: false) }
             }
             .onChange(of: workflow.resultsRevision) { _, _ in data.scheduleRefresh(jobs: jobsModel) }
+    }
+
+    private var authenticatedContent: some View {
+        activityObservedTabs
             .sheet(isPresented: $showingBudget) {
                 RentalBudgetView()
             }
@@ -164,7 +202,6 @@ struct AuthenticatedTabs: View {
                 AddSearchView(model: workflow, onSave: saveSearch, onSelect: selectJob)
             }
             .onDisappear { saveTask?.cancel() }
-        }
     }
 
     private var accountColorScheme: ColorScheme? {
