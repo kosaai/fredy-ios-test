@@ -255,13 +255,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your password is not saved. The session stays in memory only; reopening the app requires signing in again."
+            "value": "Your password is not saved. Your session is securely stored on this device and verified when the app opens."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "لا تُحفظ كلمة المرور. تبقى الجلسة في الذاكرة فقط؛ يلزم تسجيل الدخول مجددًا بعد إغلاق التطبيق."
+            "value": "لا تُحفظ كلمة المرور. تُحفظ جلسة الدخول بأمان على هذا الجهاز، ويُتحقق منها عند فتح التطبيق."
           }
         }
       }
