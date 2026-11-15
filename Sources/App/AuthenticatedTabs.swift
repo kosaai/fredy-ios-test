@@ -20,6 +20,7 @@ struct AuthenticatedTabs: View {
     @State private var workflow: AddSearchModel
     @State private var settingsModel: AccountSettingsModel
     @State private var mcpModel: MCPSettingsModel
+    @State private var connectionsModel: OAuthConnectionsModel
 
     private enum SectionTab: Hashable { case home, listings, jobs, map }
 
@@ -32,6 +33,7 @@ struct AuthenticatedTabs: View {
         _workflow = State(initialValue: AddSearchModel(service: service, jobsModel: jobs))
         _settingsModel = State(initialValue: AccountSettingsModel(service: service))
         _mcpModel = State(initialValue: MCPSettingsModel(service: service))
+        _connectionsModel = State(initialValue: OAuthConnectionsModel(service: service))
     }
 
     var body: some View {
@@ -111,6 +113,9 @@ struct AuthenticatedTabs: View {
             .onChange(of: settingsModel.sessionExpired) { _, value in
                 if value { expire() }
             }
+            .onChange(of: connectionsModel.sessionExpired) { _, value in
+                if value { expire() }
+            }
             .onChange(of: mcpModel.sessionExpired) { _, value in
                 if value { expire() }
             }
@@ -153,7 +158,7 @@ struct AuthenticatedTabs: View {
                 RentalBudgetView()
             }
             .sheet(isPresented: $showingSettings) {
-                RentalSettingsView(darkAppearance: $darkAppearance, model: settingsModel, mcpModel: mcpModel)
+                RentalSettingsView(darkAppearance: $darkAppearance, model: settingsModel, mcpModel: mcpModel, connectionsModel: connectionsModel)
             }
             .sheet(isPresented: $addingSearch) {
                 AddSearchView(model: workflow, onSave: saveSearch, onSelect: selectJob)
@@ -222,6 +227,7 @@ struct AuthenticatedTabs: View {
         jobsModel.expireSession()
         settingsModel.expireSession()
         mcpModel.expireSession()
+        connectionsModel.expireSession()
         workflow.expireSession()
         expired = true
         addingSearch = false

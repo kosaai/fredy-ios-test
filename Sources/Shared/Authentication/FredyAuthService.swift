@@ -177,6 +177,21 @@ final class FredyAuthService: FredyClientServing {
         return providers
     }
 
+    func fetchOAuthConnections() async throws -> [OAuthConnection] {
+        let (data, response) = try await authenticatedRead(path: "api/user/mcp-oauth-grants")
+        guard response.mimeType == "application/json",
+              let grants = try? JSONDecoder().decode([OAuthConnection].self, from: data),
+              Set(grants.map(\.clientId)).count == grants.count else { throw ListingsFailure.invalidResponse }
+        return grants
+    }
+
+    func revokeOAuthConnection(clientID: String) async throws {
+        guard OAuthConnection.isValidClientID(clientID) else { throw ListingsFailure.invalidInput }
+        let response = try await authenticatedWrite(path: "api/user/mcp-oauth-grants/\(clientID)", body: nil, method: "DELETE")
+        guard response.statusCode == 200, response.mimeType == "application/json" else { throw ListingsFailure.invalidResponse }
+        // Acknowledgement only. A separate GET must verify absence; never replay this DELETE.
+    }
+
     func fetchMCPSettings() async throws -> MCPSettingsSnapshot {
         let (data, response) = try await authenticatedRead(path: "api/user/mcp-server")
         guard response.mimeType == "application/json",

@@ -63,7 +63,7 @@ class JobControlsContract(unittest.TestCase):
         from openstep_parser import OpenStepDecoder
         parser=Parser(Language(tree_sitter_swift.language()))
         files=sorted((ROOT/'Sources').rglob('*.swift'))
-        self.assertEqual(len(files),39)
+        self.assertEqual(len(files),40)
         for p in files:
             self.assertFalse(parser.parse(p.read_bytes()).root_node.has_error,str(p.relative_to(ROOT)))
         with (ROOT/'FredyTest.xcodeproj/project.pbxproj').open() as f:

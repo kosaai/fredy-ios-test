@@ -71,7 +71,7 @@ class NativeProjectChecks(unittest.TestCase):
         self.assertEqual(root["packageReferences"], [])
 
         files = list((ROOT / "Sources").rglob("*.swift"))
-        self.assertEqual(len(files), 39)  # Existing 38 + account MCP settings model
+        self.assertEqual(len(files), 40)  # Existing 39 + OAuth connections model
         parser = Parser(Language(tree_sitter_swift.language()))
         source = ""
         for path in files:

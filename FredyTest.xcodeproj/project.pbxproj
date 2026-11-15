@@ -5,6 +5,17 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+		"582043D864C29FF6A3566B2A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"name" = "OAuthConnectionsModel.swift";
+			"path" = "Sources/Features/Settings/OAuthConnectionsModel.swift";
+			"sourceTree" = "SOURCE_ROOT";
+		};
+		"DA5BB85C945EB920D3485DD4" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "582043D864C29FF6A3566B2A";
+		};
 		"FAD22CB94888A8EC0BFCB9B0" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -522,6 +533,7 @@
 		"A3100D000000000000000900" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"582043D864C29FF6A3566B2A",
 				"FAD22CB94888A8EC0BFCB9B0",
 				"463DEFA90A69B395A46866D0",
 				"F78EEA89AF6EF2A3CDDB045A",
@@ -642,6 +654,7 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"DA5BB85C945EB920D3485DD4",
 				"DEECA46881F2F60B0F01859A",
 				"3948644D1643E09155E7540A",
 				"0FCB751DFE78482916EE6DC0",

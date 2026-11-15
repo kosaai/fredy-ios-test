@@ -7,6 +7,7 @@ struct RentalSettingsView: View {
     @Binding var darkAppearance: Bool
     let model: AccountSettingsModel
     let mcpModel: MCPSettingsModel
+    let connectionsModel: OAuthConnectionsModel
     @Environment(\.dismiss) private var dismiss
     @State private var navigationPath: [FindHausSettingsSection] = []
 
@@ -106,7 +107,7 @@ struct RentalSettingsView: View {
                     case .notifications:
                         SettingsNotificationsPage()
                     case .connections:
-                        SettingsConnectionsPage()
+                        SettingsConnectionsPage(model: connectionsModel)
                     case .mcp:
                         SettingsMCPPage(model: mcpModel, onOpenConnections: {
                             navigationPath.append(.connections)
@@ -114,9 +115,9 @@ struct RentalSettingsView: View {
                     }
                 }
 
-                .disabled(section != .mcp && !model.editable)
+                .disabled(section != .connections && section != .mcp && !model.editable)
 
-                if section != .mcp { SettingsStatusBanner(model: model) }
+                if section != .mcp && section != .connections { SettingsStatusBanner(model: model) }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 18)
