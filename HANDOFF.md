@@ -1,5 +1,10 @@
 # Handoff
 
+## 2026-11-15 — Compact Home search summary card
+
+At the user's request (iPhone screenshot), reduced only the Home summary card's typography, spacing, padding and corner radius. Kept real dashboard counts/schedule/last-next times, error text, confirmed "Search now" flow and notification-channel safety unchanged. The conditional "Reload statistics" action now shares the primary action row; both controls retain 44-point minimum layout height. Other Home sections, Arabic RTL, authentication, MCP and OAuth are untouched. This is a source/UI layout change; no claim of on-device visual verification or actual runtime behavior. The manual `macos-26` unsigned iPhone workflow remains available but was not dispatched. The three inherited test defects remain deliberately deferred until functionality is complete, per the user's decision. GitHub-only access cannot execute Xcode/Swift or refresh the Oracle-hosted Graphify index; refresh it incrementally at the next authorized Oracle maintenance task. Source commit: `62093ff24967e08731e5e35c7c8c1e9896721fd7`.
+
+
 ## Current fix — Dashboard interval decoding and error separation
 
 From `f4b08d76b03c8ca736b355aea7e30aefa4b13689`, main. Follow-up to the read-only investigation: installed Fredy 31.0.0 preserves the stored numeric-string interval in GET `/api/dashboard`, while the old synthesized Swift Double? decoder rejected it. No authenticated HTTP 200 was captured in that investigation; do not turn the code/database type evidence into a claimed live account round trip.
