@@ -59,17 +59,20 @@ struct LoginView: View {
                             VStack(spacing: 22) {
                                 selector
 
+                                // Replace the old form immediately; fade the new one in.
+                                // Sliding BOTH forms through the card rendered text over the banner.
+                                // Keep the original spring, selector highlight and header animation.
                                 if mode == .signIn {
                                     signInFields
                                         .transition(.asymmetric(
-                                            insertion: .move(edge: .bottom).combined(with: .opacity),
-                                            removal: .move(edge: .top).combined(with: .opacity)
+                                            insertion: .opacity,
+                                            removal: .identity
                                         ))
                                 } else {
                                     signUpFields
                                         .transition(.asymmetric(
-                                            insertion: .move(edge: .bottom).combined(with: .opacity),
-                                            removal: .move(edge: .top).combined(with: .opacity)
+                                            insertion: .opacity,
+                                            removal: .identity
                                         ))
                                 }
 
@@ -88,6 +91,13 @@ struct LoginView: View {
                                     topTrailingRadius: 37
                                 )
                             )
+                            // Mask transient drawing to the card instead of the logo/banner.
+                            .clipShape(UnevenRoundedRectangle(
+                                topLeadingRadius: 37,
+                                bottomLeadingRadius: 37,
+                                bottomTrailingRadius: 37,
+                                topTrailingRadius: 37
+                            ))
                             .padding(.top, -48)
                         }
                         .frame(maxWidth: 445)
