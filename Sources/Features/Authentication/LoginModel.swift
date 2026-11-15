@@ -3,6 +3,7 @@ import Observation
 
 enum LoginState: Equatable {
     case idle
+    case restoring
     case loading
     case failed(LoginFailure)
     case authenticated(FredyUser)
@@ -13,7 +14,7 @@ enum LoginState: Equatable {
 final class LoginModel {
     var username = ""
     var password = ""
-    private(set) var state: LoginState = .idle
+    private(set) var state: LoginState = .restoring
     @ObservationIgnored let service: any FredyClientServing
 
     init() {
@@ -28,6 +29,24 @@ final class LoginModel {
 
     var canSubmit: Bool {
         !isLoading && !username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !password.isEmpty
+    }
+
+    func restoreSession() async {
+        guard state == .restoring else { return }
+        do {
+            if let user = try await service.restoreSession() {
+                try Task.checkCancellation()
+                state = .authenticated(user)
+            } else {
+                state = .idle
+            }
+        } catch is CancellationError {
+            state = .idle
+        } catch let failure as LoginFailure {
+            state = .failed(failure)
+        } catch {
+            state = .failed(.network)
+        }
     }
 
     func returnToLogin() {
