@@ -51,6 +51,18 @@ class LoginSourceContract(unittest.TestCase):
         self.assertIn("withAnimation(reduceMotion ? nil : .spring", view)
         self.assertIn("await model.signIn()", view)
 
+    def test_auth_forms_do_not_slide_over_logo_or_overlap_when_switching(self):
+        view = (ROOT / "Sources/Features/Authentication/LoginView.swift").read_text()
+        form_region = view.split("if mode == .signIn {", 1)[1].split("footer", 1)[0]
+        self.assertEqual(form_region.count("insertion: .opacity"), 2)
+        self.assertEqual(form_region.count("removal: .identity"), 2)
+        self.assertNotIn(".move(edge:", form_region)
+        self.assertIn(".clipShape(UnevenRoundedRectangle(", view)
+        self.assertIn(".padding(.top, -48)", view)
+        self.assertIn('matchedGeometryEffect(id: "activeMode"', view)
+        self.assertIn("withAnimation(reduceMotion ? nil : .spring(response: 0.52, dampingFraction: 0.83))", view)
+        self.assertIn(".frame(minHeight: geometry.size.height, alignment: .top)", view)
+
     def test_session_service_verifies_cookie_and_user_before_success(self):
         path = ROOT / "Sources/Shared/Authentication/FredyAuthService.swift"
         self.assertTrue(path.exists(), "Fredy session service has not been implemented")
