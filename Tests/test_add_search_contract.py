@@ -42,6 +42,44 @@ class AddSearchContract(unittest.TestCase):
         for forbidden in ['.task { await model.saveAndSearch()', 'URLSession(', 'https://']:
             self.assertNotIn(forbidden, view)
 
+    def test_german_rental_provider_picker_uses_live_metadata_and_original_urls(self):
+        source = (ROOT / 'Sources/Shared/Jobs/SearchCreation.swift').read_text()
+        model = (ROOT / 'Sources/Features/Jobs/AddSearchModel.swift').read_text()
+        view = (ROOT / 'Sources/Features/Jobs/AddSearchView.swift').read_text()
+        for provider in [
+            'immoscout', 'immowelt', 'kleinanzeigen', 'wgGesucht', 'ohneMakler',
+            'deutscheWohnen', 'betterhomes', 'einsAImmobilien', 'engelVoelkers',
+            'imaxx', 'immobilienDe', 'immoswp', 'regionalimmobilien24',
+            'schwarzesbrett', 'sparkasse'
+        ]:
+            self.assertIn(provider, source)
+        for token in ['provider.accepts(host: host)', 'selectedProvider.rawValue',
+                      'selectedProvider: GermanRentalProvider = .immoscout',
+                      'let dealType = "rent"', 'let enabled = false',
+                      'let notificationAdapter: [String] = []',
+                      'components.fragment == nil', 'return value',
+                      'case .immowelt:', 'parameter("distributionTypes")',
+                      'case .kleinanzeigen:', 'case .wgGesucht:']:
+            self.assertIn(token, source)
+        for token in ['func loadProviders() async', 'service.fetchSearchProviders()',
+                      'GermanRentalProvider.allCases.filter',
+                      'guard chosen.registered(in: providers)',
+                      'func chooseProvider(', 'urlText = "" // Never silently send',
+                      'hasAttemptedCreate = true', 'service.createSearch(',
+                      'service.runSearch(', 'verifyCreatedJob', 'searchKey',
+                      '$0.id == search.provider[0].id']:
+            self.assertIn(token, model)
+        for token in ['providerSection', 'detailsSection', 'submitSection',
+                      'ForEach(model.availableProviders)', 'model.chooseProvider(source)',
+                      'UIPasteboard.general.string', '.keyboardType(.URL)',
+                      'model.loadProviders()', '.disabled(!model.canSubmit)',
+                      '.interactiveDismissDisabled(model.isBusy)', 'jobs.save_search',
+                      'model.reconcile()', 'providerOutcomeUnknown']:
+            self.assertIn(token, view)
+        self.assertNotIn('inberlinwohnen', source.lower())
+        self.assertEqual(model.count('service.createSearch('), 1)
+        self.assertEqual(model.count('service.runSearch('), 1)
+
     def test_job_selection_is_preserved_without_cluttered_filter_chips(self):
         source = (ROOT / 'Sources/Shared/Authentication/FredyAuthService.swift').read_text()
         self.assertIn('URLQueryItem(name: "jobNameFilter"', source)
@@ -76,7 +114,7 @@ class AddSearchContract(unittest.TestCase):
                       'components.password == nil', 'components.port == 443',
                       'hasSuffix("-mieten")', 'let enabled = false',
                       'let notificationAdapter: [String] = []', 'let shareWithUsers: [String] = []',
-                      'let dealType = "rent"', 'id: "immoscout", url: url',
+                      'let dealType = "rent"', 'id: selectedProvider.rawValue, url: url',
                       'return value', 'components.queryItems?.sorted']:
             self.assertTrue(token in source, token)
         job = (ROOT / 'Sources/Shared/Jobs/SearchJob.swift').read_text()

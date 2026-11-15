@@ -1,5 +1,16 @@
 # Add Search by URL — inspected v31 contract and native workflow
 
+## 2026-11-15 — German rental provider picker and Add Search redesign
+
+The existing Add Search sheet is now a compact native Arabic RTL Form with three focused sections: selectable German rental source, search name/URL (with an explicit clipboard paste button and LTR URL entry), and the existing Save & Search/reconciliation controls. The dropdown uses only the intersection of the app's reviewed 15 German rental provider IDs with Fredy's authenticated, live `GET /api/jobs/provider/` metadata, and offers a manual catalog reload/error state rather than fabricated providers. The selected provider ID is submitted alongside the original HTTPS results URL. Switching providers clears the old URL to avoid cross-provider mistakes. `jobs.search_url` localization is generic instead of hardcoded ImmoScout24. InBerlinWohnen, purchase-only providers and other countries are excluded.
+
+The client keeps strict exact host checks, original ImmoScout rental path/radius/shape rules, dedicated checks for Immowelt (classified-search, locations and Rent), Kleinanzeigen, WG-Gesucht, Deutsche Wohnen and Betterhomes, and conservative rental indicators for other providers where the URL dialect varies. No generic arbitrary hosts, translated URLs, fake provider results, purchase-only links or invented API capabilities are accepted. Some valid unusual search URL dialects can be rejected until individually verified; client-side URL screening cannot prove provider execution success or page completeness. Provider metadata `baseUrl`, when present, must agree with the selected reviewed host. No server/network scraping beyond the original authenticated Fredy metadata call.
+
+All original single-job safety gates remain: `dealType="rent"`, `enabled=false`, no notification adapters, collision/duplicate checks within visible jobs, one create POST, exact GET readback of ID/name/provider/disabled/deal type, one manual run POST, GET-only uncertainty recovery and a bounded actual job-state observation. The server still does not expose a reliable provider success/error result. Read-only metadata loading is the only new network activity from simply opening Add Search. The project-specific Graphify index on Oracle cannot be refreshed through this GitHub-only task; run its existing incremental offline refresh on Oracle when authorized, without rebuilding unrelated graphs.
+
+Implementation checked source contracts, unchanged shell/Jobs routing, and localized source strings. No live authenticated provider call, job write, true multi-provider fetch verification, Apple typecheck, iPhone visual test, IPA, Actions dispatch or backend/Oracle/Cloudflare modification is claimed. User's previously deferred three inherited test defects are not included in this scope.
+
+
 ## Scope and evidence
 
 The authorized extension adds a native Arabic RTL (+) form, an explicit **Save & Search** action, selectable saved jobs and job/region chips on the existing rental list. It reuses the original authenticated client and its single ephemeral URLSession. No provider scraping in the app, fabricated listings, new backend, server changes, detail backfill or IPA.

@@ -1090,13 +1090,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "ImmoScout24 rental search URL"
+            "value": "Rental search results URL"
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "رابط بحث ImmoScout24 للإيجار"
+            "value": "رابط نتائج بحث الإيجار"
           }
         }
       }
@@ -1379,13 +1379,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste a complete HTTPS ImmoScout24 Germany rental search URL, not a listing or homepage."
+            "value": "Paste a complete HTTPS rental-results URL for the selected website, not a listing or homepage."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "ألصق رابط HTTPS كاملاً لبحث إيجار في ImmoScout24 ألمانيا، وليس رابط إعلان أو الصفحة الرئيسية."
+            "value": "ألصق رابط HTTPS كاملًا لنتائج الإيجار من الموقع المختار، وليس رابط إعلان أو الصفحة الرئيسية."
           }
         }
       }
@@ -1413,13 +1413,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The server has no matching ImmoScout24 Germany provider. Nothing was saved."
+            "value": "The selected rental website is not available on the server. Nothing was saved."
           }
         },
         "ar": {
           "stringUnit": {
             "state": "translated",
-            "value": "مزوّد ImmoScout24 ألمانيا غير متاح على الخادم. لم يُحفظ شيء."
+            "value": "الموقع العقاري المختار غير متاح على الخادم. لم يُحفظ شيء."
           }
         }
       }

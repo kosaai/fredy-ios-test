@@ -1,6 +1,8 @@
 import Foundation
 import Observation
 
+enum ProviderCatalogState: Equatable { case idle, loading, ready, failed }
+
 enum AddSearchPhase: Equatable {
     case idle, validating, saving, verifying, starting, waiting, running, stopped
     case uncertain, failed(String), sessionExpired
@@ -12,6 +14,9 @@ enum AddSearchPhase: Equatable {
 final class AddSearchModel {
     var name = ""
     var urlText = ""
+    private(set) var selectedProvider: GermanRentalProvider = .immoscout
+    private(set) var availableProviders: [GermanRentalProvider] = []
+    private(set) var providerCatalogState: ProviderCatalogState = .idle
     private(set) var phase: AddSearchPhase = .idle
     private(set) var savedJobID: String?
     private(set) var hasAttemptedCreate = false
@@ -35,7 +40,46 @@ final class AddSearchModel {
         }
     }
 
-    var canSubmit: Bool { !isBusy && !hasAttemptedCreate && phase != .sessionExpired }
+    var canSubmit: Bool {
+        !isBusy && !hasAttemptedCreate && phase != .sessionExpired &&
+        providerCatalogState == .ready && availableProviders.contains(selectedProvider)
+    }
+
+    func chooseProvider(_ provider: GermanRentalProvider) {
+        guard !isBusy, !hasAttemptedCreate, availableProviders.contains(provider) else { return }
+        if selectedProvider != provider {
+            selectedProvider = provider
+            urlText = "" // Never silently send a URL intended for the previous provider.
+        }
+    }
+
+    /// Read-only catalog. Only declared German rental providers exposed by Fredy are selectable.
+    func loadProviders() async {
+        guard !isBusy, phase != .sessionExpired, !hasAttemptedCreate,
+              providerCatalogState != .loading else { return }
+        providerCatalogState = .loading
+        do {
+            let metadata = try await service.fetchSearchProviders()
+            try checkSession()
+            availableProviders = GermanRentalProvider.allCases.filter { $0.registered(in: metadata) }
+            if availableProviders.isEmpty {
+                providerCatalogState = .failed
+            } else {
+                if !availableProviders.contains(selectedProvider) {
+                    selectedProvider = availableProviders[0]
+                    urlText = ""
+                }
+                providerCatalogState = .ready
+            }
+        } catch is CancellationError {
+            if phase != .sessionExpired { providerCatalogState = .idle }
+        } catch let failure as ListingsFailure where failure == .sessionExpired {
+            expireSession()
+        } catch {
+            availableProviders = []
+            providerCatalogState = .failed
+        }
+    }
 
     var statusKey: String {
         switch phase {
@@ -58,6 +102,7 @@ final class AddSearchModel {
         guard !isBusy, phase != .uncertain, phase != .sessionExpired else { return }
         name = ""
         urlText = ""
+        selectedProvider = .immoscout
         draft = nil
         savedJobID = nil
         hasAttemptedCreate = false
@@ -69,11 +114,12 @@ final class AddSearchModel {
         guard canSubmit else { return }
         phase = .validating
         do {
-            let search = try SearchCreation(name: name, urlText: urlText)
+            let chosen = selectedProvider
+            let search = try SearchCreation(name: name, urlText: urlText, selectedProvider: chosen)
             draft = search
             let providers = try await service.fetchSearchProviders()
             try checkSession()
-            guard providers.contains(where: { $0.id == "immoscout" && $0.isGermanImmoScout }) else {
+            guard chosen.registered(in: providers) else {
                 throw SearchInputFailure.providerUnavailable
             }
             let existing = try await service.fetchJobs()
@@ -82,8 +128,14 @@ final class AddSearchModel {
             guard !existing.contains(where: { $0.id == search.jobId }) else { throw ListingsFailure.invalidResponse }
             // Missing/malformed provider arrays cannot prove the URL is unique.
             guard existing.allSatisfy({ $0.provider != nil }) else { throw ListingsFailure.invalidResponse }
+            guard let searchKey = SearchURL.duplicateKey(search.provider[0].url) else {
+                throw SearchInputFailure.invalidURL
+            }
             if let duplicate = existing.first(where: { job in
-                job.provider?.contains(where: { SearchURL.duplicateKey($0.url) == SearchURL.duplicateKey(search.provider[0].url) }) == true
+                job.provider?.contains(where: {
+                    $0.id == search.provider[0].id &&
+                    SearchURL.duplicateKey($0.url) == searchKey
+                }) == true
             }) {
                 savedJobID = duplicate.id
                 throw SearchInputFailure.duplicateURL
@@ -194,6 +246,8 @@ final class AddSearchModel {
         if failure == .sessionExpired {
             name = ""
             urlText = ""
+            availableProviders = []
+            providerCatalogState = .idle
             draft = nil
             savedJobID = nil
             phase = .sessionExpired
