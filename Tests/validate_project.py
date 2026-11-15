@@ -97,10 +97,10 @@ class NativeProjectChecks(unittest.TestCase):
         login_logo = assets / "BrandLogo.imageset/FindHausIcon.png"
         for asset in [app_icon, login_logo]:
             raw = asset.read_bytes()
-            self.assertEqual(raw[:8], b"\\x89PNG\\r\\n\\x1a\\n")
+            self.assertEqual(raw[:8], b"\x89PNG\r\n\x1a\n")
             self.assertEqual(struct.unpack(">II", raw[16:24]), (1024, 1024))
             self.assertEqual(hashlib.sha256(raw).hexdigest(),
-                             "498f0da9ca74fa240e8dcb53f790e38adac0dcc53c4134a4020c05b32a66c6ce")
+                             "ce3ecae28634e2245eb6bc156e46556ba85945084b9f3f8bc357dc5994715f7e")
         icon_config = json.loads((assets / "AppIcon.appiconset/Contents.json").read_text())
         logo_config = json.loads((assets / "BrandLogo.imageset/Contents.json").read_text())
         self.assertEqual(icon_config["images"][0]["filename"], "FindHausIcon.png")

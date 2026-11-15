@@ -152,7 +152,7 @@
     "tools/verify_unsigned_ipa.py"
   ],
   "binary_assets": {
-    "Resources/FindHausAssets.xcassets/AppIcon.appiconset/FindHausIcon.png": "498f0da9ca74fa240e8dcb53f790e38adac0dcc53c4134a4020c05b32a66c6ce",
-    "Resources/FindHausAssets.xcassets/BrandLogo.imageset/FindHausIcon.png": "498f0da9ca74fa240e8dcb53f790e38adac0dcc53c4134a4020c05b32a66c6ce"
+    "Resources/FindHausAssets.xcassets/AppIcon.appiconset/FindHausIcon.png": "ce3ecae28634e2245eb6bc156e46556ba85945084b9f3f8bc357dc5994715f7e",
+    "Resources/FindHausAssets.xcassets/BrandLogo.imageset/FindHausIcon.png": "ce3ecae28634e2245eb6bc156e46556ba85945084b9f3f8bc357dc5994715f7e"
   }
 }

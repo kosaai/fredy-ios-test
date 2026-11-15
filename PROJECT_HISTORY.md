@@ -1,5 +1,10 @@
 # Project history (public, sanitized)
 
+## 2026-11-15 — User-supplied FindHaus logo replacement
+
+Replaced BOTH preexisting iOS assets `Resources/FindHausAssets.xcassets/AppIcon.appiconset/FindHausIcon.png` and `Resources/FindHausAssets.xcassets/BrandLogo.imageset/FindHausIcon.png` with the user's attached **original, byte-identical** 1024×1024 RGB PNG (159,544 bytes; SHA-256 `ce3ecae28634e2245eb6bc156e46556ba85945084b9f3f8bc357dc5994715f7e`; Git blob `4f96a008912e499207aa7bb4721244eea340917c`). No crops, recoloring, logo redraws or new art. The app icon catalog and LoginView's `Image("BrandLogo")` already point to those files; no Swift or Xcode layout changes were needed, preserving native RTL and the top-anchored login/sign-up animation. Updated `tools/public-scope.json` binary SHA-256 allowlist and the icon/brand digest assertions in `Tests/validate_project.py`. Corrected that test's inherited double-escaped PNG magic-byte assertion so it actually validates the two real PNGs; unrelated CI tests were not changed. Binary assets remain outside the Graphify text corpus, so no Oracle graph refresh was invoked. No IPA build or workflow dispatch was performed; user must manually run the existing `macos-26` unsigned iPhone workflow and test on device.
+
+
 This is the history of the **Fredy Test native SwiftUI client experiment**, not a claim that a full property app has been delivered. Entries summarize retained Oracle reports and observed tests. Original reports, raw responses, credentials and deployment configuration stay outside this repository and outside its graph corpus. Evidence fingerprints are listed in `docs/provenance.json`; they establish document identity, not independent reproduction of every historical claim.
 
 ## Home Search Now — fail-closed notification-safety fix
