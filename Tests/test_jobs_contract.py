@@ -62,6 +62,30 @@ class JobsSourceContract(unittest.TestCase):
         self.assertNotIn('Telegram', home)
         self.assertNotIn('URLSession(', home)
 
+    def test_home_search_now_requires_fresh_confirmed_empty_channels_for_every_job(self):
+        home = (ROOT / 'Sources/Features/Home/HomeView.swift').read_text()
+        action = home.split('private func startSearchNow()', 1)[1].split('private func metric(', 1)[0]
+        self.assertIn('let freshJobs = try await jobsService.fetchJobs()', action)
+        self.assertIn('!freshJobs.isEmpty', action)
+        self.assertIn('freshJobs.allSatisfy({ $0.hasNoNotificationChannels == true })', action)
+        self.assertLess(action.index('startingSearch = true'), action.index('jobsService.fetchJobs()'))
+        self.assertLess(action.index('jobsService.fetchJobs()'), action.index('freshJobs.allSatisfy'))
+        self.assertLess(action.index('freshJobs.allSatisfy'), action.index('dashboardService.startAllSearches()'))
+        blocked = action.split('freshJobs.allSatisfy', 1)[1].split('dashboardService.startAllSearches()', 1)[0]
+        self.assertIn('لم يُرسل طلب تشغيل', blocked)
+        self.assertIn('showingSearchNotice = true', blocked)
+        self.assertIn('return', blocked)
+        self.assertIn('try Task.checkCancellation()', action)
+        self.assertIn('!data.sessionExpired', action)
+        self.assertEqual(action.count('jobsService.fetchJobs()'), 1)
+        self.assertEqual(action.count('dashboardService.startAllSearches()'), 1)
+        for forbidden in ['.filter(', 'saveManagedJob(', 'notificationAdapter:', '?? true', 'while ', 'for ', 'Task.sleep']:
+            self.assertNotIn(forbidden, action)
+        self.assertIn('self.jobsService = service', home)
+        dto = (ROOT / 'Sources/Shared/Jobs/SearchJob.swift').read_text()
+        for token in ['let hasNoNotificationChannels: Bool?', 'try? values.nestedUnkeyedContainer(forKey: .notificationAdapter)', 'channels.map { $0.isAtEnd }']:
+            self.assertIn(token, dto)
+
     def test_actual_job_fields_are_optional_without_invented_defaults(self):
         path = ROOT / 'Sources/Shared/Jobs/SearchJob.swift'
         self.assertTrue(path.exists(), 'Read-only job DTO is missing')

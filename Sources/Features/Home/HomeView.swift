@@ -18,6 +18,7 @@ struct HomeView: View {
 
     let jobsModel: JobsModel
     let dashboardService: any FredyDashboardServing
+    let jobsService: any FredyJobsServing
     let listingActions: any FredyListingActionServing
     let onShowListings: () -> Void
     let onShowJobs: () -> Void
@@ -30,6 +31,7 @@ struct HomeView: View {
         self.data = data
         self.jobsModel = jobsModel
         self.dashboardService = service
+        self.jobsService = service
         self.listingActions = service
         self.onShowListings = onShowListings
         self.onShowJobs = onShowJobs
@@ -268,6 +270,20 @@ struct HomeView: View {
         Task {
             defer { startingSearch = false }
             do {
+                // startAll has no per-request notification suppression. Check the entire fresh
+                // visible collection, including disabled/shared jobs, rather than a cached subset.
+                let freshJobs = try await jobsService.fetchJobs()
+                try Task.checkCancellation()
+                guard !data.sessionExpired, jobsModel.state != .sessionExpired else {
+                    onSessionExpired()
+                    return
+                }
+                guard !freshJobs.isEmpty,
+                      freshJobs.allSatisfy({ $0.hasNoNotificationChannels == true }) else {
+                    searchNotice = "لم يُرسل طلب تشغيل: توجد قنوات تنبيه أو أن بياناتها غير مؤكدة، أو لا توجد مهام للتحقق منها. لم نغيّر أي قناة."
+                    showingSearchNotice = true
+                    return
+                }
                 try await dashboardService.startAllSearches()
                 data.observeSearch(jobs: jobsModel)
                 searchNotice = "قبل الخادم طلب تشغيل البحث. النتائج ليست جاهزة بعد؛ اسحب لتحديث الصفحة لاحقًا."
