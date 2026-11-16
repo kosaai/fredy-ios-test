@@ -259,6 +259,25 @@ final class FredyAuthService: FredyClientServing {
         guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
     }
 
+    /// Fredy v31 soft-hides the listings belonging to exactly one owned job.
+    /// No hardDelete or cross-job bulk filter is ever sent.
+    func hideAllListingsForJob(id: String) async throws {
+        try requireListingID(id)
+        let body = try JSONSerialization.data(withJSONObject: ["jobId": id, "hardDelete": false])
+        let response = try await authenticatedWrite(path: "api/listings/job", body: body, method: "DELETE")
+        guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
+        // Empty acknowledgement is not confirmation; caller must do an independent GET.
+    }
+
+    /// Fredy v31 deletes the job and cascades to its stored listings.
+    /// The caller owns the explicit confirmation, permission preflight and GET verification.
+    func deleteSearchJob(id: String) async throws {
+        try requireListingID(id)
+        let body = try JSONSerialization.data(withJSONObject: ["jobId": id])
+        let response = try await authenticatedWrite(path: "api/jobs/", body: body, method: "DELETE")
+        guard response.statusCode == 200 else { throw ListingsFailure.invalidResponse }
+    }
+
     func runSearch(id: String) async throws {
         guard !id.isEmpty, id.utf8.allSatisfy({
             (48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 45 || $0 == 95

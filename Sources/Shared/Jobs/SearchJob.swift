@@ -60,6 +60,8 @@ protocol FredyJobsServing: FredyJobManagementServing {
     func fetchJobs() async throws -> [SearchJob]
     func runSearch(id: String) async throws
     func setJobEnabled(id: String, enabled: Bool) async throws
+    func hideAllListingsForJob(id: String) async throws
+    func deleteSearchJob(id: String) async throws
 }
 
 @MainActor

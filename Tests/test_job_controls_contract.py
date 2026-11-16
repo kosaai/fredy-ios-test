@@ -44,7 +44,61 @@ class JobControlsContract(unittest.TestCase):
         self.assertEqual(source.count('Button(action: showDesignNotice)'),0)  # Stage 2 wires edit/copy; delete previews stay below.
         self.assertIn('model.openManagement(id: job.id, duplicate: false)',source)
         self.assertIn('model.openManagement(id: job.id, duplicate: true)',source)
-        self.assertEqual(source.count('Button(role: .destructive, action: showDesignNotice)'),2)
+        self.assertIn('model.requestRemoval(.clearListings(job.id))', source)
+        self.assertIn('model.requestRemoval(.deleteJob(job.id))', source)
+        self.assertNotIn('showDesignNotice', source)
+        self.assertNotIn('واجهة التحكم', source)
+        self.assertIn('deleteNameConfirmation == job.name', source)
+        self.assertEqual(source.count('.disabled(!model.canRemove(job))'), 2)
+
+    def test_overflow_removal_routes_and_confirmations_are_real_and_scoped(self):
+        service=(ROOT/'Sources/Shared/Authentication/FredyAuthService.swift').read_text()
+        dto=(ROOT/'Sources/Shared/Jobs/SearchJob.swift').read_text()
+        model=(ROOT/'Sources/Features/Jobs/JobsModel.swift').read_text()
+        view=(ROOT/'Sources/Features/Jobs/JobsView.swift').read_text()
+        for token in [
+            'func hideAllListingsForJob(id: String) async throws',
+            'func deleteSearchJob(id: String) async throws',
+            '"hardDelete": false', 'path: "api/listings/job"',
+            'path: "api/jobs/"', 'method: "DELETE"', 'requireListingID(id)',
+            'response.statusCode == 200'
+        ]:
+            self.assertIn(token, service)
+        self.assertIn('func hideAllListingsForJob(', dto)
+        self.assertIn('func deleteSearchJob(', dto)
+        for token in [
+            'func canRemove(_ job: SearchJob) -> Bool',
+            'job.isOnlyShared == false', 'job.enabled == false',
+            'job.running == false', 'job.dealType == "rent"',
+            'current.name == baseline.name', 'current.provider == baseline.provider',
+            'current.numberOfFoundListings == baseline.numberOfFoundListings',
+            'pendingRemoval = intent', 'writeAttempted = true',
+            'service.hideAllListingsForJob(id: id)',
+            'service.deleteSearchJob(id: id)',
+            'let before = try await service.fetchJobs()',
+            'let after = try await service.fetchJobs()',
+            'confirmed.numberOfFoundListings == 0',
+            '!after.contains(where: { $0.id == id })',
+            'requiresRefresh.insert(id)',
+            'case .clearListings', 'case .deleteJob'
+        ]:
+            self.assertIn(token, model)
+        for token in [
+            'confirmingClear = true', 'confirmingJobDeletion = true',
+            'model.requestRemoval(.clearListings(job.id))',
+            'model.requestRemoval(.deleteJob(job.id))',
+            'deleteNameConfirmation == job.name',
+            '.disabled(deleteNameConfirmation != job.name || !model.canRemove(job))',
+            'model.removalNotice', 'jobs.control.progress',
+            'role: .destructive'
+        ]:
+            self.assertIn(token, view)
+        self.assertEqual(service.count('func hideAllListingsForJob('), 1)
+        self.assertEqual(service.count('func deleteSearchJob('), 1)
+        self.assertEqual(model.count('service.hideAllListingsForJob('), 1)
+        self.assertEqual(model.count('service.deleteSearchJob('), 1)
+        self.assertNotIn('showDesignNotice', view)
+        self.assertNotIn('hardDelete": true', service)
 
     def test_no_notification_side_effects_from_new_controls(self):
         dto=(ROOT/'Sources/Shared/Jobs/SearchJob.swift').read_text()

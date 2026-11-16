@@ -30,6 +30,23 @@ struct JobsView: View {
                     if model.management?.phase == .uncertain {
                         Button("متابعة التحقق من الحفظ غير المؤكد") { model.managementPresented = true }
                     }
+                    if let removalNotice = model.removalNotice {
+                        VStack(alignment: .leading, spacing: 10) {
+                            Label(removalNotice, systemImage: "info.circle")
+                                .font(.subheadline)
+                            Button("تحديث مهام البحث") {
+                                Task {
+                                    if let onRefresh { await onRefresh() }
+                                    else { await model.reload() }
+                                }
+                            }
+                            .disabled(model.pendingRemoval != nil || model.isLoading)
+                        }
+                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color(uiColor: .secondarySystemGroupedBackground),
+                                    in: RoundedRectangle(cornerRadius: 14))
+                    }
                     ForEach(model.jobs) { job in
                         JobCard(job: job, model: model, onSelect: { onSelect(job.id) })
                     }
@@ -94,7 +111,9 @@ private struct JobCard: View {
     let job: SearchJob
     let model: JobsModel
     let onSelect: () -> Void
-    @State private var presentingDesignNotice = false
+    @State private var confirmingClear = false
+    @State private var confirmingJobDeletion = false
+    @State private var deleteNameConfirmation = ""
     @State private var confirmation: JobControlIntent?
 
     // Use semantic system colors; the original card layout works in both appearances.
@@ -256,12 +275,19 @@ private struct JobCard: View {
                 .accessibilityLabel("نسخ المهمة")
 
                 Menu {
-                    Button(role: .destructive, action: showDesignNotice) {
-                        Label("حذف جميع إعلانات هذه المهمة", systemImage: "list.bullet.minus")
+                    Button(role: .destructive) {
+                        confirmingClear = true
+                    } label: {
+                        Label("إخفاء جميع إعلانات المهمة", systemImage: "list.bullet.minus")
                     }
-                    Button(role: .destructive, action: showDesignNotice) {
-                        Label("حذف المهمة", systemImage: "trash")
+                    .disabled(!model.canRemove(job))
+                    Button(role: .destructive) {
+                        deleteNameConfirmation = ""
+                        confirmingJobDeletion = true
+                    } label: {
+                        Label("حذف المهمة نهائيًا", systemImage: "trash")
                     }
+                    .disabled(!model.canRemove(job))
                 } label: {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 20, weight: .medium))
@@ -276,12 +302,17 @@ private struct JobCard: View {
             .padding(.top, 16)
 
             VStack(alignment: .leading, spacing: 8) {
-                if model.pendingAction?.id == job.id {
+                if model.pendingAction?.id == job.id ||
+                   model.pendingRemoval?.id == job.id {
                     ProgressView("جارٍ التحقق…")
                         .accessibilityIdentifier("jobs.control.progress")
                 }
                 if job.isOnlyShared != false {
                     Text(job.isOnlyShared == true ? "مهمة مشتركة للقراءة فقط" : "صلاحية التحكم غير معروفة؛ حدّث القائمة")
+                }
+                if job.isOnlyShared == false,
+                   (job.enabled != false || job.running != false) {
+                    Text("الحذف متاح بعد إيقاف الجدولة وانتهاء البحث الحالي وتحديث القائمة.")
                 }
                 if job.isOnlyShared == false, job.hasNoNotificationChannels != true {
                     Text("التشغيل والتفعيل محجوبان حتى تتأكد قائمة تنبيه فارغة. إيقاف الجدولة يبقى متاحًا دون تغيير القنوات.")
@@ -325,14 +356,29 @@ private struct JobCard: View {
                 Text("هذا يغيّر البحث الدوري فقط، ولا يشغّل بحثًا يدويًا أو يلغي بحثًا جاريًا. لم نضف أو نغيّر أي قناة تنبيه.")
             }
         }
-        .alert("واجهة التحكم", isPresented: $presentingDesignNotice) {
-            Button("حسنًا", role: .cancel) {}
+        .confirmationDialog(
+            "إخفاء جميع الإعلانات الخاصة بهذه المهمة؟",
+            isPresented: $confirmingClear,
+            titleVisibility: .visible
+        ) {
+            Button("تأكيد إخفاء الإعلانات", role: .destructive) {
+                model.requestRemoval(.clearListings(job.id))
+            }
+            Button("إلغاء", role: .cancel) {}
         } message: {
-            Text("هذا الزر للعرض حاليًا. لم يُنفَّذ أي تغيير على مهام البحث أو الإعلانات.")
+            Text("سيُخفى محتوى المهمة المحفوظ من Fredy، دون حذف المهمة أو طلب حذف نهائي. العدد الظاهر آخر قراءة: \(job.numberOfFoundListings.map { String($0) } ?? "غير معروف"). قد تظهر نتائج جديدة عند تشغيل البحث لاحقًا.")
         }
-    }
-
-    private func showDesignNotice() {
-        presentingDesignNotice = true
+        .alert("حذف مهمة البحث نهائيًا", isPresented: $confirmingJobDeletion) {
+            TextField("اكتب اسم المهمة للتأكيد", text: $deleteNameConfirmation)
+            Button("حذف المهمة وإعلاناتها", role: .destructive) {
+                if deleteNameConfirmation == job.name {
+                    model.requestRemoval(.deleteJob(job.id))
+                }
+            }
+            .disabled(deleteNameConfirmation != job.name || !model.canRemove(job))
+            Button("إلغاء", role: .cancel) {}
+        } message: {
+            Text("لحذف هذه المهمة اكتب اسمها حرفيًا: \(job.name ?? ""). قد يحذف Fredy جميع إعلاناتها أيضًا. هذا الإجراء غير قابل للتراجع من التطبيق.")
+        }
     }
 }

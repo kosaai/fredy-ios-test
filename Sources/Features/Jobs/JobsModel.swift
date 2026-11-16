@@ -15,11 +15,14 @@ final class JobsModel {
     private(set) var state: JobsState = .idle
     private var generation = 0
     private(set) var pendingAction: JobControlIntent?
+    private(set) var pendingRemoval: JobRemovalIntent?
+    private(set) var removalNotice: String?
     private(set) var management: JobManagementModel?
     var managementPresented = false
     private(set) var actionNotices: [String: String] = [:]
     private var requiresRefresh: Set<String> = []
     @ObservationIgnored private var actionTask: Task<Void, Never>?
+    @ObservationIgnored private var removalTask: Task<Void, Never>?
     @ObservationIgnored private let service: any FredyJobsServing
 
     init(service: any FredyJobsServing) {
@@ -34,7 +37,8 @@ final class JobsModel {
     }
 
     func reload() async {
-        guard !isLoading, pendingAction == nil, management?.busy != true, state != .sessionExpired else { return }
+        guard !isLoading, pendingAction == nil, pendingRemoval == nil,
+              management?.busy != true, state != .sessionExpired else { return }
         let previousState = state
         let requestGeneration = generation
         state = .loading
@@ -66,7 +70,7 @@ final class JobsModel {
     }
 
     func acceptSnapshot(_ snapshot: [SearchJob]) {
-        guard state != .sessionExpired, pendingAction == nil else { return }
+        guard state != .sessionExpired, pendingAction == nil, pendingRemoval == nil else { return }
         generation += 1
         var seen = Set<String>()
         jobs = snapshot.filter { seen.insert($0.id).inserted }
@@ -83,12 +87,107 @@ final class JobsModel {
     }
 
     private func canControl(_ job: SearchJob) -> Bool {
-        state == .loaded && pendingAction == nil && management?.blocksWrites != true && job.isOnlyShared == false &&
+        state == .loaded && pendingAction == nil && pendingRemoval == nil &&
+            management?.blocksWrites != true && job.isOnlyShared == false &&
             !requiresRefresh.contains(job.id)
     }
 
     func canManage(_ job: SearchJob) -> Bool {
-        state == .loaded && pendingAction == nil && management?.blocksWrites != true && job.isOnlyShared == false
+        state == .loaded && pendingAction == nil && pendingRemoval == nil &&
+            management?.blocksWrites != true && job.isOnlyShared == false
+    }
+
+    /// Deletion is deliberately unavailable until the scheduler is disabled and
+    /// the exact job is confirmed stopped. Shared or unknown permissions fail closed.
+    func canRemove(_ job: SearchJob) -> Bool {
+        state == .loaded && pendingAction == nil && pendingRemoval == nil &&
+        management?.blocksWrites != true && !requiresRefresh.contains(job.id) &&
+        job.isOnlyShared == false && job.enabled == false && job.running == false &&
+        job.dealType == "rent" && !(job.name ?? "").isEmpty
+    }
+
+    func requestRemoval(_ intent: JobRemovalIntent) {
+        guard pendingAction == nil, pendingRemoval == nil,
+              actionTask == nil, removalTask == nil,
+              let current = jobs.first(where: { $0.id == intent.id }),
+              canRemove(current) else { return }
+        pendingRemoval = intent // Synchronous lock before any await or network side effect.
+        generation += 1
+        removalNotice = "جارٍ التحقق من أحدث حالة المهمة قبل الحذف…"
+        removalTask = Task { await performRemoval(intent, baseline: current) }
+    }
+
+    /// At most one DELETE attempt after a fresh permission, identity, and status read.
+    /// Lost/ambiguous DELETE acknowledgements are never replayed automatically.
+    private func performRemoval(_ intent: JobRemovalIntent, baseline: SearchJob) async {
+        let id = intent.id
+        var writeAttempted = false
+        defer { pendingRemoval = nil; removalTask = nil }
+        do {
+            let before = try await service.fetchJobs()
+            try Task.checkCancellation()
+            guard state != .sessionExpired,
+                  let current = before.first(where: { $0.id == id }),
+                  current.isOnlyShared == false, current.enabled == false,
+                  current.running == false, current.dealType == "rent",
+                  current.name == baseline.name, current.provider == baseline.provider,
+                  current.numberOfFoundListings == baseline.numberOfFoundListings else {
+                throw ListingsFailure.conflict
+            }
+            writeAttempted = true
+            switch intent {
+            case .clearListings:
+                try await service.hideAllListingsForJob(id: id)
+            case .deleteJob:
+                try await service.deleteSearchJob(id: id)
+            }
+            try Task.checkCancellation()
+            let after = try await service.fetchJobs()
+            try Task.checkCancellation()
+            guard state != .sessionExpired else { return }
+            switch intent {
+            case .clearListings:
+                guard let confirmed = after.first(where: { $0.id == id }),
+                      confirmed.numberOfFoundListings == 0 else {
+                    throw ListingsFailure.invalidResponse
+                }
+            case .deleteJob:
+                guard !after.contains(where: { $0.id == id }) else {
+                    throw ListingsFailure.invalidResponse
+                }
+            }
+            generation += 1
+            var seen = Set<String>()
+            jobs = after.filter { seen.insert($0.id).inserted }
+            state = .loaded
+            requiresRefresh.remove(id)
+            removalNotice = intent.isJobDeletion
+                ? "تأكد حذف المهمة من الخادم. حذفها قد يشمل إعلاناتها أيضًا."
+                : "أكد الخادم إخفاء جميع إعلانات المهمة، مع إبقاء مهمة البحث محفوظة."
+        } catch is CancellationError {
+            if state != .sessionExpired {
+                if writeAttempted { requiresRefresh.insert(id) }
+                removalNotice = writeAttempted
+                    ? "نتيجة الحذف غير مؤكدة؛ حدّث المهام للتحقق. لم نكرر طلب الحذف."
+                    : "أُلغي التحقق قبل إرسال أي حذف."
+            }
+        } catch let failure as ListingsFailure {
+            if failure == .sessionExpired {
+                expireManagementSession()
+                return
+            }
+            if writeAttempted { requiresRefresh.insert(id) }
+            removalNotice = writeAttempted
+                ? "نتيجة الحذف غير مؤكدة. حدّث القائمة للتحقق، ولا تكرر الحذف. " + controlError(failure)
+                : "لم يُرسل أي حذف؛ تغيّرت بيانات المهمة أو لا تملك صلاحية. " + controlError(failure)
+        } catch {
+            if state != .sessionExpired {
+                if writeAttempted { requiresRefresh.insert(id) }
+                removalNotice = writeAttempted
+                    ? "تعذر التحقق بعد الحذف؛ لا نعيد إرساله. حدّث القائمة للتحقق."
+                    : "تعذر التحقق من المهمة؛ لم نرسل حذفًا."
+            }
+        }
     }
 
     func openManagement(id: String, duplicate: Bool) {
@@ -102,6 +201,9 @@ final class JobsModel {
 
     func expireSession() {
         actionTask?.cancel()
+        removalTask?.cancel()
+        pendingRemoval = nil
+        removalNotice = nil
         management?.expireSession()
         pendingAction = nil
         expireManagementSession()
@@ -109,6 +211,7 @@ final class JobsModel {
 
     private func expireManagementSession() {
         generation += 1; jobs = []; actionNotices = [:]; requiresRefresh.removeAll()
+        removalTask?.cancel(); pendingRemoval = nil; removalNotice = nil
         managementPresented = false; management = nil; state = .sessionExpired
     }
 
@@ -124,7 +227,7 @@ final class JobsModel {
     }
 
     private func beginControl(_ intent: JobControlIntent) {
-        guard pendingAction == nil, actionTask == nil else { return }
+        guard pendingAction == nil, pendingRemoval == nil, actionTask == nil, removalTask == nil else { return }
         pendingAction = intent
         generation += 1
         actionNotices[intent.id] = "جارٍ التحقق من المهمة وإرسال الطلب…"
@@ -235,4 +338,20 @@ enum JobControlIntent: Equatable {
 
 private enum JobControlFailure: Error {
     case notificationChannelsNotAllowed
+}
+
+enum JobRemovalIntent: Equatable {
+    case clearListings(String)
+    case deleteJob(String)
+
+    var id: String {
+        switch self {
+        case .clearListings(let id), .deleteJob(let id): return id
+        }
+    }
+
+    var isJobDeletion: Bool {
+        if case .deleteJob = self { return true }
+        return false
+    }
 }

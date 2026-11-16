@@ -1,5 +1,14 @@
 # Search jobs: current controls and historical read-only evidence
 
+## 2026-11-16 — Job overflow deletion actions now wired to verified Fredy v31 REST
+
+The Jobs card overflow "…" previously presented the same nonfunctional `واجهة التحكم` alert for both destructive choices. Fixed in native SwiftUI: "إخفاء جميع إعلانات المهمة" presents a dedicated destructive confirmation and invokes **one** `DELETE /api/listings/job` with `{"jobId": id, "hardDelete": false}`; the job remains in place. "حذف المهمة نهائيًا" presents a separate destructive alert that requires typing the exact job name before **one** `DELETE /api/jobs/` with `{"jobId": id}`. The latter can cascade to the job's listings in Fredy; this is clearly stated in the confirmation. Neither option runs automatically on opening the menu or entering the screen. Job deletion remains irreversible from FindHaus; bulk hiding may allow new listings after a later run.
+
+All writes require an authenticated, owned, rental-only job with confirmed disabled scheduling and no currently running job, known name, and no pending concurrent action. A fresh preflight GET validates exact ID, permission, name/provider and active count against the last display snapshot; failed/stale/unknown statuses block DELETE. A separate GET after the single acknowledged DELETE verifies the absence of the removed job, or a confirmed zero active listing count while retaining the job. Missing/ambiguous acknowledgements and readbacks are **not** repeated: writes remain locked pending manual read-only reconciliation. The in-flight task is owned by the shared JobsModel, not a recycled card, and changes invalidate the existing data-synchronization pipeline. Session expiry retains existing global handling. Notification channels and all provider configuration are untouched.
+
+The v31 HTTP request contracts were inspected read-only in upstream `lib/api/routes/jobRouter.js` and `lib/api/routes/listingsRouter.js` (empty HTTP 200 acknowledgments). Source contract checks were added and the specific old assertion expecting the two placeholder buttons was updated to require real guarded actions. The three long-standing unrelated test defects remain deliberately deferred, per user instruction. No live delete, server config mutation, IPA compilation, Mac/iPhone run, or GitHub Actions dispatch was performed. Incremental Oracle Graphify refresh is pending and must not rebuild unrelated graphs.
+
+
 ## Current Stage 2
 
 The existing pencil/copy actions are now wired: real name/existing-URL Edit and inactive full-configuration Duplicate through the verified v31 upsert, using full documents and preserving source identity, owner, shares, provider options and filters. Pending operations use GET-only recovery. No run/delete is added by these actions; Stage 1 Run/Enable controls are retained. See docs/STAGE2.md for exact contracts, guard conditions, unsupported/deferred features and available-vs-native verification.
